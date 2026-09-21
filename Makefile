@@ -1,7 +1,7 @@
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 
-.PHONY: install test-choice test-noul test-score test-wikipedia-race
+.PHONY: install test-choice test-noul test-score wikipedia-race
 
 install:
 	uv venv $(VENV) --allow-existing
@@ -16,5 +16,11 @@ test-noul:
 test-score:
 	uv run --env-file .env --python $(PYTHON) tests/test_score_jev.py
 
-test-wikipedia-race:
-	uv run --env-file .env --python $(PYTHON) -m scripts.wikipedia_race_jev Beaver "Apollo 11"
+wikipedia-race:
+ifndef START
+	$(error START is required; use: make wikipedia-race START=Beaver END="Apollo 11")
+endif
+ifndef END
+	$(error END is required; use: make wikipedia-race START=Beaver END="Apollo 11")
+endif
+	uv run --env-file .env --python $(PYTHON) -m scripts.wikipedia_race_jev "$(START)" "$(END)"
