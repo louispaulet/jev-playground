@@ -37,8 +37,12 @@ class WikipediaLinksTests(unittest.TestCase):
             "https://en.wikipedia.org/wiki/Apollo_11",
         )
 
+    @patch("scripts.get_wikipedia_links.random.shuffle", side_effect=lambda items: None)
     @patch("scripts.get_wikipedia_links.urlopen")
-    def test_get_wikipedia_links_filters_self_visited_and_duplicates(self, mock_urlopen):
+    def test_get_wikipedia_links_filters_self_visited_and_duplicates(
+        self, mock_urlopen, mock_shuffle
+    ):
+        del mock_shuffle
         payload = {
             "query": {
                 "pages": [
@@ -72,6 +76,44 @@ class WikipediaLinksTests(unittest.TestCase):
         request = mock_urlopen.call_args.args[0]
         self.assertIn("pllimit=500", request.full_url)
         self.assertIn("plnamespace=0", request.full_url)
+
+    @patch("scripts.get_wikipedia_links.random.shuffle", side_effect=lambda items: items.reverse())
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_get_wikipedia_links_shuffles_after_following_continuation(
+        self, mock_urlopen, mock_shuffle
+    ):
+        del mock_shuffle
+        mock_urlopen.side_effect = [
+            api_response(
+                {
+                    "query": {
+                        "pages": [{"title": "Beaver", "links": [{"title": "Alpha"}]}]
+                    },
+                    "continue": {"continue": "-||", "plcontinue": "next"},
+                }
+            ),
+            api_response(
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "title": "Beaver",
+                                "links": [{"title": "Beta"}, {"title": "Gamma"}],
+                            }
+                        ]
+                    }
+                }
+            ),
+        ]
+
+        self.assertEqual(
+            get_wikipedia_links("Beaver", limit=2),
+            [
+                "https://en.wikipedia.org/wiki/Gamma",
+                "https://en.wikipedia.org/wiki/Beta",
+            ],
+        )
+        self.assertEqual(mock_urlopen.call_count, 2)
 
     @patch("scripts.get_wikipedia_links.urlopen")
     def test_validate_article_titles_returns_canonical_titles(self, mock_urlopen):

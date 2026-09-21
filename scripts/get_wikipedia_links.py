@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import random
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -312,26 +313,32 @@ def get_wikipedia_links(
         limit,
         len(visited_titles),
     )
-    data = _api_json(
-        {
-            "action": "query",
-            "format": "json",
-            "formatversion": "2",
-            "titles": title,
-            "prop": "links",
-            "plnamespace": "0",
-            "pllimit": "500",
-            "pldir": "ascending",
-            "redirects": "1",
-        }
-    )
+    params = {
+        "action": "query",
+        "format": "json",
+        "formatversion": "2",
+        "titles": title,
+        "prop": "links",
+        "plnamespace": "0",
+        "pllimit": "500",
+        "pldir": "ascending",
+        "redirects": "1",
+    }
+    link_titles: list[str] = []
+    while True:
+        data = _api_json(params)
+        pages = data.get("query", {}).get("pages", [])
+        if not pages or "missing" in pages[0]:
+            logger.error("Wikipedia link fetch found no article: %r", title)
+            raise ValueError(f"Wikipedia article not found: {title}")
+        link_titles.extend(link["title"] for link in pages[0].get("links", []))
 
-    pages = data.get("query", {}).get("pages", [])
-    if not pages or "missing" in pages[0]:
-        logger.error("Wikipedia link fetch found no article: %r", title)
-        raise ValueError(f"Wikipedia article not found: {title}")
+        continuation = data.get("continue")
+        if not isinstance(continuation, dict):
+            break
+        params.update({key: str(value) for key, value in continuation.items()})
 
-    link_titles = [link["title"] for link in pages[0].get("links", [])]
+    random.shuffle(link_titles)
     links = _filter_links(title, link_titles, visited_titles, limit)
     logger.info(
         "Fetched Wikipedia links: article=%r returned=%d raw_links=%d",
