@@ -33,6 +33,7 @@ Print up to 50 links from an English Wikipedia article:
 ```bash
 python scripts/get_wikipedia_links.py Beaver
 python scripts/get_wikipedia_links.py "https://en.wikipedia.org/wiki/Apollo_11"
+python scripts/get_wikipedia_links.py Beaver --visited Canada --visited "North America"
 ```
 
-The script returns main-namespace article links in Wikipedia API order. It does not rank them by relevance yet; that is the next step for the JEV experiment. Use `--limit` to request a different number, up to 500.
+The script removes the current page, visited pages, duplicate links, and non-article namespaces before returning links in Wikipedia API order. It fetches a larger pool so the default output is up to 50 useful links. It does not rank them by relevance yet; that is the next step for the JEV experiment. Use `--limit` to request a different number, up to 500, and repeat `--visited` for pages to exclude.

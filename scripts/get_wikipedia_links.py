@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from urllib.error import HTTPError, URLError
-from urllib.parse import parse_qs, quote, urlencode, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 from urllib.request import Request, urlopen
 
 
@@ -23,11 +23,12 @@ def article_title(article: str) -> str:
 
     parsed = urlparse(article)
     if parsed.scheme and parsed.netloc:
-        if not parsed.netloc.lower().endswith("wikipedia.org"):
+        hostname = parsed.hostname or ""
+        if hostname != "wikipedia.org" and not hostname.endswith(".wikipedia.org"):
             raise ValueError("URL must point to wikipedia.org")
 
         if parsed.path.startswith("/wiki/"):
-            title = parsed.path.removeprefix("/wiki/")
+            title = unquote(parsed.path.removeprefix("/wiki/"))
         elif parsed.path == "/w/index.php":
             title = parse_qs(parsed.query).get("title", [""])[0]
         else:
@@ -48,12 +49,44 @@ def wikipedia_url(title: str) -> str:
     return f"{ARTICLE_URL}{encoded_title}"
 
 
-def get_wikipedia_links(article: str, limit: int = 50) -> list[str]:
-    """Return up to ``limit`` article URLs linked from a Wikipedia page."""
+def _title_key(title: str) -> str:
+    """Return a forgiving key for comparing page names and URLs."""
+    return " ".join(title.replace("_", " ").split()).casefold()
+
+
+def _filter_links(
+    article: str,
+    link_titles: list[str],
+    visited: list[str],
+    limit: int,
+) -> list[str]:
+    excluded = {_title_key(article), *(_title_key(page) for page in visited)}
+    seen = set(excluded)
+    useful_links = []
+
+    for link_title in link_titles:
+        key = _title_key(link_title)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        useful_links.append(wikipedia_url(link_title))
+        if len(useful_links) == limit:
+            break
+
+    return useful_links
+
+
+def get_wikipedia_links(
+    article: str,
+    limit: int = 50,
+    visited: list[str] | None = None,
+) -> list[str]:
+    """Return up to ``limit`` useful article URLs linked from a Wikipedia page."""
     if not 1 <= limit <= 500:
         raise ValueError("limit must be between 1 and 500")
 
     title = article_title(article)
+    visited_titles = [article_title(page) for page in (visited or [])]
     query = urlencode(
         {
             "action": "query",
@@ -62,7 +95,7 @@ def get_wikipedia_links(article: str, limit: int = 50) -> list[str]:
             "titles": title,
             "prop": "links",
             "plnamespace": "0",
-            "pllimit": str(limit),
+            "pllimit": "500",
             "pldir": "ascending",
             "redirects": "1",
         }
@@ -79,7 +112,8 @@ def get_wikipedia_links(article: str, limit: int = 50) -> list[str]:
     if not pages or "missing" in pages[0]:
         raise ValueError(f"Wikipedia article not found: {title}")
 
-    return [wikipedia_url(link["title"]) for link in pages[0].get("links", [])]
+    link_titles = [link["title"] for link in pages[0].get("links", [])]
+    return _filter_links(title, link_titles, visited_titles, limit)
 
 
 def main() -> None:
@@ -97,10 +131,20 @@ def main() -> None:
         default=50,
         help="number of links to print, from 1 to 500 (default: 50)",
     )
+    parser.add_argument(
+        "--visited",
+        action="append",
+        default=[],
+        help="page name or URL to exclude; repeat for multiple visited pages",
+    )
     args = parser.parse_args()
 
     try:
-        links = get_wikipedia_links(" ".join(args.article), limit=args.limit)
+        links = get_wikipedia_links(
+            " ".join(args.article),
+            limit=args.limit,
+            visited=args.visited,
+        )
     except (HTTPError, URLError, TimeoutError, ValueError) as error:
         parser.error(str(error))
 

@@ -25,7 +25,7 @@ class WikipediaLinksTests(unittest.TestCase):
         )
 
     @patch("scripts.get_wikipedia_links.urlopen")
-    def test_get_wikipedia_links_returns_main_namespace_urls(self, mock_urlopen):
+    def test_get_wikipedia_links_filters_self_visited_and_duplicates(self, mock_urlopen):
         payload = {
             "query": {
                 "pages": [
@@ -33,8 +33,11 @@ class WikipediaLinksTests(unittest.TestCase):
                         "pageid": 1,
                         "title": "Beaver",
                         "links": [
+                            {"title": "Beaver"},
+                            {"title": "Canada"},
                             {"title": "Canada"},
                             {"title": "North America"},
+                            {"title": "Science"},
                         ],
                     }
                 ]
@@ -46,14 +49,18 @@ class WikipediaLinksTests(unittest.TestCase):
         mock_urlopen.return_value = response
 
         self.assertEqual(
-            get_wikipedia_links("Beaver"),
+            get_wikipedia_links(
+                "Beaver",
+                limit=2,
+                visited=["https://en.wikipedia.org/wiki/Canada"],
+            ),
             [
-                "https://en.wikipedia.org/wiki/Canada",
                 "https://en.wikipedia.org/wiki/North_America",
+                "https://en.wikipedia.org/wiki/Science",
             ],
         )
         request = mock_urlopen.call_args.args[0]
-        self.assertIn("pllimit=50", request.full_url)
+        self.assertIn("pllimit=500", request.full_url)
         self.assertIn("plnamespace=0", request.full_url)
 
 
