@@ -239,6 +239,17 @@
         gap: 9px;
       }
 
+      .node-thumbnail {
+        display: block;
+        width: 76px;
+        height: 56px;
+        border: 1px solid rgba(23, 61, 50, 0.12);
+        border-radius: 12px;
+        background: #e5e2d8;
+        box-shadow: 0 6px 15px rgba(31, 52, 43, 0.1);
+        object-fit: cover;
+      }
+
       .node-dot {
         position: relative;
         z-index: 1;
@@ -390,11 +401,11 @@
               <span class="badge">4 hops</span>
             </div>
             <ol class="path" aria-label="Camembert to Apollo 13">
-              <li class="node"><span class="node-dot"></span><span class="node-name">Camembert</span><span class="node-meta">start</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">France</span><span class="node-meta">hop 1</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Cold War</span><span class="node-meta">hop 2</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Apollo program</span><span class="node-meta">hop 3</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Apollo 13</span><span class="node-meta">target</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Camembert_de_Normandie_%28AOP%29_11.jpg/330px-Camembert_de_Normandie_%28AOP%29_11.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Camembert" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Camembert</span><span class="node-meta">start</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/330px-Flag_of_France.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Flag of France" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">France</span><span class="node-meta">hop 1</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/NATO_vs._Warsaw_Pact_%281949-1990%29.svg/330px-NATO_vs._Warsaw_Pact_%281949-1990%29.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="NATO and Warsaw Pact map" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Cold War</span><span class="node-meta">hop 2</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Apollo_program.svg/330px-Apollo_program.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Apollo program mission patches" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Apollo program</span><span class="node-meta">hop 3</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Apollo_13-insignia.png/330px-Apollo_13-insignia.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Apollo 13 mission insignia" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Apollo 13</span><span class="node-meta">target</span></li>
             </ol>
             <div class="route-footer"><span>cache-assisted</span><span>2.39 seconds</span><span>0 new JEV calls</span></div>
           </article>
@@ -405,9 +416,9 @@
               <span class="badge">2 hops</span>
             </div>
             <ol class="path" aria-label="Adolf Hitler to Apollo 13">
-              <li class="node"><span class="node-dot"></span><span class="node-name">Adolf Hitler</span><span class="node-meta">start</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Apollo 8</span><span class="node-meta">hop 1</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Apollo 13</span><span class="node-meta">target</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Hitler_portrait_crop_%28cropped%29%282%29.jpg/330px-Hitler_portrait_crop_%28cropped%29%282%29.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Portrait of Adolf Hitler" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Adolf Hitler</span><span class="node-meta">start</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/NASA-Apollo8-Dec24-Earthrise.jpg/330px-NASA-Apollo8-Dec24-Earthrise.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Earthrise photographed by Apollo 8" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Apollo 8</span><span class="node-meta">hop 1</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Apollo_13-insignia.png/330px-Apollo_13-insignia.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Apollo 13 mission insignia" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Apollo 13</span><span class="node-meta">target</span></li>
             </ol>
             <div class="route-footer"><span>JEV-guided</span><span>24.25 seconds</span><span>4 JEV calls</span></div>
           </article>
@@ -418,9 +429,9 @@
               <span class="badge">2 hops</span>
             </div>
             <ol class="path" aria-label="France to Antarctica">
-              <li class="node"><span class="node-dot"></span><span class="node-name">France</span><span class="node-meta">start</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Adélie Land</span><span class="node-meta">hop 1</span></li>
-              <li class="node"><span class="node-dot"></span><span class="node-name">Antarctica</span><span class="node-meta">target</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/330px-Flag_of_France.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Flag of France" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">France</span><span class="node-meta">start</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Flag_of_the_French_Southern_and_Antarctic_Lands.svg/330px-Flag_of_the_French_Southern_and_Antarctic_Lands.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Flag of the French Southern and Antarctic Lands" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Adélie Land</span><span class="node-meta">hop 1</span></li>
+              <li class="node"><span class="node-dot"></span><img class="node-thumbnail" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Antarctica_%28orthographic_projection%29.svg/330px-Antarctica_%28orthographic_projection%29.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=api&amp;utm_content=thumbnail" alt="Orthographic map of Antarctica" loading="lazy" decoding="async" referrerpolicy="no-referrer" /><span class="node-name">Antarctica</span><span class="node-meta">target</span></li>
             </ol>
             <div class="route-footer"><span>JEV-guided</span><span>2.18 seconds</span><span>4 JEV calls</span></div>
           </article>
@@ -446,7 +457,7 @@
 
       <footer>
         <span>JEV playground · Wikipedia path finder</span>
-        <span>Targets normalized by the Wikipedia API</span>
+        <span>Thumbnails via Wikimedia Commons · targets normalized by Wikipedia API</span>
       </footer>
     </main>
   </body>
