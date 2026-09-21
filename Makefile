@@ -8,4 +8,4 @@ install:
 	uv pip install --python $(PYTHON) -r requirements.txt
 
 test:
-	uv run --env-file .env --python $(PYTHON) test_jev.py
+	uv run --env-file .env --python $(PYTHON) tests/test_surname_jev.py
