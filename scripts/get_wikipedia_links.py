@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 API_URL = "https://en.wikipedia.org/w/api.php"
 ARTICLE_URL = "https://en.wikipedia.org/wiki/"
 USER_AGENT = "jev-playground/0.1 (Wikipedia link explorer)"
+SUGGESTION_LIMIT = 5
 
 
 def article_title(article: str) -> str:
@@ -54,6 +55,117 @@ def _title_key(title: str) -> str:
     return " ".join(title.replace("_", " ").split()).casefold()
 
 
+def _api_json(params: dict[str, str]) -> dict[str, object]:
+    query = urlencode(params)
+    request = Request(
+        f"{API_URL}?{query}",
+        headers={"User-Agent": USER_AGENT},
+    )
+    with urlopen(request, timeout=20) as response:
+        data = json.load(response)
+    return data if isinstance(data, dict) else {}
+
+
+def _find_article_title(title: str) -> str | None:
+    data = _api_json(
+        {
+            "action": "query",
+            "format": "json",
+            "formatversion": "2",
+            "titles": title,
+            "redirects": "1",
+        }
+    )
+    pages = data.get("query", {}).get("pages", [])
+    if not isinstance(pages, list) or not pages:
+        return None
+
+    page = pages[0]
+    if not isinstance(page, dict) or "missing" in page or "invalid" in page:
+        return None
+    resolved_title = page.get("title")
+    return resolved_title if isinstance(resolved_title, str) else None
+
+
+def _suggest_article_titles(title: str, limit: int = SUGGESTION_LIMIT) -> list[str]:
+    data = _api_json(
+        {
+            "action": "query",
+            "format": "json",
+            "formatversion": "2",
+            "list": "search",
+            "srnamespace": "0",
+            "srsearch": title,
+            "srlimit": str(limit),
+            "srinfo": "suggestion",
+        }
+    )
+    query = data.get("query", {})
+    if not isinstance(query, dict):
+        return []
+
+    suggestions: list[str] = []
+    search_info = query.get("searchinfo", {})
+    if isinstance(search_info, dict):
+        suggestion = search_info.get("suggestion")
+        if isinstance(suggestion, str) and suggestion.strip():
+            suggestions.append(suggestion.strip())
+
+    search_results = query.get("search", [])
+    if isinstance(search_results, list):
+        for result in search_results:
+            if not isinstance(result, dict):
+                continue
+            result_title = result.get("title")
+            if isinstance(result_title, str) and result_title.strip():
+                suggestions.append(result_title.strip())
+
+    unique_suggestions: list[str] = []
+    seen = {_title_key(title)}
+    for suggestion in suggestions:
+        key = _title_key(suggestion)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_suggestions.append(suggestion)
+        if len(unique_suggestions) == limit:
+            break
+    return unique_suggestions
+
+
+def validate_article_titles(start: str, target: str) -> tuple[str, str]:
+    """Confirm both race endpoints and return their canonical Wikipedia titles."""
+    resolved_titles: list[str] = []
+    errors: list[str] = []
+
+    for label, article in (("Start", start), ("Target", target)):
+        try:
+            title = article_title(article)
+        except ValueError as error:
+            errors.append(f"{label} article is invalid: {error}")
+            continue
+
+        resolved_title = _find_article_title(title)
+        if resolved_title is None:
+            suggestions = _suggest_article_titles(title)
+            message = f"{label} Wikipedia article not found: {title}"
+            if suggestions:
+                message += "\n  Suggested titles:\n" + "\n".join(
+                    f"    - {suggestion}" for suggestion in suggestions
+                )
+            errors.append(message)
+            continue
+        resolved_titles.append(resolved_title)
+
+    if errors:
+        raise ValueError(
+            "\n".join(errors)
+            + "\nCopy a suggested title and rerun the command."
+        )
+
+    return resolved_titles[0], resolved_titles[1]
+
+
 def _filter_links(
     article: str,
     link_titles: list[str],
@@ -87,7 +199,7 @@ def get_wikipedia_links(
 
     title = article_title(article)
     visited_titles = [article_title(page) for page in (visited or [])]
-    query = urlencode(
+    data = _api_json(
         {
             "action": "query",
             "format": "json",
@@ -100,13 +212,6 @@ def get_wikipedia_links(
             "redirects": "1",
         }
     )
-    request = Request(
-        f"{API_URL}?{query}",
-        headers={"User-Agent": USER_AGENT},
-    )
-
-    with urlopen(request, timeout=20) as response:
-        data = json.load(response)
 
     pages = data.get("query", {}).get("pages", [])
     if not pages or "missing" in pages[0]:

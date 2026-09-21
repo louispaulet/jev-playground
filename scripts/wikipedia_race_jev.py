@@ -11,7 +11,12 @@ from pathlib import Path
 
 from typesafe_sdk import Choice, TypeSafeClient
 
-from scripts.get_wikipedia_links import article_title, get_wikipedia_links, _title_key
+from scripts.get_wikipedia_links import (
+    _title_key,
+    article_title,
+    get_wikipedia_links,
+    validate_article_titles,
+)
 
 
 MAX_CHOICES = 255
@@ -176,6 +181,7 @@ def run_search(
     max_hops: int = 6,
     call_budget: int = 40,
     cache_path: Path = Path(".wikipedia_jev_cache.json"),
+    _validated_titles: tuple[str, str] | None = None,
 ) -> dict[str, object]:
     """Run a title-only Wikipedia graph search and return its result."""
     if not 1 <= beam_width <= 20:
@@ -187,8 +193,10 @@ def run_search(
     if max_hops < 1 or call_budget < 1:
         raise ValueError("max_hops and call_budget must be positive")
 
-    start_title = article_title(start)
-    target_title = article_title(target)
+    if _validated_titles is None:
+        start_title, target_title = validate_article_titles(start, target)
+    else:
+        start_title, target_title = _validated_titles
     cache = _load_cache(cache_path)
     stats: dict[str, int | float] = {
         "calls": 0,
@@ -313,6 +321,11 @@ def main() -> None:
     if not 1 <= args.max_hops or not 1 <= args.call_budget:
         parser.error("--max-hops and --call-budget must be positive")
 
+    try:
+        validated_titles = validate_article_titles(args.start, args.target)
+    except (OSError, RuntimeError, ValueError) as error:
+        parser.error(str(error))
+
     started_at = time.perf_counter()
     try:
         result = run_search(
@@ -324,6 +337,7 @@ def main() -> None:
             max_hops=args.max_hops,
             call_budget=args.call_budget,
             cache_path=args.cache,
+            _validated_titles=validated_titles,
         )
     except (OSError, RuntimeError, ValueError) as error:
         parser.error(str(error))
