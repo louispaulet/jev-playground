@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import time
 from pathlib import Path
 
 from typesafe_sdk import Choice, TypeSafeClient
@@ -312,6 +313,7 @@ def main() -> None:
     if not 1 <= args.max_hops or not 1 <= args.call_budget:
         parser.error("--max-hops and --call-budget must be positive")
 
+    started_at = time.perf_counter()
     try:
         result = run_search(
             args.start,
@@ -325,6 +327,7 @@ def main() -> None:
         )
     except (OSError, RuntimeError, ValueError) as error:
         parser.error(str(error))
+    elapsed_seconds = time.perf_counter() - started_at
 
     pages = result["pages"]
     stats = result["stats"]
@@ -338,6 +341,7 @@ def main() -> None:
         f"Estimated API cost this run: ${stats['estimated_cost_usd']:.6f} "
         f"(input at ${INPUT_COST_PER_MILLION_TOKENS:.3f}/M; output currently free)"
     )
+    print(f"Elapsed time: {elapsed_seconds:.2f} seconds")
 
 
 if __name__ == "__main__":
