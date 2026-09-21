@@ -232,6 +232,7 @@
 
       .node {
         display: flex;
+        position: relative;
         min-width: 0;
         flex: 1;
         flex-direction: column;
@@ -260,11 +261,15 @@
       }
 
       .node:not(:last-child)::after {
-        width: calc(100% - 14px);
+        position: absolute;
+        z-index: 0;
+        top: 6px;
+        left: 7px;
+        width: calc(100% - 7px);
         height: 2px;
-        margin: -16px 0 0 14px;
         background: var(--line);
         content: "";
+        pointer-events: none;
       }
 
       .node-name {
