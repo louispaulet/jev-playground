@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="white"/>
+  <!-- magnifying-glass loop -->
+  <circle cx="230" cy="230" r="155" fill="none" stroke="black" stroke-width="34"/>
+  <line x1="340" y1="340" x2="455" y2="455" stroke="black" stroke-width="34" stroke-linecap="round"/>
+  <!-- serif W -->
+  <text x="230" y="305"
+        text-anchor="middle"
+        font-family="Times New Roman, DejaVu Serif, serif"
+        font-size="210"
+        font-weight="700"
+        fill="black">W</text>
+</svg>
