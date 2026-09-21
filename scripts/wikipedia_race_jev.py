@@ -206,6 +206,7 @@ def run_search(
         "estimated_cost_usd": 0.0,
     }
     beam = [{"pages": [start_title], "log_probability": 0.0, "decisions": 0}]
+    links_cache: dict[str, list[str]] = {}
 
     if _title_key(start_title) == _title_key(target_title):
         return {"pages": [start_title], "found": True, "stats": stats}
@@ -218,7 +219,17 @@ def run_search(
         for path in beam:
             pages = path["pages"]
             current = pages[-1]
-            links = get_wikipedia_links(current, limit=MAX_LINKS, visited=pages)
+            current_key = _title_key(current)
+            if current_key not in links_cache:
+                links_cache[current_key] = get_wikipedia_links(
+                    current, limit=MAX_LINKS
+                )
+            visited_keys = {_title_key(page) for page in pages}
+            links = [
+                link
+                for link in links_cache[current_key]
+                if _title_key(article_title(link)) not in visited_keys
+            ]
             candidates = [article_title(link) for link in links]
             target_key = _title_key(target_title)
 

@@ -5,6 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 from urllib.request import Request, urlopen
@@ -14,6 +17,8 @@ API_URL = "https://en.wikipedia.org/w/api.php"
 ARTICLE_URL = "https://en.wikipedia.org/wiki/"
 USER_AGENT = "jev-playground/0.1 (Wikipedia link explorer)"
 SUGGESTION_LIMIT = 5
+API_MAX_RETRIES = 2
+MAX_RETRY_DELAY_SECONDS = 30.0
 
 
 def article_title(article: str) -> str:
@@ -61,9 +66,39 @@ def _api_json(params: dict[str, str]) -> dict[str, object]:
         f"{API_URL}?{query}",
         headers={"User-Agent": USER_AGENT},
     )
-    with urlopen(request, timeout=20) as response:
-        data = json.load(response)
-    return data if isinstance(data, dict) else {}
+    for attempt in range(API_MAX_RETRIES + 1):
+        try:
+            with urlopen(request, timeout=20) as response:
+                data = json.load(response)
+            return data if isinstance(data, dict) else {}
+        except HTTPError as error:
+            if error.code != 429 or attempt == API_MAX_RETRIES:
+                if error.code == 429:
+                    raise RuntimeError(
+                        "Wikipedia API rate limit (HTTP 429) persisted after "
+                        f"{API_MAX_RETRIES} retries; wait a moment and rerun."
+                    ) from error
+                raise
+
+            retry_after = error.headers.get("Retry-After")
+            delay: float | None = None
+            if retry_after:
+                try:
+                    delay = float(retry_after)
+                except ValueError:
+                    try:
+                        retry_at = parsedate_to_datetime(retry_after)
+                        if retry_at.tzinfo is None:
+                            retry_at = retry_at.replace(tzinfo=timezone.utc)
+                        delay = (
+                            retry_at - datetime.now(timezone.utc)
+                        ).total_seconds()
+                    except (TypeError, ValueError, OverflowError):
+                        delay = None
+
+            if delay is None:
+                delay = float(2**attempt)
+            time.sleep(min(max(delay, 0.0), MAX_RETRY_DELAY_SECONDS))
 
 
 def _find_article_title(title: str) -> str | None:
@@ -250,7 +285,7 @@ def main() -> None:
             limit=args.limit,
             visited=args.visited,
         )
-    except (HTTPError, URLError, TimeoutError, ValueError) as error:
+    except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError) as error:
         parser.error(str(error))
 
     for link in links:

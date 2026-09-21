@@ -1,6 +1,7 @@
 import io
 import json
 import unittest
+from urllib.error import HTTPError
 from unittest.mock import patch
 
 from scripts.get_wikipedia_links import (
@@ -114,6 +115,30 @@ class WikipediaLinksTests(unittest.TestCase):
         self.assertIn("Target Wikipedia article not found: Apollo 13", message)
         self.assertIn("- Apollo program", message)
         self.assertIn("Copy a suggested title and rerun the command.", message)
+
+    @patch("scripts.get_wikipedia_links.time.sleep")
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_api_retries_rate_limit_and_honors_retry_after(
+        self, mock_urlopen, mock_sleep
+    ):
+        rate_limit = HTTPError(
+            "https://en.wikipedia.org/w/api.php",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "3"},
+            io.BytesIO(),
+        )
+        mock_urlopen.side_effect = [
+            rate_limit,
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+        ]
+
+        self.assertEqual(
+            validate_article_titles("Camembert", "Camembert"),
+            ("Camembert", "Camembert"),
+        )
+        mock_sleep.assert_called_once_with(3.0)
 
 
 if __name__ == "__main__":
