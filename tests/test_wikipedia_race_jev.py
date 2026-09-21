@@ -20,7 +20,8 @@ class FakeClient:
             for index, key in enumerate(keys)
         }
         return SimpleNamespace(
-            answers={"next_article": SimpleNamespace(probabilities=probabilities)}
+            answers={"next_article": SimpleNamespace(probabilities=probabilities)},
+            usage=SimpleNamespace(input_tokens=1_000_000, output_tokens=12),
         )
 
 
@@ -36,7 +37,13 @@ class WikipediaRaceHelpersTests(unittest.TestCase):
 
     def test_multiple_batches_are_reranked_with_a_final_choice(self):
         client = FakeClient()
-        stats = {"calls": 0, "cache_hits": 0}
+        stats = {
+            "calls": 0,
+            "cache_hits": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "estimated_cost_usd": 0.0,
+        }
         with TemporaryDirectory() as directory:
             result = _choose_next(
                 client,
@@ -54,6 +61,9 @@ class WikipediaRaceHelpersTests(unittest.TestCase):
 
         self.assertEqual(client.calls, 3)
         self.assertEqual(stats["calls"], 3)
+        self.assertEqual(stats["input_tokens"], 3_000_000)
+        self.assertEqual(stats["output_tokens"], 36)
+        self.assertAlmostEqual(stats["estimated_cost_usd"], 0.126)
         self.assertEqual([candidate for candidate, _ in result], ["A", "C"])
 
 

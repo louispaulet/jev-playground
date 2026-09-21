@@ -16,6 +16,7 @@ from scripts.get_wikipedia_links import article_title, get_wikipedia_links, _tit
 MAX_CHOICES = 255
 MAX_LINKS = 500
 EPSILON = 1e-9
+INPUT_COST_PER_MILLION_TOKENS = 0.042
 
 
 def _split_batches(items: list[str], batch_size: int) -> list[list[str]]:
@@ -57,7 +58,7 @@ def _choose_distribution(
     candidates: list[str],
     cache: dict[str, dict[str, float]],
     cache_path: Path,
-    stats: dict[str, int],
+    stats: dict[str, int | float],
     call_budget: int,
 ) -> dict[str, float]:
     if len(candidates) == 1:
@@ -83,6 +84,13 @@ def _choose_distribution(
     state = f"Current Wikipedia article: {current}\nTarget Wikipedia article: {target}"
     response = client.system_one(state=state, questions={"next_article": question})
     answer = response.answers["next_article"]
+    input_tokens = response.usage.input_tokens or 0
+    output_tokens = response.usage.output_tokens or 0
+    stats["input_tokens"] += input_tokens
+    stats["output_tokens"] += output_tokens
+    stats["estimated_cost_usd"] += (
+        input_tokens / 1_000_000 * INPUT_COST_PER_MILLION_TOKENS
+    )
     probabilities = {
         criteria[key]: float(answer.probabilities.get(key, 0.0)) for key in criteria
     }
@@ -103,7 +111,7 @@ def _choose_next(
     beam_width: int,
     cache: dict[str, dict[str, float]],
     cache_path: Path,
-    stats: dict[str, int],
+    stats: dict[str, int | float],
     call_budget: int,
 ) -> list[tuple[str, float]]:
     batches = _split_batches(candidates, batch_size)
@@ -181,7 +189,13 @@ def run_search(
     start_title = article_title(start)
     target_title = article_title(target)
     cache = _load_cache(cache_path)
-    stats = {"calls": 0, "cache_hits": 0}
+    stats: dict[str, int | float] = {
+        "calls": 0,
+        "cache_hits": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "estimated_cost_usd": 0.0,
+    }
     beam = [{"pages": [start_title], "log_probability": 0.0, "decisions": 0}]
 
     if _title_key(start_title) == _title_key(target_title):
@@ -317,6 +331,13 @@ def main() -> None:
     print(f"{'Found' if result['found'] else 'Best path'} in {len(pages) - 1} hops:")
     print(" -> ".join(pages))
     print(f"JEV calls: {stats['calls']} | cache hits: {stats['cache_hits']}")
+    print(
+        f"Tokens: {stats['input_tokens']:,} input + {stats['output_tokens']:,} output"
+    )
+    print(
+        f"Estimated API cost this run: ${stats['estimated_cost_usd']:.6f} "
+        f"(input at ${INPUT_COST_PER_MILLION_TOKENS:.3f}/M; output currently free)"
+    )
 
 
 if __name__ == "__main__":

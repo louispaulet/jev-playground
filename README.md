@@ -46,4 +46,4 @@ Run a batched beam search from one article to another:
 uv run --env-file .env --python .venv/bin/python -m scripts.wikipedia_race_jev Beaver "Apollo 11"
 ```
 
-The default configuration keeps 3 paths, uses 200 candidates per JEV Choice, keeps 5 winners per batch, stops after 6 hops, and limits uncached JEV calls to 40. Decisions are cached in `.wikipedia_jev_cache.json`, which is ignored by Git. Tune the search with `--beam-width`, `--batch-size`, `--per-batch`, `--max-hops`, `--call-budget`, and `--cache`.
+The default configuration keeps 3 paths, uses 200 candidates per JEV Choice, keeps 5 winners per batch, stops after 6 hops, and limits uncached JEV calls to 40. Decisions are cached in `.wikipedia_jev_cache.json`, which is ignored by Git. The script reports response token usage and an estimated cost using TypeSafe's published `$0.042 / 1M input tokens` rate; cached decisions add no new cost. Tune the search with `--beam-width`, `--batch-size`, `--per-batch`, `--max-hops`, `--call-budget`, and `--cache`.
