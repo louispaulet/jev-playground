@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
 import time
 from pathlib import Path
@@ -12,8 +13,11 @@ from pathlib import Path
 from typesafe_sdk import Choice, TypeSafeClient
 
 from scripts.get_wikipedia_links import (
+    DEFAULT_LOG_PATH,
+    LOG_LEVELS,
     _title_key,
     article_title,
+    configure_logging,
     get_wikipedia_links,
     validate_article_titles,
 )
@@ -23,6 +27,7 @@ MAX_CHOICES = 255
 MAX_LINKS = 500
 EPSILON = 1e-9
 INPUT_COST_PER_MILLION_TOKENS = 0.042
+logger = logging.getLogger("jev_playground.race")
 
 
 def _split_batches(items: list[str], batch_size: int) -> list[list[str]]:
@@ -37,16 +42,23 @@ def _path_score(log_probability: float, decisions: int) -> float:
 
 def _load_cache(path: Path) -> dict[str, dict[str, float]]:
     if not path.exists():
+        logger.debug("JEV cache does not exist: path=%s", path)
         return {}
     try:
         data = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError):
+        logger.warning("Could not read JEV cache; starting empty: path=%s", path)
         return {}
-    return data if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        logger.warning("JEV cache has an unexpected format; starting empty: path=%s", path)
+        return {}
+    logger.info("Loaded JEV cache: path=%s entries=%d", path, len(data))
+    return data
 
 
 def _save_cache(path: Path, cache: dict[str, dict[str, float]]) -> None:
     path.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n")
+    logger.debug("Saved JEV cache: path=%s entries=%d", path, len(cache))
 
 
 def _cache_key(current: str, target: str, candidates: list[str]) -> str:
@@ -68,14 +80,26 @@ def _choose_distribution(
     call_budget: int,
 ) -> dict[str, float]:
     if len(candidates) == 1:
+        logger.debug("Skipping JEV Choice with one candidate: current=%r", current)
         return {candidates[0]: 1.0}
 
     key = _cache_key(current, target, candidates)
     if key in cache:
         stats["cache_hits"] += 1
+        logger.info(
+            "JEV cache hit: current=%r target=%r candidates=%d",
+            current,
+            target,
+            len(candidates),
+        )
         return cache[key]
 
     if stats["calls"] >= call_budget:
+        logger.error(
+            "JEV call budget exhausted: calls=%d budget=%d",
+            stats["calls"],
+            call_budget,
+        )
         raise RuntimeError(f"JEV call budget exhausted at {call_budget} calls")
 
     criteria = {f"c{index}": candidate for index, candidate in enumerate(candidates)}
@@ -88,7 +112,26 @@ def _choose_distribution(
         criteria=criteria,
     )
     state = f"Current Wikipedia article: {current}\nTarget Wikipedia article: {target}"
-    response = client.system_one(state=state, questions={"next_article": question})
+    logger.info(
+        "Calling JEV Choice: current=%r target=%r candidates=%d call=%d/%d",
+        current,
+        target,
+        len(candidates),
+        stats["calls"] + 1,
+        call_budget,
+    )
+    try:
+        response = client.system_one(state=state, questions={"next_article": question})
+    except Exception as error:
+        logger.exception(
+            "JEV request failed: current=%r target=%r candidates=%d",
+            current,
+            target,
+            len(candidates),
+        )
+        raise RuntimeError(
+            f"JEV request failed while ranking links from {current!r}: {error}"
+        ) from error
     answer = response.answers["next_article"]
     input_tokens = response.usage.input_tokens or 0
     output_tokens = response.usage.output_tokens or 0
@@ -96,6 +139,12 @@ def _choose_distribution(
     stats["output_tokens"] += output_tokens
     stats["estimated_cost_usd"] += (
         input_tokens / 1_000_000 * INPUT_COST_PER_MILLION_TOKENS
+    )
+    logger.info(
+        "JEV Choice succeeded: current=%r input_tokens=%d output_tokens=%d",
+        current,
+        input_tokens,
+        output_tokens,
     )
     probabilities = {
         criteria[key]: float(answer.probabilities.get(key, 0.0)) for key in criteria
@@ -197,6 +246,17 @@ def run_search(
         start_title, target_title = validate_article_titles(start, target)
     else:
         start_title, target_title = _validated_titles
+    logger.info(
+        "Starting Wikipedia race: start=%r target=%r beam_width=%d "
+        "batch_size=%d per_batch=%d max_hops=%d call_budget=%d",
+        start_title,
+        target_title,
+        beam_width,
+        batch_size,
+        per_batch,
+        max_hops,
+        call_budget,
+    )
     cache = _load_cache(cache_path)
     stats: dict[str, int | float] = {
         "calls": 0,
@@ -209,11 +269,17 @@ def run_search(
     links_cache: dict[str, list[str]] = {}
 
     if _title_key(start_title) == _title_key(target_title):
+        logger.info("Wikipedia race completed immediately: start equals target")
         return {"pages": [start_title], "found": True, "stats": stats}
 
-    client = TypeSafeClient()
+    try:
+        client = TypeSafeClient()
+    except Exception as error:
+        logger.exception("Could not initialize the JEV client")
+        raise RuntimeError(f"Could not initialize the JEV client: {error}") from error
 
-    for _ in range(max_hops):
+    for hop in range(max_hops):
+        logger.info("Starting search hop %d/%d: beam_paths=%d", hop + 1, max_hops, len(beam))
         next_paths: dict[tuple[str, ...], dict[str, object]] = {}
 
         for path in beam:
@@ -221,9 +287,12 @@ def run_search(
             current = pages[-1]
             current_key = _title_key(current)
             if current_key not in links_cache:
+                logger.debug("Fetching links for new article: %r", current)
                 links_cache[current_key] = get_wikipedia_links(
                     current, limit=MAX_LINKS
                 )
+            else:
+                logger.debug("Reusing links for article: %r", current)
             visited_keys = {_title_key(page) for page in pages}
             links = [
                 link
@@ -247,6 +316,7 @@ def run_search(
                 if _title_key(candidate) not in {_title_key(page) for page in pages}
             ]
             if not candidates:
+                logger.warning("No unvisited Wikipedia candidates: current=%r", current)
                 continue
 
             choices = _choose_next(
@@ -276,6 +346,7 @@ def run_search(
                 next_paths[tuple(new_pages)] = new_path
 
         if not next_paths:
+            logger.warning("Search stopped with no next paths at hop %d", hop + 1)
             break
 
         beam = sorted(
@@ -287,6 +358,11 @@ def run_search(
     best_path = max(
         beam,
         key=lambda path: _path_score(path["log_probability"], path["decisions"]),
+    )
+    logger.warning(
+        "Wikipedia race reached hop limit without finding target: hops=%d best_path=%s",
+        len(best_path["pages"]) - 1,
+        " -> ".join(best_path["pages"]),
     )
     return {"pages": best_path["pages"], "found": False, "stats": stats}
 
@@ -321,7 +397,30 @@ def main() -> None:
         default=Path(".wikipedia_jev_cache.json"),
         help="JSON cache path (default: .wikipedia_jev_cache.json)",
     )
+    parser.add_argument(
+        "--log",
+        type=Path,
+        default=DEFAULT_LOG_PATH,
+        help="log file (default: .wikipedia_jev.log)",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=LOG_LEVELS,
+        default="INFO",
+        help="minimum log level (default: INFO)",
+    )
     args = parser.parse_args()
+
+    try:
+        configure_logging(args.log, args.log_level)
+    except (OSError, ValueError) as error:
+        parser.error(f"could not configure logging: {error}")
+    logger.info(
+        "Starting Wikipedia race command: start=%r target=%r log=%s",
+        args.start,
+        args.target,
+        args.log,
+    )
 
     if not 1 <= args.beam_width <= 20:
         parser.error("--beam-width must be between 1 and 20")
@@ -335,6 +434,7 @@ def main() -> None:
     try:
         validated_titles = validate_article_titles(args.start, args.target)
     except (OSError, RuntimeError, ValueError) as error:
+        logger.error("Wikipedia race validation failed: %s", error)
         parser.error(str(error))
 
     started_at = time.perf_counter()
@@ -351,6 +451,7 @@ def main() -> None:
             _validated_titles=validated_titles,
         )
     except (OSError, RuntimeError, ValueError) as error:
+        logger.error("Wikipedia race failed: %s", error)
         parser.error(str(error))
     elapsed_seconds = time.perf_counter() - started_at
 
@@ -367,6 +468,15 @@ def main() -> None:
         f"(input at ${INPUT_COST_PER_MILLION_TOKENS:.3f}/M; output currently free)"
     )
     print(f"Elapsed time: {elapsed_seconds:.2f} seconds")
+    logger.info(
+        "Wikipedia race completed: found=%s hops=%d jev_calls=%d cache_hits=%d "
+        "elapsed_seconds=%.2f",
+        result["found"],
+        len(pages) - 1,
+        stats["calls"],
+        stats["cache_hits"],
+        elapsed_seconds,
+    )
 
 
 if __name__ == "__main__":

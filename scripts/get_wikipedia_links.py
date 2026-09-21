@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote, unquote, urlencode, urlparse
 from urllib.request import Request, urlopen
@@ -19,6 +21,30 @@ USER_AGENT = "jev-playground/0.1 (Wikipedia link explorer)"
 SUGGESTION_LIMIT = 5
 API_MAX_RETRIES = 2
 MAX_RETRY_DELAY_SECONDS = 30.0
+DEFAULT_LOG_PATH = Path(".wikipedia_jev.log")
+LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+application_logger = logging.getLogger("jev_playground")
+application_logger.addHandler(logging.NullHandler())
+logger = logging.getLogger("jev_playground.wikipedia")
+
+
+def configure_logging(log_path: Path, level: str = "INFO") -> None:
+    """Write application logs to ``log_path`` using standard logging levels."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    for existing_handler in list(application_logger.handlers):
+        if isinstance(existing_handler, logging.FileHandler):
+            application_logger.removeHandler(existing_handler)
+            existing_handler.close()
+    handler = logging.FileHandler(log_path, encoding="utf-8")
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s %(levelname)s %(name)s %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S%z",
+        )
+    )
+    application_logger.setLevel(getattr(logging, level))
+    application_logger.propagate = False
+    application_logger.addHandler(handler)
 
 
 def article_title(article: str) -> str:
@@ -61,6 +87,14 @@ def _title_key(title: str) -> str:
 
 
 def _api_json(params: dict[str, str]) -> dict[str, object]:
+    description = params.get("titles") or params.get("srsearch") or params.get(
+        "prop", "query"
+    )
+    logger.info(
+        "Wikipedia API request: action=%s subject=%r",
+        params.get("action", "unknown"),
+        description,
+    )
     query = urlencode(params)
     request = Request(
         f"{API_URL}?{query}",
@@ -70,14 +104,27 @@ def _api_json(params: dict[str, str]) -> dict[str, object]:
         try:
             with urlopen(request, timeout=20) as response:
                 data = json.load(response)
+            logger.debug("Wikipedia API request succeeded: subject=%r", description)
             return data if isinstance(data, dict) else {}
         except HTTPError as error:
             if error.code != 429 or attempt == API_MAX_RETRIES:
                 if error.code == 429:
+                    logger.error(
+                        "Wikipedia API request failed: HTTP 429 after %d retries "
+                        "for subject=%r",
+                        API_MAX_RETRIES,
+                        description,
+                    )
                     raise RuntimeError(
                         "Wikipedia API rate limit (HTTP 429) persisted after "
                         f"{API_MAX_RETRIES} retries; wait a moment and rerun."
                     ) from error
+                logger.error(
+                    "Wikipedia API request failed: HTTP %s (%s) for subject=%r",
+                    error.code,
+                    error.reason,
+                    description,
+                )
                 raise
 
             retry_after = error.headers.get("Retry-After")
@@ -98,10 +145,27 @@ def _api_json(params: dict[str, str]) -> dict[str, object]:
 
             if delay is None:
                 delay = float(2**attempt)
-            time.sleep(min(max(delay, 0.0), MAX_RETRY_DELAY_SECONDS))
+            delay = min(max(delay, 0.0), MAX_RETRY_DELAY_SECONDS)
+            logger.warning(
+                "Wikipedia API rate limited: HTTP 429 for subject=%r; "
+                "retry %d/%d in %.1f seconds",
+                description,
+                attempt + 1,
+                API_MAX_RETRIES,
+                delay,
+            )
+            time.sleep(delay)
+        except (URLError, TimeoutError) as error:
+            logger.error(
+                "Wikipedia API request failed before a response for subject=%r: %s",
+                description,
+                error,
+            )
+            raise
 
 
 def _find_article_title(title: str) -> str | None:
+    logger.info("Validating Wikipedia article: %r", title)
     data = _api_json(
         {
             "action": "query",
@@ -117,12 +181,14 @@ def _find_article_title(title: str) -> str | None:
 
     page = pages[0]
     if not isinstance(page, dict) or "missing" in page or "invalid" in page:
+        logger.warning("Wikipedia article was not found: %r", title)
         return None
     resolved_title = page.get("title")
     return resolved_title if isinstance(resolved_title, str) else None
 
 
 def _suggest_article_titles(title: str, limit: int = SUGGESTION_LIMIT) -> list[str]:
+    logger.info("Requesting Wikipedia suggestions for missing article: %r", title)
     data = _api_json(
         {
             "action": "query",
@@ -193,11 +259,17 @@ def validate_article_titles(start: str, target: str) -> tuple[str, str]:
         resolved_titles.append(resolved_title)
 
     if errors:
+        logger.error("Wikipedia article validation failed: %s", " | ".join(errors))
         raise ValueError(
             "\n".join(errors)
             + "\nCopy a suggested title and rerun the command."
         )
 
+    logger.info(
+        "Wikipedia article validation succeeded: start=%r target=%r",
+        resolved_titles[0],
+        resolved_titles[1],
+    )
     return resolved_titles[0], resolved_titles[1]
 
 
@@ -234,6 +306,12 @@ def get_wikipedia_links(
 
     title = article_title(article)
     visited_titles = [article_title(page) for page in (visited or [])]
+    logger.info(
+        "Fetching Wikipedia links: article=%r requested_limit=%d visited=%d",
+        title,
+        limit,
+        len(visited_titles),
+    )
     data = _api_json(
         {
             "action": "query",
@@ -250,10 +328,18 @@ def get_wikipedia_links(
 
     pages = data.get("query", {}).get("pages", [])
     if not pages or "missing" in pages[0]:
+        logger.error("Wikipedia link fetch found no article: %r", title)
         raise ValueError(f"Wikipedia article not found: {title}")
 
     link_titles = [link["title"] for link in pages[0].get("links", [])]
-    return _filter_links(title, link_titles, visited_titles, limit)
+    links = _filter_links(title, link_titles, visited_titles, limit)
+    logger.info(
+        "Fetched Wikipedia links: article=%r returned=%d raw_links=%d",
+        title,
+        len(links),
+        len(link_titles),
+    )
+    return links
 
 
 def main() -> None:
@@ -277,7 +363,25 @@ def main() -> None:
         default=[],
         help="page name or URL to exclude; repeat for multiple visited pages",
     )
+    parser.add_argument(
+        "--log",
+        type=Path,
+        default=DEFAULT_LOG_PATH,
+        help="log file (default: .wikipedia_jev.log)",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=LOG_LEVELS,
+        default="INFO",
+        help="minimum log level (default: INFO)",
+    )
     args = parser.parse_args()
+
+    try:
+        configure_logging(args.log, args.log_level)
+    except (OSError, ValueError) as error:
+        parser.error(f"could not configure logging: {error}")
+    logger.info("Starting Wikipedia link lookup for article=%r", " ".join(args.article))
 
     try:
         links = get_wikipedia_links(
@@ -286,8 +390,10 @@ def main() -> None:
             visited=args.visited,
         )
     except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError) as error:
+        logger.error("Wikipedia link lookup failed: %s", error)
         parser.error(str(error))
 
+    logger.info("Wikipedia link lookup completed: returned=%d", len(links))
     for link in links:
         print(link)
 

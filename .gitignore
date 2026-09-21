@@ -152,6 +152,7 @@ activemq-data/
 .envrc
 .venv
 .wikipedia_jev_cache.json
+.wikipedia_jev.log
 env/
 venv/
 ENV/
