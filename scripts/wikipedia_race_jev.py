@@ -267,6 +267,7 @@ def run_search(
     }
     beam = [{"pages": [start_title], "log_probability": 0.0, "decisions": 0}]
     links_cache: dict[str, list[str]] = {}
+    unavailable_keys: set[str] = set()
 
     if _title_key(start_title) == _title_key(target_title):
         logger.info("Wikipedia race completed immediately: start equals target")
@@ -286,11 +287,25 @@ def run_search(
             pages = path["pages"]
             current = pages[-1]
             current_key = _title_key(current)
+            if current_key in unavailable_keys:
+                logger.debug("Skipping unavailable Wikipedia article: %r", current)
+                continue
             if current_key not in links_cache:
                 logger.debug("Fetching links for new article: %r", current)
-                links_cache[current_key] = get_wikipedia_links(
-                    current, limit=MAX_LINKS
-                )
+                try:
+                    links_cache[current_key] = get_wikipedia_links(
+                        current, limit=MAX_LINKS
+                    )
+                except ValueError as error:
+                    expected_error = f"Wikipedia article not found: {current}"
+                    if str(error) != expected_error:
+                        raise
+                    unavailable_keys.add(current_key)
+                    logger.warning(
+                        "Skipping missing linked Wikipedia article: current=%r",
+                        current,
+                    )
+                    continue
             else:
                 logger.debug("Reusing links for article: %r", current)
             visited_keys = {_title_key(page) for page in pages}
@@ -313,7 +328,8 @@ def run_search(
             candidates = [
                 candidate
                 for candidate in candidates
-                if _title_key(candidate) not in {_title_key(page) for page in pages}
+                if _title_key(candidate) not in unavailable_keys
+                and _title_key(candidate) not in {_title_key(page) for page in pages}
             ]
             if not candidates:
                 logger.warning("No unvisited Wikipedia candidates: current=%r", current)
@@ -355,8 +371,13 @@ def run_search(
             reverse=True,
         )[:beam_width]
 
+    available_beam = [
+        path
+        for path in beam
+        if _title_key(path["pages"][-1]) not in unavailable_keys
+    ]
     best_path = max(
-        beam,
+        available_beam or beam,
         key=lambda path: _path_score(path["log_probability"], path["decisions"]),
     )
     logger.warning(

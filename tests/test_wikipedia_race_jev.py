@@ -2,8 +2,14 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from scripts.wikipedia_race_jev import _choose_next, _path_score, _split_batches
+from scripts.wikipedia_race_jev import (
+    _choose_next,
+    _path_score,
+    _split_batches,
+    run_search,
+)
 
 
 class FakeClient:
@@ -65,6 +71,42 @@ class WikipediaRaceHelpersTests(unittest.TestCase):
         self.assertEqual(stats["output_tokens"], 36)
         self.assertAlmostEqual(stats["estimated_cost_usd"], 0.126)
         self.assertEqual([candidate for candidate, _ in result], ["A", "C"])
+
+    def test_missing_linked_article_does_not_abort_search(self):
+        client = FakeClient()
+
+        def fake_links(article, limit):
+            del limit
+            if article == "Start":
+                return [
+                    "https://en.wikipedia.org/wiki/Missing_link",
+                    "https://en.wikipedia.org/wiki/Good_link",
+                ]
+            if article == "Missing link":
+                raise ValueError("Wikipedia article not found: Missing link")
+            if article == "Good link":
+                return ["https://en.wikipedia.org/wiki/Target"]
+            raise AssertionError(f"unexpected article: {article}")
+
+        with TemporaryDirectory() as directory:
+            with patch(
+                "scripts.wikipedia_race_jev.TypeSafeClient", return_value=client
+            ), patch(
+                "scripts.wikipedia_race_jev.get_wikipedia_links",
+                side_effect=fake_links,
+            ):
+                result = run_search(
+                    "Start",
+                    "Target",
+                    beam_width=2,
+                    batch_size=2,
+                    max_hops=2,
+                    cache_path=Path(directory) / "cache.json",
+                    _validated_titles=("Start", "Target"),
+                )
+
+        self.assertTrue(result["found"])
+        self.assertEqual(result["pages"], ["Start", "Good link", "Target"])
 
 
 if __name__ == "__main__":
