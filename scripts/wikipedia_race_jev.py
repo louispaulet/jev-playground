@@ -20,6 +20,7 @@ from scripts.get_wikipedia_links import (
     configure_logging,
     get_wikipedia_links,
     validate_article_titles,
+    wikipedia_url,
 )
 
 
@@ -287,6 +288,14 @@ def run_search(
             pages = path["pages"]
             current = pages[-1]
             current_key = _title_key(current)
+            visited_keys = {_title_key(page) for page in pages}
+            logger.debug(
+                "Beam expansion: hop=%d current=%r visited=%s path=%s",
+                hop + 1,
+                current,
+                pages,
+                pages,
+            )
             if current_key in unavailable_keys:
                 logger.debug("Skipping unavailable Wikipedia article: %r", current)
                 continue
@@ -308,13 +317,19 @@ def run_search(
                     continue
             else:
                 logger.debug("Reusing links for article: %r", current)
-            visited_keys = {_title_key(page) for page in pages}
             links = [
                 link
                 for link in links_cache[current_key]
                 if _title_key(article_title(link)) not in visited_keys
             ]
             candidates = [article_title(link) for link in links]
+            logger.debug(
+                "Beam links: hop=%d current=%r visited=%s available_urls=%s",
+                hop + 1,
+                current,
+                pages,
+                links,
+            )
             target_key = _title_key(target_title)
 
             for candidate in candidates:
@@ -329,11 +344,18 @@ def run_search(
                 candidate
                 for candidate in candidates
                 if _title_key(candidate) not in unavailable_keys
-                and _title_key(candidate) not in {_title_key(page) for page in pages}
+                and _title_key(candidate) not in visited_keys
             ]
             if not candidates:
                 logger.warning("No unvisited Wikipedia candidates: current=%r", current)
                 continue
+
+            logger.debug(
+                "Beam candidates: hop=%d current=%r candidate_urls=%s",
+                hop + 1,
+                current,
+                [wikipedia_url(candidate) for candidate in candidates],
+            )
 
             choices = _choose_next(
                 client,
@@ -347,6 +369,15 @@ def run_search(
                 cache_path,
                 stats,
                 call_budget,
+            )
+            logger.debug(
+                "Beam choices: hop=%d current=%r choices=%s",
+                hop + 1,
+                current,
+                [
+                    {"url": wikipedia_url(candidate), "probability": probability}
+                    for candidate, probability in choices
+                ],
             )
             for candidate, probability in choices:
                 candidate_key = _title_key(candidate)
@@ -370,6 +401,11 @@ def run_search(
             key=lambda path: _path_score(path["log_probability"], path["decisions"]),
             reverse=True,
         )[:beam_width]
+        logger.debug(
+            "Beam frontier: completed_hop=%d paths=%s",
+            hop + 1,
+            [path["pages"] for path in beam],
+        )
 
     available_beam = [
         path
