@@ -21,7 +21,7 @@ The `.env` file is ignored by Git and must not be committed.
 ## Run
 
 ```bash
-make test
+make test-choice
 ```
 
 The script repeatedly prompts for surnames, sends each one to JEV as the state, and predicts one of `male`, `female`, or `unisex`. It prints the selected choice, probabilities, and confidence. Press Ctrl+C to exit.
