@@ -21,7 +21,6 @@ ARTICLE_URL = "https://en.wikipedia.org/wiki/"
 USER_AGENT = "jev-playground/0.1 (Wikipedia link explorer)"
 SUGGESTION_LIMIT = 5
 API_MAX_RETRIES = 2
-MAX_RETRY_DELAY_SECONDS = 30.0
 DEFAULT_LOG_PATH = Path(".wikipedia_jev.log")
 LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
 application_logger = logging.getLogger("jev_playground")
@@ -146,7 +145,9 @@ def _api_json(params: dict[str, str]) -> dict[str, object]:
 
             if delay is None:
                 delay = float(2**attempt)
-            delay = min(max(delay, 0.0), MAX_RETRY_DELAY_SECONDS)
+            # Retry-After is the server's requested minimum wait. Do not cap it
+            # locally, or we may retry before Wikipedia is ready for the request.
+            delay = max(delay, 0.0)
             logger.warning(
                 "Wikipedia API rate limited: HTTP 429 for subject=%r; "
                 "retry %d/%d in %.1f seconds",
@@ -278,7 +279,7 @@ def _filter_links(
     article: str,
     link_titles: list[str],
     visited: list[str],
-    limit: int,
+    limit: int | None,
 ) -> list[str]:
     excluded = {_title_key(article), *(_title_key(page) for page in visited)}
     seen = set(excluded)
@@ -290,7 +291,7 @@ def _filter_links(
             continue
         seen.add(key)
         useful_links.append(wikipedia_url(link_title))
-        if len(useful_links) == limit:
+        if limit is not None and len(useful_links) == limit:
             break
 
     return useful_links
@@ -298,17 +299,17 @@ def _filter_links(
 
 def get_wikipedia_links(
     article: str,
-    limit: int = 50,
+    limit: int | None = 50,
     visited: list[str] | None = None,
 ) -> list[str]:
-    """Return up to ``limit`` useful article URLs linked from a Wikipedia page."""
-    if not 1 <= limit <= 500:
-        raise ValueError("limit must be between 1 and 500")
+    """Return useful linked article URLs, optionally capped at ``limit``."""
+    if limit is not None and not 1 <= limit <= 500:
+        raise ValueError("limit must be between 1 and 500, or None for all links")
 
     title = article_title(article)
     visited_titles = [article_title(page) for page in (visited or [])]
     logger.info(
-        "Fetching Wikipedia links: article=%r requested_limit=%d visited=%d",
+        "Fetching Wikipedia links: article=%r requested_limit=%s visited=%d",
         title,
         limit,
         len(visited_titles),

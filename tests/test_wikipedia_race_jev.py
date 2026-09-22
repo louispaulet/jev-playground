@@ -94,7 +94,7 @@ class WikipediaRaceHelpersTests(unittest.TestCase):
             ), patch(
                 "scripts.wikipedia_race_jev.get_wikipedia_links",
                 side_effect=fake_links,
-            ):
+            ) as mock_get_links:
                 result = run_search(
                     "Start",
                     "Target",
@@ -104,6 +104,8 @@ class WikipediaRaceHelpersTests(unittest.TestCase):
                     cache_path=Path(directory) / "cache.json",
                     _validated_titles=("Start", "Target"),
                 )
+
+        mock_get_links.assert_any_call("Start", limit=None)
 
         self.assertTrue(result["found"])
         self.assertEqual(result["pages"], ["Start", "Good link", "Target"])

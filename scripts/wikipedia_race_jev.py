@@ -25,7 +25,6 @@ from scripts.get_wikipedia_links import (
 
 
 MAX_CHOICES = 255
-MAX_LINKS = 500
 EPSILON = 1e-9
 INPUT_COST_PER_MILLION_TOKENS = 0.042
 logger = logging.getLogger("jev_playground.race")
@@ -303,7 +302,7 @@ def run_search(
                 logger.debug("Fetching links for new article: %r", current)
                 try:
                     links_cache[current_key] = get_wikipedia_links(
-                        current, limit=MAX_LINKS
+                        current, limit=None
                     )
                 except ValueError as error:
                     expected_error = f"Wikipedia article not found: {current}"

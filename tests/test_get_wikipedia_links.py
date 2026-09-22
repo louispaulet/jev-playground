@@ -1,6 +1,8 @@
 import io
 import json
 import unittest
+from datetime import datetime, timedelta, timezone
+from email.utils import format_datetime
 from urllib.error import HTTPError
 from unittest.mock import patch
 
@@ -115,6 +117,34 @@ class WikipediaLinksTests(unittest.TestCase):
         )
         self.assertEqual(mock_urlopen.call_count, 2)
 
+    @patch("scripts.get_wikipedia_links.random.shuffle", side_effect=lambda items: None)
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_get_wikipedia_links_can_return_all_links(
+        self, mock_urlopen, mock_shuffle
+    ):
+        del mock_shuffle
+        titles = [f"Page {index}" for index in range(501)]
+        mock_urlopen.return_value = api_response(
+            {
+                "query": {
+                    "pages": [
+                        {
+                            "title": "Beaver",
+                            "links": [{"title": title} for title in titles],
+                        }
+                    ]
+                }
+            }
+        )
+
+        links = get_wikipedia_links("Beaver", limit=None)
+
+        self.assertEqual(len(links), 501)
+        self.assertEqual(
+            links,
+            [wikipedia_url(title) for title in titles],
+        )
+
     @patch("scripts.get_wikipedia_links.urlopen")
     def test_validate_article_titles_returns_canonical_titles(self, mock_urlopen):
         mock_urlopen.side_effect = [
@@ -181,6 +211,60 @@ class WikipediaLinksTests(unittest.TestCase):
             ("Camembert", "Camembert"),
         )
         mock_sleep.assert_called_once_with(3.0)
+        rate_limit.close()
+
+    @patch("scripts.get_wikipedia_links.time.sleep")
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_api_does_not_cap_retry_after(
+        self, mock_urlopen, mock_sleep
+    ):
+        rate_limit = HTTPError(
+            "https://en.wikipedia.org/w/api.php",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "90"},
+            io.BytesIO(),
+        )
+        mock_urlopen.side_effect = [
+            rate_limit,
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+        ]
+
+        self.assertEqual(
+            validate_article_titles("Camembert", "Camembert"),
+            ("Camembert", "Camembert"),
+        )
+        mock_sleep.assert_called_once_with(90.0)
+        rate_limit.close()
+
+    @patch("scripts.get_wikipedia_links.time.sleep")
+    @patch("scripts.get_wikipedia_links.urlopen")
+    @patch("scripts.get_wikipedia_links.datetime")
+    def test_api_honors_http_date_retry_after(
+        self, mock_datetime, mock_urlopen, mock_sleep
+    ):
+        now = datetime(2030, 1, 1, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = now
+        rate_limit = HTTPError(
+            "https://en.wikipedia.org/w/api.php",
+            429,
+            "Too Many Requests",
+            {"Retry-After": format_datetime(now + timedelta(seconds=45), usegmt=True)},
+            io.BytesIO(),
+        )
+        mock_urlopen.side_effect = [
+            rate_limit,
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+            api_response({"query": {"pages": [{"title": "Camembert"}]}}),
+        ]
+
+        self.assertEqual(
+            validate_article_titles("Camembert", "Camembert"),
+            ("Camembert", "Camembert"),
+        )
+        mock_sleep.assert_called_once_with(45.0)
+        rate_limit.close()
 
 
 if __name__ == "__main__":
