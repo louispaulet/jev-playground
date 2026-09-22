@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import math
@@ -18,6 +19,7 @@ from scripts.get_wikipedia_links import (
     _title_key,
     article_title,
     configure_logging,
+    get_wikipedia_abstract,
     get_wikipedia_links,
     validate_article_titles,
     wikipedia_url,
@@ -25,6 +27,7 @@ from scripts.get_wikipedia_links import (
 
 
 MAX_CHOICES = 255
+CACHE_VERSION = 2
 EPSILON = 1e-9
 INPUT_COST_PER_MILLION_TOKENS = 0.042
 logger = logging.getLogger("jev_playground.race")
@@ -49,31 +52,39 @@ def _load_cache(path: Path) -> dict[str, dict[str, float]]:
     except (OSError, json.JSONDecodeError):
         logger.warning("Could not read JEV cache; starting empty: path=%s", path)
         return {}
-    if not isinstance(data, dict):
-        logger.warning("JEV cache has an unexpected format; starting empty: path=%s", path)
+    if (
+        not isinstance(data, dict)
+        or data.get("version") != CACHE_VERSION
+        or not isinstance(data.get("entries"), dict)
+    ):
+        logger.warning(
+            "JEV cache has an unexpected format; starting empty: path=%s", path
+        )
         return {}
-    logger.info("Loaded JEV cache: path=%s entries=%d", path, len(data))
-    return data
+    entries = data["entries"]
+    logger.info("Loaded JEV cache: path=%s entries=%d", path, len(entries))
+    return entries
 
 
 def _save_cache(path: Path, cache: dict[str, dict[str, float]]) -> None:
-    path.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n")
+    payload = {"version": CACHE_VERSION, "entries": cache}
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     logger.debug("Saved JEV cache: path=%s entries=%d", path, len(cache))
 
 
-def _cache_key(current: str, target: str, candidates: list[str]) -> str:
-    return json.dumps(
-        {"current": current, "target": target, "candidates": candidates},
-        separators=(",", ":"),
-        sort_keys=True,
-    )
+def _cache_key(state: dict[str, object]) -> str:
+    serialized_state = json.dumps(state, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(serialized_state.encode("utf-8")).hexdigest()
 
 
 def _choose_distribution(
     client: TypeSafeClient,
+    start_title: str,
     current: str,
     target: str,
     candidates: list[str],
+    start_abstract: str,
+    target_abstract: str,
     cache: dict[str, dict[str, float]],
     cache_path: Path,
     stats: dict[str, int | float],
@@ -83,7 +94,13 @@ def _choose_distribution(
         logger.debug("Skipping JEV Choice with one candidate: current=%r", current)
         return {candidates[0]: 1.0}
 
-    key = _cache_key(current, target, candidates)
+    state = {
+        "starting_article": {"title": start_title, "abstract": start_abstract},
+        "landing_article": {"title": target, "abstract": target_abstract},
+        "current_article": {"title": current},
+        "candidate_articles": [{"title": candidate} for candidate in candidates],
+    }
+    key = _cache_key(state)
     if key in cache:
         stats["cache_hits"] += 1
         logger.info(
@@ -107,11 +124,12 @@ def _choose_distribution(
         instructions=(
             "Which candidate Wikipedia article should we visit next to get closer "
             "to the target article? Choose the candidate with the strongest likely "
-            "progress toward the target, not merely the most famous or alphabetical."
+            "progress toward the target, using the starting and landing article "
+            "abstracts to understand their topics. Do not choose merely by fame "
+            "or alphabetical order."
         ),
         criteria=criteria,
     )
-    state = f"Current Wikipedia article: {current}\nTarget Wikipedia article: {target}"
     logger.info(
         "Calling JEV Choice: current=%r target=%r candidates=%d call=%d/%d",
         current,
@@ -158,9 +176,12 @@ def _choose_distribution(
 
 def _choose_next(
     client: TypeSafeClient,
+    start_title: str,
     current: str,
     target: str,
     candidates: list[str],
+    start_abstract: str,
+    target_abstract: str,
     batch_size: int,
     per_batch: int,
     beam_width: int,
@@ -173,9 +194,12 @@ def _choose_next(
     if len(batches) == 1:
         probabilities = _choose_distribution(
             client,
+            start_title,
             current,
             target,
             batches[0],
+            start_abstract,
+            target_abstract,
             cache,
             cache_path,
             stats,
@@ -191,9 +215,12 @@ def _choose_next(
     for batch in batches:
         probabilities = _choose_distribution(
             client,
+            start_title,
             current,
             target,
             batch,
+            start_abstract,
+            target_abstract,
             cache,
             cache_path,
             stats,
@@ -208,9 +235,12 @@ def _choose_next(
 
     final_probabilities = _choose_distribution(
         client,
+        start_title,
         current,
         target,
         finalists,
+        start_abstract,
+        target_abstract,
         cache,
         cache_path,
         stats,
@@ -232,7 +262,7 @@ def run_search(
     cache_path: Path = Path(".wikipedia_jev_cache.json"),
     _validated_titles: tuple[str, str] | None = None,
 ) -> dict[str, object]:
-    """Run a title-only Wikipedia graph search and return its result."""
+    """Run a Wikipedia graph search guided by article abstracts."""
     if not 1 <= beam_width <= 20:
         raise ValueError("beam_width must be between 1 and 20")
     if not 2 <= batch_size <= MAX_CHOICES:
@@ -274,13 +304,24 @@ def run_search(
         return {"pages": [start_title], "found": True, "stats": stats}
 
     try:
+        start_abstract = get_wikipedia_abstract(start_title)
+        target_abstract = get_wikipedia_abstract(target_title)
+    except (OSError, RuntimeError, ValueError) as error:
+        logger.exception("Could not fetch required Wikipedia article abstracts")
+        raise RuntimeError(
+            f"Could not fetch Wikipedia abstracts required for JEV context: {error}"
+        ) from error
+
+    try:
         client = TypeSafeClient()
     except Exception as error:
         logger.exception("Could not initialize the JEV client")
         raise RuntimeError(f"Could not initialize the JEV client: {error}") from error
 
     for hop in range(max_hops):
-        logger.info("Starting search hop %d/%d: beam_paths=%d", hop + 1, max_hops, len(beam))
+        logger.info(
+            "Starting search hop %d/%d: beam_paths=%d", hop + 1, max_hops, len(beam)
+        )
         next_paths: dict[tuple[str, ...], dict[str, object]] = {}
 
         for path in beam:
@@ -358,9 +399,12 @@ def run_search(
 
             choices = _choose_next(
                 client,
+                start_title,
                 current,
                 target_title,
                 candidates,
+                start_abstract,
+                target_abstract,
                 batch_size,
                 per_batch,
                 beam_width,

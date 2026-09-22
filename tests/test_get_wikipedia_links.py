@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from scripts.get_wikipedia_links import (
     article_title,
+    get_wikipedia_abstract,
     get_wikipedia_links,
     validate_article_titles,
     wikipedia_url,
@@ -38,6 +39,27 @@ class WikipediaLinksTests(unittest.TestCase):
             wikipedia_url("Apollo 11"),
             "https://en.wikipedia.org/wiki/Apollo_11",
         )
+
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_get_wikipedia_abstract_returns_introductory_extract(self, mock_urlopen):
+        mock_urlopen.return_value = api_response(
+            {"query": {"pages": [{"title": "Beaver", "extract": "  A rodent.  "}]}}
+        )
+
+        self.assertEqual(get_wikipedia_abstract("Beaver"), "A rodent.")
+        request = mock_urlopen.call_args.args[0]
+        self.assertIn("prop=extracts", request.full_url)
+        self.assertIn("exintro=1", request.full_url)
+        self.assertIn("explaintext=1", request.full_url)
+
+    @patch("scripts.get_wikipedia_links.urlopen")
+    def test_get_wikipedia_abstract_rejects_empty_extract(self, mock_urlopen):
+        mock_urlopen.return_value = api_response(
+            {"query": {"pages": [{"title": "Beaver", "extract": "  "}]}}
+        )
+
+        with self.assertRaisesRegex(ValueError, "no abstract: Beaver"):
+            get_wikipedia_abstract("Beaver")
 
     @patch("scripts.get_wikipedia_links.random.shuffle", side_effect=lambda items: None)
     @patch("scripts.get_wikipedia_links.urlopen")

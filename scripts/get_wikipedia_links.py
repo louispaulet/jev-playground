@@ -350,6 +350,33 @@ def get_wikipedia_links(
     return links
 
 
+def get_wikipedia_abstract(article: str) -> str:
+    """Return the introductory plain-text extract for a Wikipedia article."""
+    title = article_title(article)
+    data = _api_json(
+        {
+            "action": "query",
+            "format": "json",
+            "formatversion": "2",
+            "titles": title,
+            "prop": "extracts",
+            "exintro": "1",
+            "explaintext": "1",
+            "redirects": "1",
+        }
+    )
+    pages = data.get("query", {}).get("pages", [])
+    if not pages or "missing" in pages[0]:
+        raise ValueError(f"Wikipedia article not found: {title}")
+    abstract = pages[0].get("extract", "").strip()
+    if not abstract:
+        raise ValueError(f"Wikipedia article has no abstract: {title}")
+    logger.info(
+        "Fetched Wikipedia abstract: article=%r characters=%d", title, len(abstract)
+    )
+    return abstract
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Print up to 50 main-namespace links from a Wikipedia article."
