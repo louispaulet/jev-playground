@@ -10,6 +10,7 @@ from scripts.benchmark_gender import (
     BenchmarkResult,
     _metrics,
     build_sample,
+    load_csv,
     write_csv,
     write_html,
 )
@@ -40,11 +41,14 @@ class GenderBenchmarkTests(unittest.TestCase):
         self.assertEqual(metrics["accuracy_percent"], 50.0)
         self.assertEqual(metrics["expected_counts"], {"unisex": 1, "male": 1})
         self.assertEqual(set(metrics["prediction_counts"]), {"unisex", "female"})
+        self.assertEqual(metrics["by_expected"]["unisex"]["precision_percent"], 100.0)
+        self.assertEqual(metrics["by_expected"]["unisex"]["recall_percent"], 100.0)
 
         with TemporaryDirectory() as directory:
             csv_path = Path(directory) / "results.csv"
             html_path = Path(directory) / "report.html"
             write_csv(csv_path, results)
+            self.assertEqual(load_csv(csv_path), results)
             write_html(
                 html_path,
                 results,
@@ -60,6 +64,7 @@ class GenderBenchmarkTests(unittest.TestCase):
             document = html_path.read_text(encoding="utf-8")
             self.assertIn("JEV gender Choice benchmark", document)
             self.assertIn("Alex", document)
+            self.assertIn("Precision &amp; recall by gender", document)
             self.assertIn("gender_benchmark_results.csv", document)
 
 

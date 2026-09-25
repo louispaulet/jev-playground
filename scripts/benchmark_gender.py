@@ -178,16 +178,42 @@ async def run_benchmark(
 def _metrics(results: list[BenchmarkResult]) -> dict[str, Any]:
     evaluated = [result for result in results if not result.error]
     correct = sum(result.correct for result in evaluated)
-    by_expected: dict[str, dict[str, int]] = {}
+    by_expected: dict[str, dict[str, int | float]] = {}
     for label in CHOICES:
         label_results = [result for result in evaluated if result.expected_gender == label]
-        label_correct = sum(result.correct for result in label_results)
+        true_positive = sum(
+            result.expected_gender == label and result.predicted_gender == label
+            for result in evaluated
+        )
+        false_positive = sum(
+            result.expected_gender != label and result.predicted_gender == label
+            for result in evaluated
+        )
+        false_negative = sum(
+            result.expected_gender == label and result.predicted_gender != label
+            for result in evaluated
+        )
+        precision_percent = (
+            100 * true_positive / (true_positive + false_positive)
+            if true_positive + false_positive
+            else 0.0
+        )
+        recall_percent = (
+            100 * true_positive / (true_positive + false_negative)
+            if true_positive + false_negative
+            else 0.0
+        )
         by_expected[label] = {
             "count": len(label_results),
-            "correct": label_correct,
+            "correct": true_positive,
+            "true_positive": true_positive,
+            "false_positive": false_positive,
+            "false_negative": false_negative,
             "accuracy_percent": (
-                100 * label_correct / len(label_results) if label_results else 0.0
+                100 * true_positive / len(label_results) if label_results else 0.0
             ),
+            "precision_percent": precision_percent,
+            "recall_percent": recall_percent,
         }
     return {
         "total": len(results),
@@ -211,6 +237,27 @@ def write_csv(path: Path, results: list[BenchmarkResult]) -> None:
         writer.writerows(asdict(result) for result in results)
 
 
+def load_csv(path: Path) -> list[BenchmarkResult]:
+    """Load benchmark results without making any new JEV requests."""
+    with path.open(newline="", encoding="utf-8") as source:
+        return [
+            BenchmarkResult(
+                index=int(row["index"]),
+                name=row["name"],
+                library_gender=row["library_gender"],
+                expected_gender=row["expected_gender"],
+                predicted_gender=row["predicted_gender"],
+                male_probability=float(row["male_probability"]),
+                female_probability=float(row["female_probability"]),
+                unisex_probability=float(row["unisex_probability"]),
+                confidence=float(row["confidence"]),
+                correct=row["correct"].casefold() == "true",
+                error=row["error"],
+            )
+            for row in csv.DictReader(source)
+        ]
+
+
 def _format_percent(value: float) -> str:
     return f"{value:.1f}%"
 
@@ -222,7 +269,7 @@ def write_html(
     seed: int,
     unisex_count: int,
     concurrency: int,
-    elapsed_seconds: float,
+    elapsed_seconds: float | None,
 ) -> None:
     """Write a standalone report with summary cards, a confusion matrix, and rows."""
     metrics = _metrics(results)
@@ -257,6 +304,17 @@ def write_html(
         )
 
     by_expected = metrics["by_expected"]
+    report_metadata = (
+        f"Balanced binary sample: 498 male + 498 female, plus {unisex_count} "
+        f"library-labeled unisex names · seed {seed} · concurrency {concurrency} · "
+        f"elapsed {elapsed_seconds:.1f}s"
+        if elapsed_seconds is not None
+        else (
+            f"Balanced binary sample: 498 male + 498 female, plus {unisex_count} "
+            f"library-labeled unisex names · seed {seed} · "
+            "report regenerated from the existing CSV; no benchmark requests made"
+        )
+    )
     summary_cards = "".join(
         f"<div class='card'><div class='eyebrow'>{label.title()} accuracy</div>"
         f"<div class='metric'>{_format_percent(by_expected[label]['accuracy_percent'])}</div>"
@@ -269,7 +327,9 @@ def write_html(
             "seed": seed,
             "unisex_count": unisex_count,
             "concurrency": concurrency,
-            "elapsed_seconds": round(elapsed_seconds, 2),
+            "elapsed_seconds": (
+                round(elapsed_seconds, 2) if elapsed_seconds is not None else None
+            ),
         },
         sort_keys=True,
     )
@@ -300,11 +360,21 @@ def write_html(
   <div class="eyebrow">TypeSafe / JEV Choice mode</div>
   <h1>Gender guesser benchmark</h1>
   <p class="lede">JEV was asked to classify 1,000 random names from the <code>gender-guesser</code> Python library using the same three-way Choice question as the interactive example.</p>
-  <p class="meta">Balanced binary sample: 498 male + 498 female, plus {unisex_count} library-labeled unisex names · seed {seed} · concurrency {concurrency} · elapsed {elapsed_seconds:.1f}s · <a href="gender_benchmark_results.csv">raw CSV</a></p>
+  <p class="meta">{report_metadata} · <a href="gender_benchmark_results.csv">raw CSV</a></p>
   <section class="cards">
     <div class="card"><div class="eyebrow">Overall accuracy</div><div class="metric">{_format_percent(metrics['accuracy_percent'])}</div><div class="muted">{metrics['correct']} / {metrics['evaluated']} evaluated</div></div>
     {summary_cards}
   </section>
+  <h2>Precision &amp; recall by gender</h2>
+  <div class="panel"><table><thead><tr><th>Gender</th><th>Support</th><th>Precision</th><th>Recall</th><th>True positives</th><th>False positives</th><th>False negatives</th></tr></thead><tbody>{''.join(
+      f"<tr><td>{label.title()}</td><td>{by_expected[label]['count']}</td>"
+      f"<td>{_format_percent(by_expected[label]['precision_percent'])}</td>"
+      f"<td>{_format_percent(by_expected[label]['recall_percent'])}</td>"
+      f"<td>{by_expected[label]['true_positive']}</td>"
+      f"<td>{by_expected[label]['false_positive']}</td>"
+      f"<td>{by_expected[label]['false_negative']}</td></tr>"
+      for label in CHOICES
+  )}</tbody></table></div>
   <h2>Results</h2>
   <div class="controls"><input id="search" type="search" placeholder="Filter by name or label…"><select id="status"><option value="all">All results</option><option value="correct">Correct</option><option value="incorrect">Incorrect</option><option value="error">Errors</option></select><span class="muted" id="count"></span></div>
   <div class="panel"><table><thead><tr><th>#</th><th>Name</th><th>Library result</th><th>Expected</th><th>JEV guess</th><th>P male</th><th>P female</th><th>P unisex</th><th>Confidence</th><th>Status</th></tr></thead><tbody id="results">{''.join(escaped_rows)}</tbody></table></div>
@@ -330,11 +400,34 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--concurrency", type=int, default=DEFAULT_CONCURRENCY)
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV_PATH)
     parser.add_argument("--html", type=Path, default=DEFAULT_HTML_PATH)
+    parser.add_argument(
+        "--report-only",
+        action="store_true",
+        help="regenerate the HTML from --csv without making JEV requests",
+    )
     return parser.parse_args()
 
 
 async def main() -> None:
     args = parse_args()
+    if args.report_only:
+        results = load_csv(args.csv)
+        write_html(
+            args.html,
+            results,
+            seed=args.seed,
+            unisex_count=args.unisex_count,
+            concurrency=args.concurrency,
+            elapsed_seconds=None,
+        )
+        metrics = _metrics(results)
+        print(
+            f"Regenerated {args.html} from {args.csv}; "
+            f"accuracy={metrics['accuracy_percent']:.1f}% "
+            f"({metrics['correct']}/{metrics['evaluated']}), errors={metrics['errors']}"
+        )
+        return
+
     detector = Detector(case_sensitive=False)
     cases = build_sample(
         detector,
