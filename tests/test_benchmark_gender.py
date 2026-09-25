@@ -12,6 +12,7 @@ from scripts.benchmark_gender import (
     add_geo_metadata,
     build_sample,
     build_region_augmentation_sample,
+    filter_report_results,
     geo_metadata,
     load_csv,
     region_support_gaps,
@@ -75,6 +76,7 @@ class GenderBenchmarkTests(unittest.TestCase):
         self.assertEqual(metrics["by_expected"]["unisex"]["recall_percent"], 100.0)
         self.assertEqual(metrics["by_geo_region"]["North America"]["accuracy_percent"], 100.0)
         self.assertEqual(metrics["by_geo_region"]["Europe"]["accuracy_percent"], 0.0)
+        self.assertEqual(filter_report_results(results, min_geo_support=2), [])
 
         with TemporaryDirectory() as directory:
             csv_path = Path(directory) / "results.csv"
@@ -88,6 +90,7 @@ class GenderBenchmarkTests(unittest.TestCase):
                 unisex_count=1,
                 concurrency=2,
                 elapsed_seconds=1.25,
+                min_geo_support=1,
             )
             with csv_path.open(newline="", encoding="utf-8") as csv_file:
                 rows = list(csv.DictReader(csv_file))

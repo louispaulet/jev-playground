@@ -489,6 +489,22 @@ def _format_percent(value: float) -> str:
     return f"{value:.1f}%"
 
 
+def filter_report_results(
+    results: list[BenchmarkResult], min_geo_support: int
+) -> list[BenchmarkResult]:
+    """Keep only rows belonging to geo regions with reliable support."""
+    if min_geo_support < 1:
+        raise ValueError("min_geo_support must be positive")
+    support = Counter(
+        result.library_geo_region for result in results if not result.error
+    )
+    return [
+        result
+        for result in results
+        if support[result.library_geo_region] >= min_geo_support
+    ]
+
+
 def write_html(
     path: Path,
     results: list[BenchmarkResult],
@@ -498,11 +514,15 @@ def write_html(
     concurrency: int,
     elapsed_seconds: float | None,
     run_note: str = "",
+    min_geo_support: int = DEFAULT_MIN_GEO_SUPPORT,
 ) -> None:
-    """Write a standalone report with summary cards, a confusion matrix, and rows."""
-    metrics = _metrics(results)
+    """Write a report containing only sufficiently supported geo segments."""
+    report_results = filter_report_results(results, min_geo_support)
+    metrics = _metrics(report_results)
+    source_total = len(results)
+    excluded_total = source_total - len(report_results)
     escaped_rows = []
-    for result in results:
+    for result in report_results:
         status = "correct" if result.correct else "incorrect"
         if result.error:
             status = "error"
@@ -539,7 +559,7 @@ def write_html(
     expected_counts = metrics["expected_counts"]
     male_count = expected_counts.get("male", 0)
     female_count = expected_counts.get("female", 0)
-    actual_unisex_count = expected_counts.get("unisex", unisex_count)
+    actual_unisex_count = expected_counts.get("unisex", 0)
     report_metadata = (
         f"Sample: {male_count} male + {female_count} female, plus "
         f"{actual_unisex_count} library-labeled unisex names · seed {seed}"
@@ -550,6 +570,9 @@ def write_html(
         )
     if run_note:
         report_metadata += f" · {html.escape(run_note)}"
+    report_metadata += (
+        f" · {excluded_total} rows excluded (< {min_geo_support} geo support)"
+    )
     summary_cards = "".join(
         f"<div class='card'><div class='eyebrow'>{label.title()} accuracy</div>"
         f"<div class='metric'>{_format_percent(by_expected[label]['accuracy_percent'])}</div>"
@@ -560,7 +583,7 @@ def write_html(
         {
             "metrics": metrics,
             "seed": seed,
-            "unisex_count": unisex_count,
+            "unisex_count": actual_unisex_count,
             "concurrency": concurrency,
             "elapsed_seconds": (
                 round(elapsed_seconds, 2) if elapsed_seconds is not None else None
@@ -594,7 +617,7 @@ def write_html(
 <main>
   <div class="eyebrow">TypeSafe / JEV Choice mode</div>
   <h1>Gender guesser benchmark</h1>
-  <p class="lede">JEV was asked to classify {metrics['total']:,} names from the <code>gender-guesser</code> Python library using the same three-way Choice question as the interactive example.</p>
+  <p class="lede">This report shows {metrics['total']:,} of {source_total:,} JEV classifications from the <code>gender-guesser</code> Python library. Geo regions with fewer than {min_geo_support} evaluated rows are excluded as unreliable.</p>
   <p class="meta">{report_metadata} · <a href="gender_benchmark_results.csv">raw CSV</a></p>
   <section class="cards">
     <div class="card"><div class="eyebrow">Overall accuracy</div><div class="metric">{_format_percent(metrics['accuracy_percent'])}</div><div class="muted">{metrics['correct']} / {metrics['evaluated']} evaluated</div></div>
@@ -681,10 +704,12 @@ async def main() -> None:
             concurrency=args.concurrency,
             elapsed_seconds=None,
             run_note="report regenerated from the existing CSV; no benchmark requests made",
+            min_geo_support=DEFAULT_MIN_GEO_SUPPORT,
         )
-        metrics = _metrics(results)
+        metrics = _metrics(filter_report_results(results, DEFAULT_MIN_GEO_SUPPORT))
         print(
             f"Regenerated {args.html} from {args.csv}; "
+            f"report_rows={metrics['total']}/{len(results)}, "
             f"accuracy={metrics['accuracy_percent']:.1f}% "
             f"({metrics['correct']}/{metrics['evaluated']}), errors={metrics['errors']}"
         )
@@ -745,9 +770,10 @@ async def main() -> None:
                 f"(target >= {args.min_geo_support} support in five viable regions)"
             ),
         )
-        metrics = _metrics(results)
+        metrics = _metrics(filter_report_results(results, DEFAULT_MIN_GEO_SUPPORT))
         print(
             f"Saved {args.csv} and {args.html}; "
+            f"report_rows={metrics['total']}/{len(results)}, "
             f"accuracy={metrics['accuracy_percent']:.1f}% "
             f"({metrics['correct']}/{metrics['evaluated']}), errors={metrics['errors']}"
         )
@@ -773,9 +799,10 @@ async def main() -> None:
         concurrency=args.concurrency,
         elapsed_seconds=elapsed_seconds,
     )
-    metrics = _metrics(results)
+    metrics = _metrics(filter_report_results(results, DEFAULT_MIN_GEO_SUPPORT))
     print(
         f"Saved {args.csv} and {args.html}; "
+        f"report_rows={metrics['total']}/{len(results)}, "
         f"accuracy={metrics['accuracy_percent']:.1f}% "
         f"({metrics['correct']}/{metrics['evaluated']}), errors={metrics['errors']}"
     )
