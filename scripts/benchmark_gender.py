@@ -11,7 +11,7 @@ import json
 import random
 import time
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -34,6 +34,63 @@ LIBRARY_TO_LABEL = {
     "mostly_female": "female",
     "andy": "unisex",
 }
+REGION_COUNTRIES = {
+    "Europe": {
+        "great_britain",
+        "ireland",
+        "italy",
+        "malta",
+        "portugal",
+        "spain",
+        "france",
+        "belgium",
+        "luxembourg",
+        "the_netherlands",
+        "east_frisia",
+        "germany",
+        "austria",
+        "swiss",
+        "iceland",
+        "denmark",
+        "norway",
+        "sweden",
+        "finland",
+        "estonia",
+        "latvia",
+        "lithuania",
+        "poland",
+        "czech_republic",
+        "slovakia",
+        "hungary",
+        "romania",
+        "bulgaria",
+        "bosniaand",
+        "croatia",
+        "kosovo",
+        "macedonia",
+        "montenegro",
+        "serbia",
+        "slovenia",
+        "albania",
+        "greece",
+        "russia",
+        "belarus",
+        "moldova",
+        "ukraine",
+    },
+    "North America": {"usa"},
+    "Caucasus": {"armenia", "azerbaijan", "georgia"},
+    "Central Asia": {"the_stans"},
+    "Middle East": {"turkey", "arabia", "israel"},
+    "Asia": {"china", "india", "japan", "korea", "vietnam"},
+    "Other": {"other_countries"},
+}
+COUNTRY_TO_REGION = {
+    country: region
+    for region, countries in REGION_COUNTRIES.items()
+    for country in countries
+}
+REGION_ORDER = tuple(REGION_COUNTRIES) + ("Mixed/ambiguous", "Unspecified")
 
 
 @dataclass
@@ -56,6 +113,9 @@ class BenchmarkResult:
     confidence: float
     correct: bool
     error: str = ""
+    library_geo_region: str = "Unspecified"
+    library_geo_countries: str = ""
+    library_geo_signal_count: int = 0
 
 
 def build_sample(
@@ -119,6 +179,45 @@ def _choice_question() -> Choice:
     )
 
 
+def geo_metadata(detector: Detector, name: str) -> tuple[str, list[str]]:
+    """Return broad regions and country signals encoded by gender-guesser."""
+    countries = [
+        country
+        for country in detector.COUNTRIES
+        if detector.get_gender(name, country) not in {"andy", "unknown"}
+    ]
+    regions = {
+        COUNTRY_TO_REGION[country]
+        for country in countries
+        if country in COUNTRY_TO_REGION
+    }
+    if not regions:
+        region = "Unspecified"
+    elif len(regions) == 1:
+        region = next(iter(regions))
+    else:
+        region = "Mixed/ambiguous"
+    return region, countries
+
+
+def add_geo_metadata(
+    results: list[BenchmarkResult], detector: Detector
+) -> list[BenchmarkResult]:
+    """Add country-specific library signals without making new JEV requests."""
+    annotated = []
+    for result in results:
+        region, countries = geo_metadata(detector, result.name)
+        annotated.append(
+            replace(
+                result,
+                library_geo_region=region,
+                library_geo_countries="|".join(countries),
+                library_geo_signal_count=len(countries),
+            )
+        )
+    return annotated
+
+
 async def _classify_case(
     client: AsyncTypeSafeClient,
     case: BenchmarkCase,
@@ -175,45 +274,76 @@ async def run_benchmark(
     return sorted(results, key=lambda result: result.index)
 
 
+def _label_metrics(
+    evaluated: list[BenchmarkResult], label: str
+) -> dict[str, int | float]:
+    true_positive = sum(
+        result.expected_gender == label and result.predicted_gender == label
+        for result in evaluated
+    )
+    false_positive = sum(
+        result.expected_gender != label and result.predicted_gender == label
+        for result in evaluated
+    )
+    false_negative = sum(
+        result.expected_gender == label and result.predicted_gender != label
+        for result in evaluated
+    )
+    support = sum(result.expected_gender == label for result in evaluated)
+    precision_percent = (
+        100 * true_positive / (true_positive + false_positive)
+        if true_positive + false_positive
+        else 0.0
+    )
+    recall_percent = (
+        100 * true_positive / support if support else 0.0
+    )
+    return {
+        "count": support,
+        "correct": true_positive,
+        "true_positive": true_positive,
+        "false_positive": false_positive,
+        "false_negative": false_negative,
+        "accuracy_percent": 100 * true_positive / support if support else 0.0,
+        "precision_percent": precision_percent,
+        "recall_percent": recall_percent,
+    }
+
+
 def _metrics(results: list[BenchmarkResult]) -> dict[str, Any]:
     evaluated = [result for result in results if not result.error]
     correct = sum(result.correct for result in evaluated)
     by_expected: dict[str, dict[str, int | float]] = {}
     for label in CHOICES:
-        label_results = [result for result in evaluated if result.expected_gender == label]
-        true_positive = sum(
-            result.expected_gender == label and result.predicted_gender == label
-            for result in evaluated
-        )
-        false_positive = sum(
-            result.expected_gender != label and result.predicted_gender == label
-            for result in evaluated
-        )
-        false_negative = sum(
-            result.expected_gender == label and result.predicted_gender != label
-            for result in evaluated
-        )
-        precision_percent = (
-            100 * true_positive / (true_positive + false_positive)
-            if true_positive + false_positive
-            else 0.0
-        )
-        recall_percent = (
-            100 * true_positive / (true_positive + false_negative)
-            if true_positive + false_negative
-            else 0.0
-        )
-        by_expected[label] = {
-            "count": len(label_results),
-            "correct": true_positive,
-            "true_positive": true_positive,
-            "false_positive": false_positive,
-            "false_negative": false_negative,
+        by_expected[label] = _label_metrics(evaluated, label)
+    by_geo_region: dict[str, dict[str, int | float]] = {}
+    regions = sorted(
+        {result.library_geo_region for result in results},
+        key=lambda region: REGION_ORDER.index(region)
+        if region in REGION_ORDER
+        else len(REGION_ORDER),
+    )
+    for region in regions:
+        region_results = [
+            result for result in evaluated if result.library_geo_region == region
+        ]
+        region_labels = [_label_metrics(region_results, label) for label in CHOICES]
+        by_geo_region[region] = {
+            "count": len(region_results),
+            "correct": sum(result.correct for result in region_results),
             "accuracy_percent": (
-                100 * true_positive / len(label_results) if label_results else 0.0
+                100 * sum(result.correct for result in region_results) / len(region_results)
+                if region_results
+                else 0.0
             ),
-            "precision_percent": precision_percent,
-            "recall_percent": recall_percent,
+            "macro_precision_percent": sum(
+                item["precision_percent"] for item in region_labels
+            )
+            / len(region_labels),
+            "macro_recall_percent": sum(
+                item["recall_percent"] for item in region_labels
+            )
+            / len(region_labels),
         }
     return {
         "total": len(results),
@@ -224,6 +354,7 @@ def _metrics(results: list[BenchmarkResult]) -> dict[str, Any]:
         "expected_counts": dict(Counter(result.expected_gender for result in results)),
         "prediction_counts": dict(Counter(result.predicted_gender for result in results)),
         "by_expected": by_expected,
+        "by_geo_region": by_geo_region,
     }
 
 
@@ -232,15 +363,31 @@ def write_csv(path: Path, results: list[BenchmarkResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(asdict(results[0])) if results else list(BenchmarkResult.__annotations__)
     with path.open("w", newline="", encoding="utf-8") as output:
-        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer = csv.DictWriter(output, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(asdict(result) for result in results)
 
 
-def load_csv(path: Path) -> list[BenchmarkResult]:
+def load_csv(path: Path, detector: Detector | None = None) -> list[BenchmarkResult]:
     """Load benchmark results without making any new JEV requests."""
     with path.open(newline="", encoding="utf-8") as source:
-        return [
+        rows = list(csv.DictReader(source))
+    if rows and (
+        "library_geo_region" not in rows[0]
+        or "library_geo_countries" not in rows[0]
+    ):
+        detector = detector or Detector(case_sensitive=False)
+    results = []
+    for row in rows:
+        geo_region = row.get("library_geo_region", "")
+        geo_countries = row.get("library_geo_countries", "")
+        if detector and not geo_region:
+            geo_region, countries = geo_metadata(detector, row["name"])
+            geo_countries = "|".join(countries)
+        geo_signal_count = int(row.get("library_geo_signal_count") or len(
+            [country for country in geo_countries.split("|") if country]
+        ))
+        results.append(
             BenchmarkResult(
                 index=int(row["index"]),
                 name=row["name"],
@@ -252,10 +399,13 @@ def load_csv(path: Path) -> list[BenchmarkResult]:
                 unisex_probability=float(row["unisex_probability"]),
                 confidence=float(row["confidence"]),
                 correct=row["correct"].casefold() == "true",
-                error=row["error"],
+                error=row.get("error", ""),
+                library_geo_region=geo_region or "Unspecified",
+                library_geo_countries=geo_countries,
+                library_geo_signal_count=geo_signal_count,
             )
-            for row in csv.DictReader(source)
-        ]
+        )
+    return results
 
 
 def _format_percent(value: float) -> str:
@@ -281,6 +431,7 @@ def write_html(
         escaped_rows.append(
             "<tr data-status={status} data-expected={expected} data-predicted={predicted}>"
             "<td>{index}</td><td>{name}</td><td>{library_gender}</td>"
+            "<td>{geo_region}</td><td>{geo_countries}</td>"
             "<td>{expected}</td><td>{predicted}</td>"
             "<td>{male}</td><td>{female}</td><td>{unisex}</td><td>{confidence}</td>"
             "<td><span class='badge {status}'>{status}</span>"
@@ -291,6 +442,9 @@ def write_html(
                 index=result.index,
                 name=html.escape(result.name),
                 library_gender=html.escape(result.library_gender),
+                geo_region=html.escape(result.library_geo_region),
+                geo_countries=html.escape(result.library_geo_countries.replace("|", ", "))
+                or "—",
                 male=f"{result.male_probability:.3f}",
                 female=f"{result.female_probability:.3f}",
                 unisex=f"{result.unisex_probability:.3f}",
@@ -375,10 +529,20 @@ def write_html(
       f"<td>{by_expected[label]['false_negative']}</td></tr>"
       for label in CHOICES
   )}</tbody></table></div>
+  <h2>Precision, recall &amp; accuracy by region</h2>
+  <p class="muted">Precision and recall are macro-averaged across male, female, and unisex. Regions come from country-specific gender-guesser signals; multiple regions are labeled mixed/ambiguous, and no signal is unspecified. These are name-dataset segments, not claims about a person's origin.</p>
+  <div class="panel"><table><thead><tr><th>Region</th><th>Support</th><th>Accuracy</th><th>Macro precision</th><th>Macro recall</th><th>Correct</th></tr></thead><tbody>{''.join(
+      f"<tr><td>{html.escape(region)}</td><td>{values['count']}</td>"
+      f"<td>{_format_percent(values['accuracy_percent'])}</td>"
+      f"<td>{_format_percent(values['macro_precision_percent'])}</td>"
+      f"<td>{_format_percent(values['macro_recall_percent'])}</td>"
+      f"<td>{values['correct']}</td></tr>"
+      for region, values in metrics['by_geo_region'].items()
+  )}</tbody></table></div>
   <h2>Results</h2>
   <div class="controls"><input id="search" type="search" placeholder="Filter by name or label…"><select id="status"><option value="all">All results</option><option value="correct">Correct</option><option value="incorrect">Incorrect</option><option value="error">Errors</option></select><span class="muted" id="count"></span></div>
-  <div class="panel"><table><thead><tr><th>#</th><th>Name</th><th>Library result</th><th>Expected</th><th>JEV guess</th><th>P male</th><th>P female</th><th>P unisex</th><th>Confidence</th><th>Status</th></tr></thead><tbody id="results">{''.join(escaped_rows)}</tbody></table></div>
-  <footer>Ground truth is the label returned by gender-guesser 0.4.0: male/female include the library's mostly_male/mostly_female labels, andy is treated as unisex. This is a benchmark against that library, not a claim about a person's actual gender.</footer>
+  <div class="panel"><table><thead><tr><th>#</th><th>Name</th><th>Library result</th><th>Geo region</th><th>Country signals</th><th>Expected</th><th>JEV guess</th><th>P male</th><th>P female</th><th>P unisex</th><th>Confidence</th><th>Status</th></tr></thead><tbody id="results">{''.join(escaped_rows)}</tbody></table></div>
+  <footer>Ground truth is the label returned by gender-guesser 0.4.0: male/female include the library's mostly_male/mostly_female labels, andy is treated as unisex. Country signals are the countries where gender-guesser returns a gender-specific value rather than andy; they do not establish a person's actual gender or geographic origin.</footer>
 </main>
 <script>
   const rows = [...document.querySelectorAll('#results tr')]; const search = document.querySelector('#search'); const status = document.querySelector('#status'); const count = document.querySelector('#count');
@@ -411,7 +575,9 @@ def parse_args() -> argparse.Namespace:
 async def main() -> None:
     args = parse_args()
     if args.report_only:
-        results = load_csv(args.csv)
+        detector = Detector(case_sensitive=False)
+        results = add_geo_metadata(load_csv(args.csv, detector), detector)
+        write_csv(args.csv, results)
         write_html(
             args.html,
             results,
@@ -439,6 +605,7 @@ async def main() -> None:
     started = time.perf_counter()
     results = await run_benchmark(cases, concurrency=args.concurrency)
     elapsed_seconds = time.perf_counter() - started
+    results = add_geo_metadata(results, detector)
     write_csv(args.csv, results)
     write_html(
         args.html,

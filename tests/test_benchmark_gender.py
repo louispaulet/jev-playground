@@ -9,7 +9,9 @@ from scripts.benchmark_gender import (
     CHOICES,
     BenchmarkResult,
     _metrics,
+    add_geo_metadata,
     build_sample,
+    geo_metadata,
     load_csv,
     write_csv,
     write_html,
@@ -34,8 +36,34 @@ class GenderBenchmarkTests(unittest.TestCase):
 
     def test_metrics_and_artifacts_are_written(self):
         results = [
-            BenchmarkResult(1, "Alex", "andy", "unisex", "unisex", 0.1, 0.1, 0.8, 0.8, True),
-            BenchmarkResult(2, "James", "male", "male", "female", 0.2, 0.7, 0.1, 0.7, False),
+            BenchmarkResult(
+                1,
+                "Alex",
+                "andy",
+                "unisex",
+                "unisex",
+                0.1,
+                0.1,
+                0.8,
+                0.8,
+                True,
+                library_geo_region="North America",
+                library_geo_countries="usa",
+            ),
+            BenchmarkResult(
+                2,
+                "James",
+                "male",
+                "male",
+                "female",
+                0.2,
+                0.7,
+                0.1,
+                0.7,
+                False,
+                library_geo_region="Europe",
+                library_geo_countries="great_britain",
+            ),
         ]
         metrics = _metrics(results)
         self.assertEqual(metrics["accuracy_percent"], 50.0)
@@ -43,6 +71,8 @@ class GenderBenchmarkTests(unittest.TestCase):
         self.assertEqual(set(metrics["prediction_counts"]), {"unisex", "female"})
         self.assertEqual(metrics["by_expected"]["unisex"]["precision_percent"], 100.0)
         self.assertEqual(metrics["by_expected"]["unisex"]["recall_percent"], 100.0)
+        self.assertEqual(metrics["by_geo_region"]["North America"]["accuracy_percent"], 100.0)
+        self.assertEqual(metrics["by_geo_region"]["Europe"]["accuracy_percent"], 0.0)
 
         with TemporaryDirectory() as directory:
             csv_path = Path(directory) / "results.csv"
@@ -65,7 +95,31 @@ class GenderBenchmarkTests(unittest.TestCase):
             self.assertIn("JEV gender Choice benchmark", document)
             self.assertIn("Alex", document)
             self.assertIn("Precision &amp; recall by gender", document)
+            self.assertIn("Precision, recall &amp; accuracy by region", document)
+            self.assertIn("North America", document)
             self.assertIn("gender_benchmark_results.csv", document)
+
+    def test_geo_metadata_uses_country_specific_library_signals(self):
+        detector = Detector(case_sensitive=False)
+        region, countries = geo_metadata(detector, "brayden")
+        self.assertEqual(region, "North America")
+        self.assertEqual(countries, ["usa"])
+
+        result = BenchmarkResult(
+            1,
+            "brayden",
+            "male",
+            "male",
+            "male",
+            0.9,
+            0.05,
+            0.05,
+            0.85,
+            True,
+        )
+        annotated = add_geo_metadata([result], detector)[0]
+        self.assertEqual(annotated.library_geo_region, "North America")
+        self.assertEqual(annotated.library_geo_countries, "usa")
 
 
 if __name__ == "__main__":
