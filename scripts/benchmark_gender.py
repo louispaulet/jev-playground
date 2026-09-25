@@ -24,6 +24,7 @@ DEFAULT_SAMPLE_SIZE = 1000
 DEFAULT_UNISEX_COUNT = 4
 DEFAULT_SEED = 20260925
 DEFAULT_CONCURRENCY = 12
+DEFAULT_MIN_GEO_SUPPORT = 400
 DEFAULT_CSV_PATH = Path("gender_benchmark_results.csv")
 DEFAULT_HTML_PATH = Path("gender_benchmark.html")
 CHOICES = ("male", "female", "unisex")
@@ -91,6 +92,13 @@ COUNTRY_TO_REGION = {
     for country in countries
 }
 REGION_ORDER = tuple(REGION_COUNTRIES) + ("Mixed/ambiguous", "Unspecified")
+SUPPORTED_GEO_REGIONS = (
+    "Europe",
+    "North America",
+    "Middle East",
+    "Asia",
+    "Mixed/ambiguous",
+)
 
 
 @dataclass
@@ -164,6 +172,75 @@ def build_sample(
     return [
         BenchmarkCase(index=index, name=case.name, library_gender=case.library_gender)
         for index, case in enumerate(cases, start=1)
+    ]
+
+
+def region_support_gaps(
+    results: list[BenchmarkResult], min_geo_support: int
+) -> dict[str, int]:
+    """Return missing evaluated rows for the regions supported by the dataset."""
+    if min_geo_support < 1:
+        raise ValueError("min_geo_support must be positive")
+    support = region_support_counts(results)
+    return {
+        region: max(0, min_geo_support - support[region])
+        for region in SUPPORTED_GEO_REGIONS
+    }
+
+
+def region_support_counts(results: list[BenchmarkResult]) -> Counter[str]:
+    """Count evaluated rows in the regions supported by the dataset."""
+    return Counter(
+        result.library_geo_region
+        for result in results
+        if not result.error and result.library_geo_region in SUPPORTED_GEO_REGIONS
+    )
+
+
+def build_region_augmentation_sample(
+    results: list[BenchmarkResult],
+    detector: Detector,
+    min_geo_support: int = DEFAULT_MIN_GEO_SUPPORT,
+    seed: int = DEFAULT_SEED,
+) -> list[BenchmarkCase]:
+    """Build only the missing binary cases needed to reach regional support."""
+    gaps = region_support_gaps(results, min_geo_support)
+    existing_names = {result.name.casefold() for result in results}
+    eligible: dict[str, dict[str, list[tuple[str, str]]]] = {
+        region: {label: [] for label in ("male", "female")}
+        for region in SUPPORTED_GEO_REGIONS
+    }
+    for name in detector.names:
+        if name.casefold() in existing_names:
+            continue
+        library_gender = detector.get_gender(name)
+        expected_gender = LIBRARY_TO_LABEL.get(library_gender)
+        if expected_gender not in {"male", "female"}:
+            continue
+        region, _ = geo_metadata(detector, name)
+        if region in eligible:
+            eligible[region][expected_gender].append((name, library_gender))
+
+    rng = random.Random(seed)
+    selected: list[tuple[str, str]] = []
+    for region in SUPPORTED_GEO_REGIONS:
+        gap = gaps[region]
+        male_count = gap // 2
+        female_count = gap - male_count
+        for label, count in (("male", male_count), ("female", female_count)):
+            pool = sorted(eligible[region][label], key=lambda item: item[0].casefold())
+            if len(pool) < count:
+                raise ValueError(
+                    f"gender-guesser does not contain {count} unused {label} names "
+                    f"for {region}; found {len(pool)}"
+                )
+            selected.extend(rng.sample(pool, count))
+
+    rng.shuffle(selected)
+    first_index = max((result.index for result in results), default=0) + 1
+    return [
+        BenchmarkCase(index=index, name=name, library_gender=library_gender)
+        for index, (name, library_gender) in enumerate(selected, start=first_index)
     ]
 
 
@@ -420,6 +497,7 @@ def write_html(
     unisex_count: int,
     concurrency: int,
     elapsed_seconds: float | None,
+    run_note: str = "",
 ) -> None:
     """Write a standalone report with summary cards, a confusion matrix, and rows."""
     metrics = _metrics(results)
@@ -458,17 +536,20 @@ def write_html(
         )
 
     by_expected = metrics["by_expected"]
+    expected_counts = metrics["expected_counts"]
+    male_count = expected_counts.get("male", 0)
+    female_count = expected_counts.get("female", 0)
+    actual_unisex_count = expected_counts.get("unisex", unisex_count)
     report_metadata = (
-        f"Balanced binary sample: 498 male + 498 female, plus {unisex_count} "
-        f"library-labeled unisex names · seed {seed} · concurrency {concurrency} · "
-        f"elapsed {elapsed_seconds:.1f}s"
-        if elapsed_seconds is not None
-        else (
-            f"Balanced binary sample: 498 male + 498 female, plus {unisex_count} "
-            f"library-labeled unisex names · seed {seed} · "
-            "report regenerated from the existing CSV; no benchmark requests made"
-        )
+        f"Sample: {male_count} male + {female_count} female, plus "
+        f"{actual_unisex_count} library-labeled unisex names · seed {seed}"
     )
+    if elapsed_seconds is not None:
+        report_metadata += (
+            f" · concurrency {concurrency} · elapsed {elapsed_seconds:.1f}s"
+        )
+    if run_note:
+        report_metadata += f" · {html.escape(run_note)}"
     summary_cards = "".join(
         f"<div class='card'><div class='eyebrow'>{label.title()} accuracy</div>"
         f"<div class='metric'>{_format_percent(by_expected[label]['accuracy_percent'])}</div>"
@@ -513,7 +594,7 @@ def write_html(
 <main>
   <div class="eyebrow">TypeSafe / JEV Choice mode</div>
   <h1>Gender guesser benchmark</h1>
-  <p class="lede">JEV was asked to classify 1,000 random names from the <code>gender-guesser</code> Python library using the same three-way Choice question as the interactive example.</p>
+  <p class="lede">JEV was asked to classify {metrics['total']:,} names from the <code>gender-guesser</code> Python library using the same three-way Choice question as the interactive example.</p>
   <p class="meta">{report_metadata} · <a href="gender_benchmark_results.csv">raw CSV</a></p>
   <section class="cards">
     <div class="card"><div class="eyebrow">Overall accuracy</div><div class="metric">{_format_percent(metrics['accuracy_percent'])}</div><div class="muted">{metrics['correct']} / {metrics['evaluated']} evaluated</div></div>
@@ -562,6 +643,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sample-size", type=int, default=DEFAULT_SAMPLE_SIZE)
     parser.add_argument("--unisex-count", type=int, default=DEFAULT_UNISEX_COUNT)
     parser.add_argument("--concurrency", type=int, default=DEFAULT_CONCURRENCY)
+    parser.add_argument(
+        "--augment-regions",
+        action="store_true",
+        help="call JEV only for names missing from the supported regional targets",
+    )
+    parser.add_argument(
+        "--min-geo-support",
+        type=int,
+        default=DEFAULT_MIN_GEO_SUPPORT,
+        help="minimum evaluated rows per supported region when augmenting",
+    )
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV_PATH)
     parser.add_argument("--html", type=Path, default=DEFAULT_HTML_PATH)
     parser.add_argument(
@@ -574,8 +666,11 @@ def parse_args() -> argparse.Namespace:
 
 async def main() -> None:
     args = parse_args()
+    if args.report_only and args.augment_regions:
+        raise SystemExit("--report-only and --augment-regions cannot be combined")
+
+    detector = Detector(case_sensitive=False)
     if args.report_only:
-        detector = Detector(case_sensitive=False)
         results = add_geo_metadata(load_csv(args.csv, detector), detector)
         write_csv(args.csv, results)
         write_html(
@@ -585,6 +680,7 @@ async def main() -> None:
             unisex_count=args.unisex_count,
             concurrency=args.concurrency,
             elapsed_seconds=None,
+            run_note="report regenerated from the existing CSV; no benchmark requests made",
         )
         metrics = _metrics(results)
         print(
@@ -594,7 +690,69 @@ async def main() -> None:
         )
         return
 
-    detector = Detector(case_sensitive=False)
+    if args.augment_regions:
+        existing_results = add_geo_metadata(load_csv(args.csv, detector), detector)
+        gaps = region_support_gaps(existing_results, args.min_geo_support)
+        cases = build_region_augmentation_sample(
+            existing_results,
+            detector,
+            min_geo_support=args.min_geo_support,
+            seed=args.seed,
+        )
+        support = region_support_counts(existing_results)
+        print(
+            "Existing evaluated regional support: "
+            + ", ".join(
+                f"{region}={support[region]} (+{gaps[region]} needed)"
+                for region, gap in gaps.items()
+            )
+        )
+        print(
+            f"Running {len(cases)} additional JEV Choice requests with "
+            f"concurrency={args.concurrency}…"
+        )
+        started = time.perf_counter()
+        additions = await run_benchmark(cases, concurrency=args.concurrency)
+        retry_cases = [
+            BenchmarkCase(
+                index=result.index,
+                name=result.name,
+                library_gender=result.library_gender,
+            )
+            for result in additions
+            if result.error
+        ]
+        if retry_cases:
+            print(f"Retrying {len(retry_cases)} failed incremental requests…")
+            retry_results = await run_benchmark(
+                retry_cases, concurrency=args.concurrency
+            )
+            by_index = {result.index: result for result in additions}
+            by_index.update({result.index: result for result in retry_results})
+            additions = [by_index[index] for index in sorted(by_index)]
+        elapsed_seconds = time.perf_counter() - started
+        results = add_geo_metadata(existing_results + additions, detector)
+        write_csv(args.csv, results)
+        write_html(
+            args.html,
+            results,
+            seed=args.seed,
+            unisex_count=args.unisex_count,
+            concurrency=args.concurrency,
+            elapsed_seconds=elapsed_seconds,
+            run_note=(
+                f"incremental regional enrichment; {len(cases)} new names requested "
+                f"(target >= {args.min_geo_support} support in five viable regions)"
+            ),
+        )
+        metrics = _metrics(results)
+        print(
+            f"Saved {args.csv} and {args.html}; "
+            f"accuracy={metrics['accuracy_percent']:.1f}% "
+            f"({metrics['correct']}/{metrics['evaluated']}), errors={metrics['errors']}"
+        )
+        return
+
     cases = build_sample(
         detector,
         sample_size=args.sample_size,

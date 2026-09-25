@@ -11,8 +11,10 @@ from scripts.benchmark_gender import (
     _metrics,
     add_geo_metadata,
     build_sample,
+    build_region_augmentation_sample,
     geo_metadata,
     load_csv,
+    region_support_gaps,
     write_csv,
     write_html,
 )
@@ -120,6 +122,34 @@ class GenderBenchmarkTests(unittest.TestCase):
         annotated = add_geo_metadata([result], detector)[0]
         self.assertEqual(annotated.library_geo_region, "North America")
         self.assertEqual(annotated.library_geo_countries, "usa")
+
+    def test_region_augmentation_only_selects_missing_binary_rows(self):
+        detector = Detector(case_sensitive=False)
+        existing = [
+            BenchmarkResult(
+                1,
+                "brayden",
+                "male",
+                "male",
+                "male",
+                0.9,
+                0.05,
+                0.05,
+                0.85,
+                True,
+                library_geo_region="North America",
+                library_geo_countries="usa",
+            )
+        ]
+        gaps = region_support_gaps(existing, min_geo_support=2)
+        self.assertEqual(gaps["North America"], 1)
+        cases = build_region_augmentation_sample(
+            existing, detector, min_geo_support=2, seed=42
+        )
+        self.assertEqual(len(cases), 9)
+        self.assertEqual([case.index for case in cases], list(range(2, 11)))
+        self.assertNotIn("brayden", {case.name for case in cases})
+        self.assertTrue(all(case.library_gender != "andy" for case in cases))
 
 
 if __name__ == "__main__":
