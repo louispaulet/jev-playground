@@ -3,7 +3,7 @@ PYTHON := $(VENV)/bin/python
 CALL_BUDGET ?= 40
 MAX_HOPS ?= 6
 
-.PHONY: install test-choice test-noul test-score wikipedia-race
+.PHONY: install test-choice test-noul test-score benchmark-gender wikipedia-race
 
 install:
 	uv venv $(VENV) --allow-existing
@@ -17,6 +17,9 @@ test-noul:
 
 test-score:
 	uv run --env-file .env --python $(PYTHON) tests/test_score_jev.py
+
+benchmark-gender:
+	uv run --env-file .env --python $(PYTHON) -m scripts.benchmark_gender
 
 wikipedia-race:
 ifndef START
