@@ -17,7 +17,7 @@ from openai import OpenAI
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = Path(__file__).with_name("population_sample.csv")
 DEFAULT_OUTPUT = Path(__file__).with_name("bio_results.csv")
-DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gpt-5.6-luna"
 
 
 def load_env_file(env_path: Path) -> None:
