@@ -65,7 +65,7 @@ def build_constraints(
         question_id = Path(question_filename).stem
         target_info: dict[str, Any] = TARGETS[question_id]
         question_path = Path(question_filename)
-        if not question_path.is_absolute():
+        if not question_path.is_absolute() and not question_path.exists():
             question_path = question_dir / question_path
         question = read_question(question_path)
         options = unique_options(parse_numbered_options(question))
