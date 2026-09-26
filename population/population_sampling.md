@@ -92,6 +92,70 @@ The source’s detailed classes are grouped so that cells are not too small for 
 
 The urban source table’s total is 66,780,857, and its scope is France. Since it is not the same 2025 adult frame as the other sources, urban-area size is treated as a controlled contextual margin rather than a claim of a fully current adult cross-tab.
 
+## Comparison: sample versus INSEE reference
+
+These tables record the check performed on `population_sample.csv`. Sample percentages use the 1,000 rows. `Δ pp` is sample percentage minus the INSEE percentage. Differences of up to 0.1 percentage point are caused by converting population distributions into whole-person quotas.
+
+### Sex × age group
+
+| Cell | Sample n | Sample % | INSEE adult reference | INSEE % | Δ pp |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Male, 18-24 | 53 | 5.3% | 2,909,157 | 5.3% | 0.0 |
+| Male, 25-34 | 72 | 7.2% | 3,942,209 | 7.2% | 0.0 |
+| Male, 35-49 | 115 | 11.5% | 6,277,370 | 11.5% | 0.0 |
+| Male, 50-64 | 119 | 11.9% | 6,462,731 | 11.8% | +0.1 |
+| Male, 65+ | 119 | 11.9% | 6,498,576 | 11.9% | 0.0 |
+| Female, 18-24 | 51 | 5.1% | 2,767,792 | 5.1% | 0.0 |
+| Female, 25-34 | 73 | 7.3% | 4,004,903 | 7.3% | 0.0 |
+| Female, 35-49 | 120 | 12.0% | 6,541,515 | 12.0% | 0.0 |
+| Female, 50-64 | 124 | 12.4% | 6,756,072 | 12.4% | 0.0 |
+| Female, 65+ | 154 | 15.4% | 8,426,089 | 15.4% | 0.0 |
+
+### Region
+
+| Region | Sample n | Sample % | INSEE adult reference | INSEE % | Δ pp |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Auvergne-Rhône-Alpes | 120 | 12.0% | 6,550,357 | 12.0% | 0.0 |
+| Bourgogne-Franche-Comté | 41 | 4.1% | 2,252,996 | 4.1% | 0.0 |
+| Bretagne | 52 | 5.2% | 2,798,680 | 5.1% | +0.1 |
+| Centre-Val de Loire | 38 | 3.8% | 2,061,115 | 3.8% | 0.0 |
+| Corse | 6 | 0.6% | 296,291 | 0.5% | +0.1 |
+| Grand Est | 82 | 8.2% | 4,461,736 | 8.2% | 0.0 |
+| Hauts-de-France | 86 | 8.6% | 4,675,974 | 8.6% | 0.0 |
+| Île-de-France | 179 | 17.9% | 9,747,105 | 17.9% | 0.0 |
+| Normandie | 49 | 4.9% | 2,665,529 | 4.9% | 0.0 |
+| Nouvelle-Aquitaine | 93 | 9.3% | 5,061,170 | 9.3% | 0.0 |
+| Occitanie | 92 | 9.2% | 5,020,374 | 9.2% | 0.0 |
+| Pays de la Loire | 57 | 5.7% | 3,122,167 | 5.7% | 0.0 |
+| Provence-Alpes-Côte d'Azur | 78 | 7.8% | 4,250,775 | 7.8% | 0.0 |
+| Guadeloupe | 6 | 0.6% | 306,433 | 0.6% | 0.0 |
+| Martinique | 5 | 0.5% | 291,379 | 0.5% | 0.0 |
+| Guyane | 4 | 0.4% | 187,535 | 0.3% | +0.1 |
+| La Réunion | 12 | 1.2% | 671,353 | 1.2% | 0.0 |
+
+### Socioprofessional group
+
+| CSP | Sample n | Sample % | INSEE % | INSEE equivalent n/1,000 | Δ pp |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Farmer | 7 | 0.7% | 0.7% | 7 | 0.0 |
+| Craft/trader/business owner | 36 | 3.6% | 3.6% | 36 | 0.0 |
+| Manager/intellectual profession | 107 | 10.7% | 10.7% | 107 | 0.0 |
+| Intermediate profession | 144 | 14.4% | 14.4% | 144 | 0.0 |
+| Employee | 153 | 15.3% | 15.3% | 153 | 0.0 |
+| Worker | 116 | 11.6% | 11.6% | 116 | 0.0 |
+| Retired | 278 | 27.8% | 27.8% | 278 | 0.0 |
+| Other inactive | 159 | 15.9% | 15.9% | 159 | 0.0 |
+
+### Urban-area size
+
+| Class | Sample n | Sample % | INSEE reference population | INSEE % | Δ pp |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Rural/outside urban unit | 208 | 20.8% | 13,919,171 | 20.8% | 0.0 |
+| Urban unit under 20k | 180 | 18.0% | 12,022,735 | 18.0% | 0.0 |
+| Urban unit 20k-99k | 141 | 14.1% | 9,410,688 | 14.1% | 0.0 |
+| Urban unit 100k-1,999,999 | 309 | 30.9% | 20,643,171 | 30.9% | 0.0 |
+| Paris urban unit | 162 | 16.2% | 10,785,092 | 16.1% | +0.1 |
+
 ## Allocation and validation
 
 `create_population_sample.py` uses a fixed seed and assigns each marginal distribution to shuffled row positions, so repeated generation is reproducible while avoiding visible blocks of identical categories. The primary sex×age cells are created first; region, CSP and urban-area class are then balanced independently. This preserves every documented margin but does not manufacture unsupported correlations between them.
