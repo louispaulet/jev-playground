@@ -98,7 +98,7 @@ def write_batch_input(personas: list[dict[str, str]], model: str, path: Path) ->
                         {"role": "user", "content": build_prompt(persona)},
                     ],
                     "temperature": 0.7,
-                    "max_tokens": 120,
+                    "max_completion_tokens": 120,
                 },
             }
             batch_file.write(json.dumps(request, ensure_ascii=False) + "\n")
