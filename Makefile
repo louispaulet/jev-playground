@@ -2,6 +2,7 @@ VENV := .venv
 PYTHON := $(VENV)/bin/python
 CALL_BUDGET ?= 40
 MAX_HOPS ?= 6
+WEIGHTS ?= polling_test/polling/calibrated_weights_all.csv
 BENCHMARK_QUESTION_FILES := \
 	polling_test/questions/presidential_2012_first_round.txt \
 	polling_test/questions/presidential_2017_first_round.txt \
@@ -10,7 +11,10 @@ BENCHMARK_QUESTION_FILES := \
 	polling_test/questions/insee_age_group.txt \
 	polling_test/questions/insee_csp.txt \
 	polling_test/questions/insee_region.txt \
-	polling_test/questions/insee_urban_area.txt
+	polling_test/questions/insee_urban_area.txt \
+	polling_test/questions/insee_camme_financial_future.txt \
+	polling_test/questions/insee_camme_major_purchases.txt \
+	polling_test/questions/insee_camme_unemployment_future.txt
 
 .PHONY: install test-choice test-noul test-score benchmark-gender wikipedia-race poll benchmark-poll compare-benchmarks calibrate-weights generate-population validate-population
 
@@ -49,7 +53,7 @@ benchmark-poll:
 	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet $(foreach file,$(BENCHMARK_QUESTION_FILES),--question-file "$(file)")
 
 compare-benchmarks:
-	uv run --python $(PYTHON) polling_test/polling/compare_benchmarks.py
+	uv run --python $(PYTHON) polling_test/polling/compare_benchmarks.py $(if $(WEIGHTS),--weights "$(WEIGHTS)",)
 
 calibrate-weights:
 	uv run --python $(PYTHON) polling_test/polling/calibrate_weights.py

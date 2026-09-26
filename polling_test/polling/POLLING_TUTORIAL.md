@@ -97,6 +97,35 @@ Because the timestamp is the filename prefix, ordinary filename sorting orders
 the result files chronologically. Override the input persona CSV with `CSV=...`
 by invoking the Python script directly, or pass `OUTPUT_DIR=...` to `make poll`.
 
+## Cost-aware historical and INSEE benchmark batch
+
+Run the full benchmark set with:
+
+```bash
+make benchmark-poll LIMIT=1000
+make compare-benchmarks
+```
+
+The batch contains the 2012, 2017 and 2022 first-round election questions,
+five profile questions based on the INSEE-controlled fields in the synthetic
+population, and three independent INSEE Camme opinion questions. The Camme
+questions compare JEV-derived opinion balances with the published July 2026
+INSEE balances. All uncached questions for one persona are sent in one
+TypeSafe request. Each question still gets its own CSV, and the embedded
+question hash lets later runs reuse matching CSVs without making another paid
+request.
+
+The SciPy calibration diagnostic uses bounded soft constraints by default:
+
+```bash
+make calibrate-weights
+```
+
+It writes persona weights, reports the effective sample size, and keeps the
+unweighted CSVs unchanged. Use `--hard` directly with
+`polling_test/polling/calibrate_weights.py` only when exact constraints are
+known to be feasible.
+
 ## What is sent to JEV?
 
 For each CSV row, the script builds this state:

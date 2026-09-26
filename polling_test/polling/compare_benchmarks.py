@@ -38,6 +38,11 @@ def load_personas(persona_csv: Path) -> dict[str, dict[str, str]]:
         return {row["persona_id"]: row for row in csv.DictReader(csv_file)}
 
 
+def load_weights(weights_path: Path) -> dict[str, float]:
+    with weights_path.open(newline="", encoding="utf-8") as csv_file:
+        return {row["persona_id"]: float(row["weight"]) for row in csv.DictReader(csv_file)}
+
+
 def percent(value: float) -> str:
     return f"{value:.2f}%"
 
@@ -46,14 +51,17 @@ def build_report(
     question_dir: Path,
     result_dir: Path,
     persona_csv: Path,
+    weights_path: Path | None = None,
 ) -> str:
     personas = load_personas(persona_csv)
+    weights = load_weights(weights_path) if weights_path else None
+    ordered_weights = [weights[persona_id] for persona_id in personas] if weights else None
     lines = [
         "# JEV benchmark results versus IRL targets",
         "",
         "This report compares the cached JEV probability distributions with known",
-        "French election results and the INSEE-controlled margins used to build the",
-        "synthetic population. All benchmark questions were batched into one JEV",
+        "French election results, INSEE-controlled margins, and independent INSEE",
+        "Camme opinion balances. All benchmark questions were batched into one JEV",
         "request per persona, and each question's response was saved as its own CSV.",
         "",
         "JEV values are mean probabilities across the personas. Differences are",
@@ -61,6 +69,15 @@ def build_report(
         "as the denominator, so abstention, blank and null options remain comparable.",
         "",
     ]
+    if ordered_weights:
+        effective_sample_size = sum(ordered_weights) ** 2 / sum(weight**2 for weight in ordered_weights)
+        lines.extend(
+            [
+                f"A weighted diagnostic is also shown using [`{weights_path.name}`]({weights_path.name}).",
+                f"Weight range: `{min(ordered_weights):.3f}`–`{max(ordered_weights):.3f}`; effective sample size: `{effective_sample_size:.1f}`.",
+                "",
+            ]
+        )
 
     for question_filename in QUESTION_FILES:
         question_id = Path(question_filename).stem
@@ -75,8 +92,19 @@ def build_report(
             option: sum(float(row[columns[option]]) for row in rows) / len(rows) * 100
             for option in options
         }
-        actual = target_info["targets_percent"]
-
+        weighted_averages = (
+            {
+                option: sum(
+                    weight * float(row[columns[option]])
+                    for weight, row in zip(ordered_weights, rows)
+                )
+                / sum(ordered_weights)
+                * 100
+                for option in options
+            }
+            if ordered_weights
+            else None
+        )
         lines.extend(
             [
                 f"## {target_info['label']}",
@@ -86,16 +114,79 @@ def build_report(
                 f"- Rows: `{len(rows)}`",
                 f"- Denominator: {target_info['denominator']}",
                 f"- Source: [{target_info['source']}]({target_info['source']})",
+            ]
+        )
+        if target_info.get("reference_period"):
+            lines.append(f"- Reference period: `{target_info['reference_period']}`")
+
+        if "balance_target" in target_info:
+            positive = set(target_info["positive_options"])
+            negative = set(target_info["negative_options"])
+            balance = sum(averages[option] for option in positive) - sum(
+                averages[option] for option in negative
+            )
+            weighted_balance = (
+                sum(weighted_averages[option] for option in positive)
+                - sum(weighted_averages[option] for option in negative)
+                if weighted_averages
+                else None
+            )
+            lines.extend(
+                [
+                    "",
+                    f"- Balance definition: {target_info['balance_definition']}",
+                    "",
+                    "| Metric | JEV mean | JEV weighted | IRL / target | Unweighted diff | Weighted diff |",
+                    "|---|---:|---:|---:|---:|---:|",
+                    f"| Opinion balance | {balance:+.2f} pp | "
+                    f"{weighted_balance:+.2f} pp | "
+                    f"{target_info['balance_target']:+.2f} pp | "
+                    f"{balance - target_info['balance_target']:+.2f} pp | "
+                    f"{weighted_balance - target_info['balance_target']:+.2f} pp |"
+                    if weighted_balance is not None
+                    else f"| Opinion balance | {balance:+.2f} pp | n/a | "
+                    f"{target_info['balance_target']:+.2f} pp | "
+                    f"{balance - target_info['balance_target']:+.2f} pp | n/a |",
+                    "",
+                    "JEV response probabilities:",
+                    "",
+                    "| Option | JEV mean | JEV weighted |",
+                    "|---|---:|---:|",
+                ]
+            )
+            for option in options:
+                lines.append(
+                    f"| {option} | {percent(averages[option])} | "
+                    f"{percent(weighted_averages[option]) if weighted_averages else 'n/a'} |"
+                )
+            lines.append("")
+            continue
+
+        actual = target_info["targets_percent"]
+        lines.extend(
+            [
                 "",
                 "| Option | JEV mean | IRL / target | Difference |",
                 "|---|---:|---:|---:|",
             ]
         )
+        if weighted_averages:
+            lines[-2:] = [
+                "| Option | JEV mean | JEV weighted | IRL / target | Unweighted diff | Weighted diff |",
+                "|---|---:|---:|---:|---:|---:|",
+            ]
         for option in options:
             difference = averages[option] - actual[option]
-            lines.append(
-                f"| {option} | {percent(averages[option])} | {percent(actual[option])} | {difference:+.2f} pp |"
-            )
+            if weighted_averages:
+                weighted_difference = weighted_averages[option] - actual[option]
+                lines.append(
+                    f"| {option} | {percent(averages[option])} | {percent(weighted_averages[option])} | "
+                    f"{percent(actual[option])} | {difference:+.2f} pp | {weighted_difference:+.2f} pp |"
+                )
+            else:
+                lines.append(
+                    f"| {option} | {percent(averages[option])} | {percent(actual[option])} | {difference:+.2f} pp |"
+                )
 
         truth_field = target_info.get("truth_field")
         if truth_field:
@@ -116,10 +207,16 @@ def build_report(
         [
             "## Interpretation",
             "",
-            "The INSEE sections are profile-reading checks: the correct answer is",
-            "already present in each persona row, while the aggregate target comes",
-            "from the documented INSEE quota. They test whether JEV consumes the",
-            "provided profile coherently; they are not independent opinion polls.",
+            "The INSEE-controlled demographic sections are profile-reading checks:",
+            "the correct answer is already present in each persona row, while the",
+            "aggregate target comes from the documented INSEE quota. They test",
+            "whether JEV consumes the provided profile coherently; they are not",
+            "independent opinion polls.",
+            "",
+            "The INSEE Camme sections are independent opinion benchmarks. INSEE's",
+            "July 2026 release publishes opinion balances rather than every raw",
+            "response share, so the report compares the same positive-minus-negative",
+            "balance computed from JEV probabilities with the published balance.",
             "",
             "The election sections are aggregate historical benchmarks. They are useful",
             "for measuring model/population mismatch, but fitting weights directly to",
@@ -137,10 +234,11 @@ def main() -> None:
     parser.add_argument("--question-dir", type=Path, default=DEFAULT_QUESTION_DIR)
     parser.add_argument("--result-dir", type=Path, default=DEFAULT_RESULT_DIR)
     parser.add_argument("--persona-csv", type=Path, default=DEFAULT_PERSONA_CSV)
+    parser.add_argument("--weights", type=Path)
     parser.add_argument("--output", type=Path, default=DEFAULT_REPORT)
     args = parser.parse_args()
-    report = build_report(args.question_dir, args.result_dir, args.persona_csv)
-    args.output.write_text(report + "\n", encoding="utf-8")
+    report = build_report(args.question_dir, args.result_dir, args.persona_csv, args.weights)
+    args.output.write_text(report.rstrip() + "\n", encoding="utf-8")
     print(f"Wrote benchmark report to {args.output}")
 
 

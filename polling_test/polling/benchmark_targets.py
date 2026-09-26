@@ -14,6 +14,9 @@ QUESTION_FILES = (
     "insee_csp.txt",
     "insee_region.txt",
     "insee_urban_area.txt",
+    "insee_camme_financial_future.txt",
+    "insee_camme_major_purchases.txt",
+    "insee_camme_unemployment_future.txt",
 )
 
 
@@ -157,5 +160,37 @@ TARGETS: dict[str, dict[str, Any]] = {
             "urban_unit_100k_to_1_999_999": 30.9,
             "paris_urban_unit": 16.2,
         },
+    },
+    "insee_camme_financial_future": {
+        "label": "INSEE Camme: expected personal financial situation",
+        "source": "https://www.insee.fr/fr/statistiques/9031846",
+        "reference_period": "July 2026",
+        "denominator": "INSEE Camme balance of responses, percentage points",
+        "balance_target": -14.0,
+        "positive_options": ["S'améliorer"],
+        "negative_options": ["Se dégrader"],
+        "balance_definition": "share expecting improvement minus share expecting deterioration",
+    },
+    "insee_camme_major_purchases": {
+        "label": "INSEE Camme: opportunity to make major purchases",
+        "source": "https://www.insee.fr/fr/statistiques/9031846",
+        "reference_period": "July 2026",
+        "denominator": "INSEE Camme balance of responses, percentage points",
+        "balance_target": -36.0,
+        "positive_options": ["Oui, le moment est plutôt favorable"],
+        "negative_options": [
+            "Non, le moment est plutôt défavorable, il faudrait reporter l'achat"
+        ],
+        "balance_definition": "share finding the moment favorable minus share finding it unfavorable",
+    },
+    "insee_camme_unemployment_future": {
+        "label": "INSEE Camme: expected change in unemployment",
+        "source": "https://www.insee.fr/fr/statistiques/9031846",
+        "reference_period": "July 2026",
+        "denominator": "INSEE Camme balance of responses, percentage points",
+        "balance_target": 55.0,
+        "positive_options": ["Fortement ou un peu augmenter"],
+        "negative_options": ["Fortement ou un peu diminuer"],
+        "balance_definition": "share expecting unemployment to increase minus share expecting it to decrease",
     },
 }

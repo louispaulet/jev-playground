@@ -69,11 +69,26 @@ def build_constraints(
             question_path = question_dir / question_path
         question = read_question(question_path)
         options = unique_options(parse_numbered_options(question))
+        result_path = find_result(result_dir, question)
+        matrix = load_probabilities(result_path, options, persona_ids)
+        if "balance_target" in target_info:
+            positive = set(target_info["positive_options"])
+            negative = set(target_info["negative_options"])
+            balance = sum(
+                (matrix[:, options.index(option)] for option in positive),
+                start=np.zeros(len(persona_ids)),
+            ) - sum(
+                (matrix[:, options.index(option)] for option in negative),
+                start=np.zeros(len(persona_ids)),
+            )
+            constraint_columns.append(balance)
+            constraint_targets.append(float(target_info["balance_target"]) / 100.0)
+            labels.append(f"{question_id}:balance")
+            continue
+
         targets = target_info["targets_percent"]
         if set(options) != set(targets):
             raise ValueError(f"Target choices do not match question: {question_id}")
-        result_path = find_result(result_dir, question)
-        matrix = load_probabilities(result_path, options, persona_ids)
         normalized_targets = np.array([targets[option] for option in options], dtype=float)
         normalized_targets /= normalized_targets.sum()
 
@@ -193,10 +208,12 @@ def main() -> None:
     weights = result.x
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=["persona_id", "weight"])
+        writer = csv.DictWriter(
+            csv_file, fieldnames=["persona_id", "weight"], lineterminator="\n"
+        )
         writer.writeheader()
         writer.writerows(
-            {"persona_id": persona_id, "weight": weight}
+            {"persona_id": persona_id, "weight": f"{weight:.12g}"}
             for persona_id, weight in zip(persona_ids, weights)
         )
 

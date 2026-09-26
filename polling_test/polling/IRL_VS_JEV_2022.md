@@ -1,5 +1,9 @@
 # 2022 first-round results: IRL versus JEV
 
+> Historical note: this file records the original run before the null-ballot
+> option was added. The corrected 2022 run, plus the 2012/2017 and INSEE
+> benchmarks, is maintained in [`BENCHMARK_RESULTS.md`](BENCHMARK_RESULTS.md).
+
 This note records the comparison for the question in
 [`q3_presidential_2022.txt`](../questions/q3_presidential_2022.txt) and the
 1,000-persona result in the timestamped CSV under [`../results/`](../results/).

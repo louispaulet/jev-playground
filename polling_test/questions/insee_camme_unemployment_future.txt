@@ -1,0 +1,4 @@
+Pensez-vous que, dans les douze prochains mois, le nombre de chômeurs va :
+1. Fortement ou un peu augmenter
+2. Rester stationnaire
+3. Fortement ou un peu diminuer
