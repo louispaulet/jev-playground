@@ -1,6 +1,6 @@
 # Joint-distribution audit and repair of `population_sample.csv`
 
-Date: 2026-09-26  
+Date: 2026-09-27
 File checked: `polling_test/population/population_sample.csv`  
 Sample size: 1,000 adults
 
@@ -74,8 +74,9 @@ The repaired matrices are exact at the sample level:
   Île-de-France, and none are elsewhere.
 
 The `bio` column was then regenerated for all 1,000 repaired personas through
-OpenAI Batch API batch `batch_6ab83783fa0881909f88e036e583423e` using
-`gpt-4o-mini`; the batch completed with 1,000 successes and 0 failures.
+direct OpenAI Chat Completions calls using the documented Luna model
+`gpt-5.6-luna`. All 1,000 calls completed successfully after transient-error
+retries; no bio values are empty.
 
 ## Requested comparisons that are not identifiable from this CSV
 
