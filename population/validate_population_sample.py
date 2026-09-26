@@ -37,14 +37,19 @@ def assert_counts(actual: pd.Series, expected: dict[str, int], label: str) -> No
 
 def validate(csv_path: Path) -> pd.DataFrame:
     frame = pd.read_csv(csv_path)
-    if list(frame.columns) != FIELDNAMES:
+    if list(frame.columns[: len(FIELDNAMES)]) != FIELDNAMES:
         raise AssertionError(
-            f"columns mismatch: expected {FIELDNAMES}, observed {list(frame.columns)}"
+            f"columns mismatch: expected {FIELDNAMES} first, observed {list(frame.columns)}"
         )
+    unexpected_columns = set(frame.columns) - set(FIELDNAMES) - {"bio"}
+    if unexpected_columns:
+        raise AssertionError(f"unexpected columns: {sorted(unexpected_columns)}")
     if len(frame) != 1_000:
         raise AssertionError(f"expected 1,000 rows, observed {len(frame)}")
     if frame.isna().any().any():
         raise AssertionError("CSV contains missing values")
+    if "bio" in frame.columns and frame["bio"].str.strip().eq("").any():
+        raise AssertionError("CSV contains empty bios")
     if frame["persona_id"].nunique() != len(frame):
         raise AssertionError("persona_id values are not unique")
 
