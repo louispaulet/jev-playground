@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from scipy.optimize import Bounds, LinearConstraint, OptimizeResult, minimize
+from scipy.optimize import Bounds, LinearConstraint, OptimizeResult, lsq_linear, minimize
 
 from benchmark_targets import QUESTION_FILES, TARGETS
 from compare_benchmarks import find_result
@@ -96,9 +96,26 @@ def solve_weights(
     targets: np.ndarray,
     lower: float,
     upper: float,
+    hard: bool = False,
+    penalty: float = 1_000_000.0,
 ) -> Any:
-    """Minimize squared weight movement under exact aggregate constraints."""
+    """Minimize weight movement with soft targets or exact constraints."""
     count = probabilities.shape[0]
+    normalized_constraints = np.vstack(
+        [np.ones(count) / count, probabilities.T / count]
+    )
+    normalized_targets = np.concatenate(([1.0], targets))
+    if not hard:
+        scale = np.sqrt(penalty)
+        return lsq_linear(
+            np.vstack([np.eye(count), scale * normalized_constraints]),
+            np.concatenate([np.ones(count), scale * normalized_targets]),
+            bounds=(lower, upper),
+            lsmr_tol="auto",
+            max_iter=1000,
+            verbose=0,
+        )
+
     constraint_matrix = np.vstack([np.ones(count), probabilities.T])
     constraint_targets = np.concatenate(([count], count * targets))
     correction = constraint_targets - constraint_matrix @ np.ones(count)
@@ -137,6 +154,17 @@ def main() -> None:
     parser.add_argument("--question-file", action="append", dest="question_files")
     parser.add_argument("--lower", type=float, default=0.5)
     parser.add_argument("--upper", type=float, default=2.0)
+    parser.add_argument(
+        "--hard",
+        action="store_true",
+        help="Require exact aggregate targets; default uses a bounded soft calibration.",
+    )
+    parser.add_argument(
+        "--penalty",
+        type=float,
+        default=1_000_000.0,
+        help="Soft target penalty (default: 1000000).",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     if not 0 < args.lower <= 1 <= args.upper:
@@ -148,7 +176,14 @@ def main() -> None:
     probabilities, targets, labels = build_constraints(
         args.question_dir, args.result_dir, persona_ids, question_filenames
     )
-    result = solve_weights(probabilities, targets, args.lower, args.upper)
+    result = solve_weights(
+        probabilities,
+        targets,
+        args.lower,
+        args.upper,
+        hard=args.hard,
+        penalty=args.penalty,
+    )
     if not result.success:
         raise RuntimeError(
             f"SciPy could not find feasible weights: {result.message}. "
@@ -168,7 +203,8 @@ def main() -> None:
     effective_sample_size = weights.sum() ** 2 / np.sum(weights**2)
     residuals = probabilities.T @ weights / len(weights) - targets
     print(f"Wrote weights to {args.output}")
-    print(f"Questions: {len(question_filenames)} | constraints: {len(labels)}")
+    mode = "hard" if args.hard else f"soft (penalty={args.penalty:g})"
+    print(f"Questions: {len(question_filenames)} | constraints: {len(labels)} | mode: {mode}")
     print(f"min_weight={weights.min():.6f} max_weight={weights.max():.6f} ESS={effective_sample_size:.2f}")
     print(f"max_absolute_target_residual={np.max(np.abs(residuals)):.12f}")
 
