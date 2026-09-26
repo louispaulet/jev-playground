@@ -1,2 +1,3 @@
 typesafe-sdk
 gender-guesser
+pandas>=2.2

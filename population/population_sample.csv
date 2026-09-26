@@ -1,0 +1,1001 @@
+persona_id,sex,age,age_group,csp,region,urban_area_size
+fr_0001,male,50,50-64,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0002,male,18,18-24,manager_intellectual_profession,Grand Est,rural_outside_urban_unit
+fr_0003,female,32,25-34,intermediate_profession,Île-de-France,urban_unit_under_20k
+fr_0004,female,45,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0005,male,78,65+,worker,Île-de-France,urban_unit_20k_to_99k
+fr_0006,female,60,50-64,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0007,male,83,65+,worker,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0008,male,85,65+,intermediate_profession,Grand Est,paris_urban_unit
+fr_0009,male,47,35-49,retired,Pays de la Loire,urban_unit_under_20k
+fr_0010,female,63,50-64,employee,Normandie,urban_unit_100k_to_1_999_999
+fr_0011,female,39,35-49,intermediate_profession,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0012,male,95,65+,other_inactive,Grand Est,urban_unit_100k_to_1_999_999
+fr_0013,female,31,25-34,employee,Centre-Val de Loire,rural_outside_urban_unit
+fr_0014,female,68,65+,intermediate_profession,Hauts-de-France,urban_unit_under_20k
+fr_0015,female,94,65+,other_inactive,Hauts-de-France,rural_outside_urban_unit
+fr_0016,male,42,35-49,intermediate_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0017,female,79,65+,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0018,female,36,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0019,male,61,50-64,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0020,male,20,18-24,employee,Île-de-France,rural_outside_urban_unit
+fr_0021,male,71,65+,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0022,male,57,50-64,employee,Hauts-de-France,urban_unit_20k_to_99k
+fr_0023,male,71,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0024,female,64,50-64,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0025,male,33,25-34,retired,Grand Est,urban_unit_100k_to_1_999_999
+fr_0026,male,34,25-34,employee,Hauts-de-France,urban_unit_under_20k
+fr_0027,male,26,25-34,manager_intellectual_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0028,male,75,65+,intermediate_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0029,female,70,65+,intermediate_profession,Corse,urban_unit_under_20k
+fr_0030,male,51,50-64,retired,Hauts-de-France,rural_outside_urban_unit
+fr_0031,female,64,50-64,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0032,male,56,50-64,retired,Grand Est,paris_urban_unit
+fr_0033,female,27,25-34,worker,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0034,male,42,35-49,employee,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0035,male,52,50-64,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0036,male,61,50-64,worker,Grand Est,paris_urban_unit
+fr_0037,female,38,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0038,female,58,50-64,worker,Île-de-France,paris_urban_unit
+fr_0039,male,57,50-64,retired,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0040,male,76,65+,retired,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0041,female,49,35-49,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0042,male,53,50-64,manager_intellectual_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0043,male,31,25-34,manager_intellectual_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0044,male,28,25-34,employee,Pays de la Loire,urban_unit_under_20k
+fr_0045,male,26,25-34,retired,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0046,female,34,25-34,worker,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0047,female,33,25-34,employee,Île-de-France,rural_outside_urban_unit
+fr_0048,male,22,18-24,other_inactive,Normandie,urban_unit_100k_to_1_999_999
+fr_0049,female,54,50-64,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0050,male,26,25-34,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0051,male,20,18-24,manager_intellectual_profession,Hauts-de-France,paris_urban_unit
+fr_0052,female,87,65+,retired,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0053,male,57,50-64,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0054,female,47,35-49,worker,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0055,male,44,35-49,retired,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0056,male,75,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0057,female,85,65+,retired,Grand Est,paris_urban_unit
+fr_0058,female,59,50-64,retired,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0059,male,37,35-49,retired,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0060,female,62,50-64,craft_trader_business_owner,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0061,female,77,65+,craft_trader_business_owner,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0062,male,38,35-49,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0063,female,42,35-49,worker,Grand Est,rural_outside_urban_unit
+fr_0064,male,85,65+,employee,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0065,female,49,35-49,employee,Bourgogne-Franche-Comté,urban_unit_20k_to_99k
+fr_0066,female,38,35-49,retired,Grand Est,urban_unit_100k_to_1_999_999
+fr_0067,female,86,65+,retired,Guadeloupe,paris_urban_unit
+fr_0068,male,59,50-64,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0069,male,59,50-64,intermediate_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0070,male,21,18-24,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0071,female,31,25-34,employee,Bretagne,paris_urban_unit
+fr_0072,female,36,35-49,craft_trader_business_owner,Île-de-France,paris_urban_unit
+fr_0073,female,43,35-49,other_inactive,Hauts-de-France,urban_unit_under_20k
+fr_0074,male,60,50-64,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0075,female,72,65+,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0076,female,52,50-64,intermediate_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0077,male,44,35-49,employee,Île-de-France,rural_outside_urban_unit
+fr_0078,female,80,65+,employee,Pays de la Loire,rural_outside_urban_unit
+fr_0079,female,24,18-24,retired,Occitanie,paris_urban_unit
+fr_0080,female,54,50-64,manager_intellectual_profession,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0081,male,78,65+,other_inactive,Martinique,urban_unit_20k_to_99k
+fr_0082,female,65,65+,other_inactive,Bretagne,paris_urban_unit
+fr_0083,female,63,50-64,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0084,female,19,18-24,retired,Occitanie,rural_outside_urban_unit
+fr_0085,male,23,18-24,worker,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0086,female,32,25-34,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0087,female,59,50-64,manager_intellectual_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0088,male,60,50-64,manager_intellectual_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0089,male,61,50-64,other_inactive,Bourgogne-Franche-Comté,urban_unit_under_20k
+fr_0090,female,30,25-34,worker,Bretagne,paris_urban_unit
+fr_0091,male,63,50-64,farmer,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0092,female,19,18-24,other_inactive,Bretagne,paris_urban_unit
+fr_0093,female,34,25-34,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0094,male,93,65+,other_inactive,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0095,male,37,35-49,craft_trader_business_owner,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0096,female,27,25-34,craft_trader_business_owner,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0097,male,39,35-49,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0098,female,23,18-24,other_inactive,Île-de-France,paris_urban_unit
+fr_0099,female,46,35-49,employee,Bretagne,urban_unit_100k_to_1_999_999
+fr_0100,female,18,18-24,worker,Île-de-France,paris_urban_unit
+fr_0101,female,61,50-64,worker,Île-de-France,paris_urban_unit
+fr_0102,female,26,25-34,employee,Île-de-France,urban_unit_under_20k
+fr_0103,male,67,65+,retired,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0104,male,64,50-64,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0105,female,62,50-64,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0106,male,36,35-49,retired,Occitanie,urban_unit_20k_to_99k
+fr_0107,male,38,35-49,intermediate_profession,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0108,female,85,65+,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0109,male,33,25-34,manager_intellectual_profession,Guyane,paris_urban_unit
+fr_0110,male,55,50-64,employee,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0111,female,81,65+,other_inactive,Pays de la Loire,rural_outside_urban_unit
+fr_0112,male,87,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0113,female,86,65+,other_inactive,Occitanie,urban_unit_20k_to_99k
+fr_0114,male,77,65+,manager_intellectual_profession,Grand Est,urban_unit_under_20k
+fr_0115,female,74,65+,other_inactive,Pays de la Loire,urban_unit_under_20k
+fr_0116,female,70,65+,retired,Grand Est,paris_urban_unit
+fr_0117,male,41,35-49,worker,Hauts-de-France,rural_outside_urban_unit
+fr_0118,female,29,25-34,retired,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0119,female,57,50-64,craft_trader_business_owner,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0120,male,62,50-64,worker,Bretagne,urban_unit_100k_to_1_999_999
+fr_0121,female,30,25-34,employee,Martinique,urban_unit_100k_to_1_999_999
+fr_0122,female,33,25-34,other_inactive,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0123,male,77,65+,worker,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0124,female,24,18-24,employee,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0125,female,41,35-49,intermediate_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0126,male,56,50-64,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0127,male,25,25-34,intermediate_profession,Pays de la Loire,rural_outside_urban_unit
+fr_0128,male,80,65+,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0129,female,43,35-49,intermediate_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0130,male,92,65+,farmer,Occitanie,urban_unit_100k_to_1_999_999
+fr_0131,female,22,18-24,other_inactive,Normandie,urban_unit_20k_to_99k
+fr_0132,male,25,25-34,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0133,female,72,65+,other_inactive,Île-de-France,rural_outside_urban_unit
+fr_0134,male,63,50-64,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0135,female,31,25-34,intermediate_profession,Occitanie,urban_unit_20k_to_99k
+fr_0136,male,32,25-34,employee,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0137,male,71,65+,retired,Normandie,rural_outside_urban_unit
+fr_0138,female,69,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0139,male,52,50-64,retired,Île-de-France,paris_urban_unit
+fr_0140,male,44,35-49,employee,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0141,male,26,25-34,intermediate_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0142,male,68,65+,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0143,female,64,50-64,employee,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0144,male,27,25-34,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0145,male,93,65+,worker,Grand Est,urban_unit_under_20k
+fr_0146,male,84,65+,other_inactive,Bretagne,rural_outside_urban_unit
+fr_0147,male,75,65+,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0148,male,81,65+,worker,Île-de-France,urban_unit_under_20k
+fr_0149,male,87,65+,intermediate_profession,La Réunion,paris_urban_unit
+fr_0150,female,44,35-49,craft_trader_business_owner,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0151,female,34,25-34,other_inactive,Occitanie,paris_urban_unit
+fr_0152,female,65,65+,retired,Occitanie,urban_unit_20k_to_99k
+fr_0153,male,32,25-34,employee,Pays de la Loire,rural_outside_urban_unit
+fr_0154,male,24,18-24,worker,Hauts-de-France,paris_urban_unit
+fr_0155,female,86,65+,craft_trader_business_owner,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0156,male,22,18-24,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0157,male,80,65+,employee,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0158,female,66,65+,employee,Grand Est,urban_unit_20k_to_99k
+fr_0159,female,88,65+,intermediate_profession,Normandie,paris_urban_unit
+fr_0160,female,70,65+,other_inactive,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0161,male,38,35-49,employee,Hauts-de-France,rural_outside_urban_unit
+fr_0162,female,40,35-49,intermediate_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0163,male,44,35-49,retired,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0164,female,54,50-64,manager_intellectual_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0165,male,51,50-64,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0166,male,18,18-24,other_inactive,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0167,male,61,50-64,retired,Île-de-France,urban_unit_under_20k
+fr_0168,male,27,25-34,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0169,female,64,50-64,employee,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0170,female,66,65+,retired,Normandie,paris_urban_unit
+fr_0171,male,42,35-49,other_inactive,Occitanie,urban_unit_under_20k
+fr_0172,male,37,35-49,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0173,male,42,35-49,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0174,male,43,35-49,worker,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0175,male,49,35-49,worker,Île-de-France,rural_outside_urban_unit
+fr_0176,male,38,35-49,employee,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0177,male,44,35-49,retired,Centre-Val de Loire,urban_unit_under_20k
+fr_0178,male,41,35-49,retired,Île-de-France,paris_urban_unit
+fr_0179,male,20,18-24,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0180,male,18,18-24,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0181,female,48,35-49,worker,Hauts-de-France,rural_outside_urban_unit
+fr_0182,female,53,50-64,intermediate_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0183,female,69,65+,worker,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0184,male,26,25-34,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0185,female,63,50-64,employee,Grand Est,urban_unit_100k_to_1_999_999
+fr_0186,female,81,65+,manager_intellectual_profession,Île-de-France,urban_unit_under_20k
+fr_0187,male,83,65+,employee,Guyane,urban_unit_100k_to_1_999_999
+fr_0188,female,75,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0189,female,18,18-24,retired,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0190,male,72,65+,other_inactive,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0191,male,87,65+,employee,Normandie,paris_urban_unit
+fr_0192,male,43,35-49,other_inactive,Guadeloupe,paris_urban_unit
+fr_0193,female,18,18-24,intermediate_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0194,female,62,50-64,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0195,male,58,50-64,retired,Pays de la Loire,paris_urban_unit
+fr_0196,male,36,35-49,retired,Île-de-France,urban_unit_under_20k
+fr_0197,male,19,18-24,employee,Île-de-France,urban_unit_under_20k
+fr_0198,male,26,25-34,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0199,female,94,65+,other_inactive,Bretagne,urban_unit_20k_to_99k
+fr_0200,female,75,65+,other_inactive,Hauts-de-France,urban_unit_20k_to_99k
+fr_0201,female,32,25-34,intermediate_profession,Bretagne,rural_outside_urban_unit
+fr_0202,female,57,50-64,manager_intellectual_profession,Centre-Val de Loire,urban_unit_under_20k
+fr_0203,male,48,35-49,intermediate_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0204,male,31,25-34,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0205,female,48,35-49,retired,Grand Est,urban_unit_under_20k
+fr_0206,female,46,35-49,other_inactive,Hauts-de-France,urban_unit_20k_to_99k
+fr_0207,male,40,35-49,craft_trader_business_owner,Île-de-France,urban_unit_under_20k
+fr_0208,male,93,65+,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0209,male,42,35-49,employee,Hauts-de-France,urban_unit_20k_to_99k
+fr_0210,female,30,25-34,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0211,male,55,50-64,employee,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0212,male,37,35-49,retired,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0213,female,58,50-64,retired,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0214,male,48,35-49,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0215,female,35,35-49,other_inactive,Normandie,urban_unit_20k_to_99k
+fr_0216,female,23,18-24,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0217,female,30,25-34,intermediate_profession,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0218,female,25,25-34,intermediate_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0219,female,91,65+,retired,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0220,female,30,25-34,retired,Martinique,urban_unit_under_20k
+fr_0221,female,18,18-24,retired,Île-de-France,paris_urban_unit
+fr_0222,male,94,65+,employee,Île-de-France,urban_unit_under_20k
+fr_0223,female,44,35-49,other_inactive,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0224,female,73,65+,manager_intellectual_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0225,female,75,65+,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0226,male,54,50-64,manager_intellectual_profession,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0227,female,53,50-64,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0228,male,45,35-49,employee,La Réunion,urban_unit_20k_to_99k
+fr_0229,female,75,65+,employee,Bretagne,urban_unit_100k_to_1_999_999
+fr_0230,female,72,65+,intermediate_profession,Normandie,urban_unit_100k_to_1_999_999
+fr_0231,female,56,50-64,other_inactive,Grand Est,urban_unit_100k_to_1_999_999
+fr_0232,female,71,65+,other_inactive,Pays de la Loire,urban_unit_20k_to_99k
+fr_0233,male,54,50-64,employee,Pays de la Loire,rural_outside_urban_unit
+fr_0234,female,71,65+,retired,Occitanie,urban_unit_under_20k
+fr_0235,female,28,25-34,retired,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0236,female,30,25-34,manager_intellectual_profession,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0237,female,58,50-64,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0238,male,90,65+,retired,Nouvelle-Aquitaine,paris_urban_unit
+fr_0239,female,46,35-49,retired,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0240,female,63,50-64,employee,Occitanie,rural_outside_urban_unit
+fr_0241,male,25,25-34,employee,Bretagne,urban_unit_100k_to_1_999_999
+fr_0242,female,57,50-64,retired,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0243,male,19,18-24,manager_intellectual_profession,Grand Est,paris_urban_unit
+fr_0244,female,40,35-49,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0245,female,45,35-49,other_inactive,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0246,female,77,65+,retired,Nouvelle-Aquitaine,paris_urban_unit
+fr_0247,male,78,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0248,male,86,65+,worker,Grand Est,urban_unit_20k_to_99k
+fr_0249,male,42,35-49,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0250,female,37,35-49,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0251,male,69,65+,retired,Centre-Val de Loire,paris_urban_unit
+fr_0252,male,89,65+,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0253,male,83,65+,manager_intellectual_profession,Corse,urban_unit_100k_to_1_999_999
+fr_0254,male,67,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0255,female,29,25-34,retired,Hauts-de-France,paris_urban_unit
+fr_0256,male,23,18-24,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0257,female,23,18-24,other_inactive,Grand Est,rural_outside_urban_unit
+fr_0258,female,82,65+,retired,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0259,female,61,50-64,worker,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0260,female,60,50-64,retired,Pays de la Loire,paris_urban_unit
+fr_0261,male,71,65+,intermediate_profession,Occitanie,paris_urban_unit
+fr_0262,male,24,18-24,other_inactive,Bretagne,urban_unit_100k_to_1_999_999
+fr_0263,female,37,35-49,retired,Grand Est,urban_unit_20k_to_99k
+fr_0264,male,77,65+,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0265,male,47,35-49,worker,Hauts-de-France,urban_unit_under_20k
+fr_0266,female,62,50-64,retired,Normandie,paris_urban_unit
+fr_0267,female,40,35-49,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0268,male,43,35-49,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0269,male,20,18-24,intermediate_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0270,female,25,25-34,intermediate_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0271,male,57,50-64,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0272,female,37,35-49,other_inactive,Guadeloupe,rural_outside_urban_unit
+fr_0273,female,61,50-64,intermediate_profession,Grand Est,rural_outside_urban_unit
+fr_0274,female,51,50-64,intermediate_profession,Occitanie,urban_unit_under_20k
+fr_0275,female,53,50-64,worker,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0276,male,29,25-34,intermediate_profession,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0277,female,54,50-64,worker,Occitanie,rural_outside_urban_unit
+fr_0278,female,24,18-24,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0279,female,76,65+,worker,Hauts-de-France,urban_unit_20k_to_99k
+fr_0280,female,21,18-24,other_inactive,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0281,male,80,65+,other_inactive,Bretagne,urban_unit_100k_to_1_999_999
+fr_0282,female,45,35-49,craft_trader_business_owner,Occitanie,rural_outside_urban_unit
+fr_0283,female,91,65+,retired,Bretagne,rural_outside_urban_unit
+fr_0284,male,42,35-49,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0285,male,47,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0286,female,73,65+,worker,Île-de-France,urban_unit_20k_to_99k
+fr_0287,female,37,35-49,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0288,female,18,18-24,retired,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0289,female,44,35-49,employee,Occitanie,urban_unit_under_20k
+fr_0290,male,49,35-49,other_inactive,Pays de la Loire,paris_urban_unit
+fr_0291,female,34,25-34,retired,Occitanie,paris_urban_unit
+fr_0292,female,29,25-34,retired,Occitanie,urban_unit_under_20k
+fr_0293,female,68,65+,retired,Occitanie,rural_outside_urban_unit
+fr_0294,female,25,25-34,intermediate_profession,Hauts-de-France,urban_unit_under_20k
+fr_0295,male,27,25-34,retired,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0296,male,40,35-49,other_inactive,Normandie,paris_urban_unit
+fr_0297,male,32,25-34,retired,Pays de la Loire,paris_urban_unit
+fr_0298,female,40,35-49,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0299,female,83,65+,retired,Grand Est,urban_unit_100k_to_1_999_999
+fr_0300,female,57,50-64,farmer,Île-de-France,urban_unit_under_20k
+fr_0301,female,67,65+,worker,Pays de la Loire,paris_urban_unit
+fr_0302,male,24,18-24,craft_trader_business_owner,Grand Est,urban_unit_100k_to_1_999_999
+fr_0303,female,53,50-64,employee,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0304,female,69,65+,craft_trader_business_owner,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0305,female,55,50-64,craft_trader_business_owner,Normandie,rural_outside_urban_unit
+fr_0306,male,26,25-34,other_inactive,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0307,male,20,18-24,retired,Hauts-de-France,urban_unit_20k_to_99k
+fr_0308,male,39,35-49,retired,Hauts-de-France,urban_unit_under_20k
+fr_0309,male,48,35-49,employee,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0310,male,33,25-34,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0311,male,37,35-49,worker,La Réunion,urban_unit_under_20k
+fr_0312,male,65,65+,retired,Grand Est,urban_unit_under_20k
+fr_0313,male,40,35-49,employee,Guadeloupe,urban_unit_100k_to_1_999_999
+fr_0314,male,76,65+,retired,Normandie,rural_outside_urban_unit
+fr_0315,female,36,35-49,retired,Occitanie,urban_unit_under_20k
+fr_0316,female,37,35-49,employee,Grand Est,rural_outside_urban_unit
+fr_0317,male,54,50-64,intermediate_profession,Normandie,urban_unit_20k_to_99k
+fr_0318,male,51,50-64,intermediate_profession,Occitanie,rural_outside_urban_unit
+fr_0319,female,35,35-49,retired,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0320,female,24,18-24,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0321,female,90,65+,manager_intellectual_profession,Hauts-de-France,urban_unit_under_20k
+fr_0322,female,90,65+,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0323,female,18,18-24,intermediate_profession,Centre-Val de Loire,urban_unit_under_20k
+fr_0324,female,73,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0325,female,76,65+,manager_intellectual_profession,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0326,male,27,25-34,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0327,female,32,25-34,manager_intellectual_profession,Occitanie,rural_outside_urban_unit
+fr_0328,male,93,65+,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0329,male,57,50-64,worker,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0330,female,84,65+,employee,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0331,female,94,65+,craft_trader_business_owner,Pays de la Loire,urban_unit_under_20k
+fr_0332,male,41,35-49,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0333,female,60,50-64,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0334,male,38,35-49,other_inactive,Pays de la Loire,rural_outside_urban_unit
+fr_0335,male,82,65+,craft_trader_business_owner,Île-de-France,paris_urban_unit
+fr_0336,female,21,18-24,manager_intellectual_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0337,male,30,25-34,other_inactive,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0338,female,93,65+,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0339,female,51,50-64,craft_trader_business_owner,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0340,female,23,18-24,employee,Pays de la Loire,urban_unit_under_20k
+fr_0341,female,83,65+,retired,Occitanie,urban_unit_under_20k
+fr_0342,female,18,18-24,retired,Île-de-France,rural_outside_urban_unit
+fr_0343,male,47,35-49,other_inactive,Occitanie,rural_outside_urban_unit
+fr_0344,female,57,50-64,employee,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0345,male,94,65+,employee,Grand Est,urban_unit_100k_to_1_999_999
+fr_0346,female,95,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0347,male,31,25-34,retired,Grand Est,rural_outside_urban_unit
+fr_0348,female,40,35-49,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0349,male,45,35-49,employee,Bretagne,urban_unit_20k_to_99k
+fr_0350,female,66,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0351,male,33,25-34,manager_intellectual_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0352,female,88,65+,other_inactive,Hauts-de-France,urban_unit_under_20k
+fr_0353,female,60,50-64,manager_intellectual_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0354,female,31,25-34,worker,Normandie,rural_outside_urban_unit
+fr_0355,female,42,35-49,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0356,female,74,65+,employee,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0357,female,82,65+,retired,Bretagne,urban_unit_under_20k
+fr_0358,female,36,35-49,retired,Hauts-de-France,rural_outside_urban_unit
+fr_0359,female,50,50-64,retired,Pays de la Loire,urban_unit_under_20k
+fr_0360,male,25,25-34,retired,Île-de-France,paris_urban_unit
+fr_0361,male,64,50-64,retired,Île-de-France,rural_outside_urban_unit
+fr_0362,female,56,50-64,worker,Occitanie,rural_outside_urban_unit
+fr_0363,female,55,50-64,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0364,female,42,35-49,intermediate_profession,Occitanie,paris_urban_unit
+fr_0365,female,65,65+,other_inactive,Occitanie,rural_outside_urban_unit
+fr_0366,male,44,35-49,manager_intellectual_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0367,male,94,65+,intermediate_profession,Bourgogne-Franche-Comté,urban_unit_under_20k
+fr_0368,male,52,50-64,employee,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0369,female,64,50-64,other_inactive,Bretagne,urban_unit_100k_to_1_999_999
+fr_0370,female,25,25-34,worker,Occitanie,rural_outside_urban_unit
+fr_0371,male,24,18-24,other_inactive,Grand Est,urban_unit_under_20k
+fr_0372,male,21,18-24,retired,Normandie,urban_unit_20k_to_99k
+fr_0373,male,23,18-24,other_inactive,Bretagne,rural_outside_urban_unit
+fr_0374,female,47,35-49,retired,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0375,male,56,50-64,retired,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0376,male,90,65+,manager_intellectual_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0377,male,61,50-64,manager_intellectual_profession,Centre-Val de Loire,urban_unit_under_20k
+fr_0378,male,26,25-34,worker,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0379,male,23,18-24,manager_intellectual_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0380,female,47,35-49,retired,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0381,female,57,50-64,employee,Grand Est,paris_urban_unit
+fr_0382,female,77,65+,retired,Normandie,urban_unit_100k_to_1_999_999
+fr_0383,male,67,65+,other_inactive,Hauts-de-France,paris_urban_unit
+fr_0384,female,89,65+,manager_intellectual_profession,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0385,female,44,35-49,employee,Centre-Val de Loire,paris_urban_unit
+fr_0386,male,22,18-24,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0387,female,31,25-34,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0388,female,91,65+,other_inactive,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0389,male,23,18-24,other_inactive,Normandie,urban_unit_100k_to_1_999_999
+fr_0390,female,26,25-34,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0391,male,24,18-24,manager_intellectual_profession,Île-de-France,urban_unit_under_20k
+fr_0392,male,58,50-64,worker,Île-de-France,paris_urban_unit
+fr_0393,male,67,65+,manager_intellectual_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0394,male,72,65+,retired,Bretagne,paris_urban_unit
+fr_0395,male,53,50-64,retired,Pays de la Loire,urban_unit_under_20k
+fr_0396,male,31,25-34,retired,Occitanie,rural_outside_urban_unit
+fr_0397,male,52,50-64,other_inactive,Bretagne,paris_urban_unit
+fr_0398,female,49,35-49,intermediate_profession,Île-de-France,urban_unit_under_20k
+fr_0399,female,39,35-49,retired,Île-de-France,rural_outside_urban_unit
+fr_0400,male,34,25-34,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0401,female,46,35-49,worker,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0402,male,50,50-64,intermediate_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0403,male,55,50-64,intermediate_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0404,female,35,35-49,intermediate_profession,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0405,male,62,50-64,retired,Grand Est,urban_unit_under_20k
+fr_0406,male,57,50-64,worker,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0407,female,32,25-34,other_inactive,Île-de-France,paris_urban_unit
+fr_0408,female,64,50-64,intermediate_profession,Bretagne,rural_outside_urban_unit
+fr_0409,male,76,65+,intermediate_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0410,female,43,35-49,retired,Bretagne,rural_outside_urban_unit
+fr_0411,female,54,50-64,employee,Occitanie,paris_urban_unit
+fr_0412,female,38,35-49,worker,Bretagne,urban_unit_100k_to_1_999_999
+fr_0413,female,72,65+,retired,Occitanie,urban_unit_under_20k
+fr_0414,female,47,35-49,retired,Pays de la Loire,paris_urban_unit
+fr_0415,female,31,25-34,retired,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0416,female,55,50-64,worker,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0417,female,56,50-64,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0418,male,28,25-34,employee,Centre-Val de Loire,urban_unit_under_20k
+fr_0419,male,93,65+,worker,Normandie,urban_unit_under_20k
+fr_0420,male,37,35-49,intermediate_profession,Bretagne,paris_urban_unit
+fr_0421,female,88,65+,worker,Grand Est,urban_unit_20k_to_99k
+fr_0422,male,56,50-64,manager_intellectual_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0423,female,29,25-34,worker,Occitanie,urban_unit_under_20k
+fr_0424,female,35,35-49,intermediate_profession,Occitanie,urban_unit_under_20k
+fr_0425,male,87,65+,retired,Occitanie,urban_unit_under_20k
+fr_0426,female,70,65+,retired,Grand Est,urban_unit_100k_to_1_999_999
+fr_0427,female,18,18-24,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0428,male,44,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0429,female,52,50-64,other_inactive,Centre-Val de Loire,paris_urban_unit
+fr_0430,female,34,25-34,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0431,female,41,35-49,employee,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0432,female,86,65+,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0433,female,51,50-64,employee,Pays de la Loire,urban_unit_20k_to_99k
+fr_0434,male,32,25-34,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0435,female,20,18-24,worker,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0436,female,44,35-49,retired,La Réunion,urban_unit_under_20k
+fr_0437,male,76,65+,retired,Occitanie,urban_unit_20k_to_99k
+fr_0438,male,56,50-64,other_inactive,Bretagne,urban_unit_20k_to_99k
+fr_0439,male,56,50-64,employee,Centre-Val de Loire,rural_outside_urban_unit
+fr_0440,female,48,35-49,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0441,male,77,65+,other_inactive,Occitanie,urban_unit_100k_to_1_999_999
+fr_0442,male,28,25-34,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0443,female,35,35-49,other_inactive,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0444,male,20,18-24,intermediate_profession,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0445,female,57,50-64,intermediate_profession,Occitanie,rural_outside_urban_unit
+fr_0446,male,37,35-49,retired,Hauts-de-France,rural_outside_urban_unit
+fr_0447,female,39,35-49,employee,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0448,female,45,35-49,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0449,female,72,65+,retired,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0450,female,56,50-64,manager_intellectual_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0451,female,21,18-24,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0452,male,91,65+,worker,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0453,female,79,65+,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0454,female,75,65+,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0455,female,64,50-64,intermediate_profession,Île-de-France,rural_outside_urban_unit
+fr_0456,female,32,25-34,retired,Île-de-France,urban_unit_under_20k
+fr_0457,female,38,35-49,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0458,female,68,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0459,female,95,65+,retired,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0460,male,38,35-49,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0461,male,31,25-34,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0462,female,30,25-34,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0463,male,30,25-34,retired,Île-de-France,urban_unit_under_20k
+fr_0464,female,50,50-64,other_inactive,Normandie,urban_unit_100k_to_1_999_999
+fr_0465,female,55,50-64,manager_intellectual_profession,Occitanie,paris_urban_unit
+fr_0466,male,24,18-24,worker,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0467,female,82,65+,manager_intellectual_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0468,female,26,25-34,retired,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0469,male,61,50-64,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0470,male,29,25-34,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0471,female,31,25-34,manager_intellectual_profession,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0472,female,56,50-64,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0473,female,42,35-49,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0474,female,90,65+,retired,Hauts-de-France,paris_urban_unit
+fr_0475,female,27,25-34,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0476,female,33,25-34,manager_intellectual_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0477,female,57,50-64,employee,La Réunion,urban_unit_20k_to_99k
+fr_0478,female,79,65+,other_inactive,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0479,male,58,50-64,retired,Normandie,urban_unit_20k_to_99k
+fr_0480,female,64,50-64,other_inactive,Île-de-France,rural_outside_urban_unit
+fr_0481,male,56,50-64,retired,Bretagne,urban_unit_100k_to_1_999_999
+fr_0482,male,44,35-49,employee,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0483,female,61,50-64,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0484,female,65,65+,worker,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0485,female,41,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0486,female,18,18-24,employee,Normandie,paris_urban_unit
+fr_0487,female,39,35-49,retired,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0488,female,43,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0489,female,80,65+,worker,Île-de-France,urban_unit_under_20k
+fr_0490,female,81,65+,retired,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0491,male,63,50-64,worker,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0492,male,40,35-49,retired,Guyane,urban_unit_under_20k
+fr_0493,female,53,50-64,retired,Hauts-de-France,urban_unit_20k_to_99k
+fr_0494,male,68,65+,retired,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0495,female,43,35-49,manager_intellectual_profession,Normandie,rural_outside_urban_unit
+fr_0496,female,51,50-64,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0497,male,42,35-49,employee,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0498,male,57,50-64,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0499,male,30,25-34,intermediate_profession,Normandie,urban_unit_20k_to_99k
+fr_0500,male,79,65+,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0501,female,42,35-49,employee,Bretagne,urban_unit_100k_to_1_999_999
+fr_0502,female,23,18-24,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0503,female,76,65+,employee,Occitanie,rural_outside_urban_unit
+fr_0504,female,24,18-24,intermediate_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0505,male,72,65+,retired,Occitanie,urban_unit_under_20k
+fr_0506,male,80,65+,manager_intellectual_profession,La Réunion,urban_unit_100k_to_1_999_999
+fr_0507,male,28,25-34,other_inactive,Grand Est,rural_outside_urban_unit
+fr_0508,female,32,25-34,retired,Nouvelle-Aquitaine,paris_urban_unit
+fr_0509,female,21,18-24,employee,Grand Est,rural_outside_urban_unit
+fr_0510,male,84,65+,manager_intellectual_profession,Normandie,urban_unit_20k_to_99k
+fr_0511,male,43,35-49,employee,Occitanie,urban_unit_under_20k
+fr_0512,male,79,65+,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0513,female,29,25-34,manager_intellectual_profession,Île-de-France,urban_unit_under_20k
+fr_0514,male,52,50-64,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0515,female,64,50-64,employee,Occitanie,paris_urban_unit
+fr_0516,male,47,35-49,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0517,female,18,18-24,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0518,male,29,25-34,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0519,male,92,65+,employee,Occitanie,paris_urban_unit
+fr_0520,male,38,35-49,intermediate_profession,Normandie,paris_urban_unit
+fr_0521,male,86,65+,employee,Hauts-de-France,paris_urban_unit
+fr_0522,male,20,18-24,employee,Normandie,urban_unit_under_20k
+fr_0523,male,83,65+,employee,Grand Est,urban_unit_20k_to_99k
+fr_0524,female,85,65+,other_inactive,Hauts-de-France,urban_unit_20k_to_99k
+fr_0525,male,21,18-24,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0526,female,32,25-34,retired,Guadeloupe,urban_unit_20k_to_99k
+fr_0527,male,41,35-49,worker,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0528,male,56,50-64,retired,Normandie,urban_unit_100k_to_1_999_999
+fr_0529,male,63,50-64,employee,Occitanie,urban_unit_under_20k
+fr_0530,female,64,50-64,intermediate_profession,Hauts-de-France,paris_urban_unit
+fr_0531,female,69,65+,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0532,female,24,18-24,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0533,female,46,35-49,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0534,female,83,65+,retired,Occitanie,urban_unit_20k_to_99k
+fr_0535,male,26,25-34,retired,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0536,female,40,35-49,employee,Normandie,urban_unit_20k_to_99k
+fr_0537,male,59,50-64,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0538,male,30,25-34,manager_intellectual_profession,Île-de-France,paris_urban_unit
+fr_0539,female,38,35-49,employee,Bourgogne-Franche-Comté,urban_unit_under_20k
+fr_0540,male,60,50-64,other_inactive,Bretagne,urban_unit_20k_to_99k
+fr_0541,female,83,65+,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0542,male,19,18-24,manager_intellectual_profession,Grand Est,urban_unit_20k_to_99k
+fr_0543,female,48,35-49,manager_intellectual_profession,Grand Est,rural_outside_urban_unit
+fr_0544,female,60,50-64,worker,Île-de-France,rural_outside_urban_unit
+fr_0545,male,66,65+,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0546,male,33,25-34,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0547,female,80,65+,worker,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0548,male,53,50-64,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0549,male,40,35-49,other_inactive,Grand Est,urban_unit_20k_to_99k
+fr_0550,male,50,50-64,other_inactive,Île-de-France,paris_urban_unit
+fr_0551,male,23,18-24,worker,Île-de-France,urban_unit_20k_to_99k
+fr_0552,female,52,50-64,manager_intellectual_profession,Centre-Val de Loire,rural_outside_urban_unit
+fr_0553,male,91,65+,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0554,male,43,35-49,other_inactive,Île-de-France,rural_outside_urban_unit
+fr_0555,male,38,35-49,manager_intellectual_profession,Grand Est,urban_unit_under_20k
+fr_0556,male,89,65+,worker,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0557,female,53,50-64,intermediate_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0558,male,41,35-49,employee,Île-de-France,paris_urban_unit
+fr_0559,female,50,50-64,manager_intellectual_profession,Île-de-France,paris_urban_unit
+fr_0560,female,60,50-64,farmer,Île-de-France,rural_outside_urban_unit
+fr_0561,female,25,25-34,intermediate_profession,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0562,female,35,35-49,worker,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0563,female,39,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0564,female,59,50-64,other_inactive,Guadeloupe,urban_unit_100k_to_1_999_999
+fr_0565,female,72,65+,retired,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0566,male,35,35-49,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0567,female,79,65+,manager_intellectual_profession,Île-de-France,urban_unit_under_20k
+fr_0568,female,52,50-64,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0569,female,82,65+,retired,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0570,female,70,65+,employee,Bretagne,paris_urban_unit
+fr_0571,male,60,50-64,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0572,male,23,18-24,other_inactive,Bretagne,urban_unit_under_20k
+fr_0573,male,52,50-64,manager_intellectual_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0574,female,44,35-49,intermediate_profession,Grand Est,urban_unit_under_20k
+fr_0575,female,53,50-64,retired,Pays de la Loire,urban_unit_20k_to_99k
+fr_0576,male,63,50-64,other_inactive,Occitanie,urban_unit_100k_to_1_999_999
+fr_0577,female,52,50-64,retired,Île-de-France,urban_unit_under_20k
+fr_0578,male,38,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0579,female,20,18-24,craft_trader_business_owner,La Réunion,urban_unit_100k_to_1_999_999
+fr_0580,female,74,65+,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0581,male,48,35-49,employee,Normandie,urban_unit_100k_to_1_999_999
+fr_0582,male,43,35-49,craft_trader_business_owner,Centre-Val de Loire,paris_urban_unit
+fr_0583,female,55,50-64,manager_intellectual_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0584,male,83,65+,employee,Île-de-France,rural_outside_urban_unit
+fr_0585,female,63,50-64,retired,Hauts-de-France,urban_unit_under_20k
+fr_0586,female,38,35-49,worker,Normandie,urban_unit_100k_to_1_999_999
+fr_0587,male,58,50-64,other_inactive,Normandie,urban_unit_under_20k
+fr_0588,male,59,50-64,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0589,female,42,35-49,retired,Normandie,urban_unit_100k_to_1_999_999
+fr_0590,male,31,25-34,worker,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0591,male,66,65+,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0592,male,86,65+,worker,Grand Est,paris_urban_unit
+fr_0593,female,84,65+,intermediate_profession,Bretagne,urban_unit_20k_to_99k
+fr_0594,male,32,25-34,intermediate_profession,Occitanie,paris_urban_unit
+fr_0595,female,64,50-64,manager_intellectual_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0596,female,63,50-64,other_inactive,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0597,male,86,65+,worker,Occitanie,urban_unit_20k_to_99k
+fr_0598,male,37,35-49,other_inactive,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0599,female,82,65+,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0600,female,61,50-64,intermediate_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0601,female,33,25-34,other_inactive,Normandie,rural_outside_urban_unit
+fr_0602,female,61,50-64,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0603,male,34,25-34,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0604,male,54,50-64,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0605,male,59,50-64,retired,Martinique,urban_unit_under_20k
+fr_0606,female,49,35-49,farmer,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0607,female,67,65+,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0608,female,55,50-64,manager_intellectual_profession,Occitanie,urban_unit_under_20k
+fr_0609,female,34,25-34,employee,Occitanie,urban_unit_100k_to_1_999_999
+fr_0610,female,32,25-34,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0611,male,72,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0612,female,51,50-64,employee,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0613,male,60,50-64,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0614,male,51,50-64,worker,Pays de la Loire,urban_unit_under_20k
+fr_0615,male,30,25-34,manager_intellectual_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0616,female,94,65+,employee,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0617,male,58,50-64,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0618,female,45,35-49,other_inactive,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0619,female,34,25-34,retired,Normandie,urban_unit_under_20k
+fr_0620,female,45,35-49,intermediate_profession,Occitanie,rural_outside_urban_unit
+fr_0621,female,76,65+,worker,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0622,male,28,25-34,worker,Hauts-de-France,rural_outside_urban_unit
+fr_0623,male,20,18-24,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0624,male,62,50-64,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0625,female,80,65+,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0626,male,34,25-34,intermediate_profession,Occitanie,rural_outside_urban_unit
+fr_0627,male,39,35-49,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0628,female,18,18-24,intermediate_profession,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0629,female,47,35-49,employee,Bretagne,urban_unit_under_20k
+fr_0630,female,23,18-24,intermediate_profession,Grand Est,urban_unit_under_20k
+fr_0631,male,19,18-24,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0632,female,63,50-64,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0633,female,55,50-64,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0634,male,37,35-49,retired,Grand Est,paris_urban_unit
+fr_0635,male,60,50-64,retired,Bretagne,paris_urban_unit
+fr_0636,female,93,65+,employee,Nouvelle-Aquitaine,paris_urban_unit
+fr_0637,female,48,35-49,retired,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0638,male,56,50-64,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0639,male,56,50-64,retired,Grand Est,urban_unit_100k_to_1_999_999
+fr_0640,female,92,65+,employee,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0641,female,94,65+,employee,Occitanie,urban_unit_20k_to_99k
+fr_0642,female,62,50-64,retired,Île-de-France,urban_unit_under_20k
+fr_0643,male,28,25-34,employee,Centre-Val de Loire,rural_outside_urban_unit
+fr_0644,male,64,50-64,retired,Île-de-France,paris_urban_unit
+fr_0645,female,84,65+,retired,Grand Est,rural_outside_urban_unit
+fr_0646,female,76,65+,craft_trader_business_owner,Île-de-France,paris_urban_unit
+fr_0647,female,23,18-24,other_inactive,Bourgogne-Franche-Comté,urban_unit_20k_to_99k
+fr_0648,male,39,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0649,female,43,35-49,manager_intellectual_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0650,female,93,65+,intermediate_profession,Grand Est,paris_urban_unit
+fr_0651,male,64,50-64,worker,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0652,male,54,50-64,worker,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0653,female,48,35-49,intermediate_profession,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0654,male,88,65+,other_inactive,Île-de-France,rural_outside_urban_unit
+fr_0655,female,73,65+,farmer,Bourgogne-Franche-Comté,urban_unit_under_20k
+fr_0656,male,69,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0657,male,40,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0658,female,42,35-49,worker,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0659,female,28,25-34,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0660,female,66,65+,intermediate_profession,Normandie,urban_unit_under_20k
+fr_0661,female,27,25-34,intermediate_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0662,male,20,18-24,craft_trader_business_owner,Île-de-France,rural_outside_urban_unit
+fr_0663,male,59,50-64,worker,Grand Est,rural_outside_urban_unit
+fr_0664,female,42,35-49,intermediate_profession,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0665,male,36,35-49,retired,Île-de-France,urban_unit_under_20k
+fr_0666,male,92,65+,intermediate_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0667,male,84,65+,other_inactive,Grand Est,urban_unit_100k_to_1_999_999
+fr_0668,female,22,18-24,employee,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0669,female,88,65+,employee,Île-de-France,urban_unit_20k_to_99k
+fr_0670,female,70,65+,worker,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0671,female,27,25-34,employee,Hauts-de-France,paris_urban_unit
+fr_0672,female,84,65+,other_inactive,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0673,male,72,65+,retired,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0674,male,22,18-24,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0675,male,30,25-34,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0676,male,44,35-49,retired,Grand Est,urban_unit_20k_to_99k
+fr_0677,male,24,18-24,other_inactive,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0678,female,91,65+,worker,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0679,female,53,50-64,employee,Nouvelle-Aquitaine,paris_urban_unit
+fr_0680,female,60,50-64,employee,Occitanie,urban_unit_20k_to_99k
+fr_0681,male,18,18-24,other_inactive,Hauts-de-France,paris_urban_unit
+fr_0682,male,19,18-24,worker,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0683,female,19,18-24,employee,Normandie,urban_unit_100k_to_1_999_999
+fr_0684,female,46,35-49,retired,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0685,female,62,50-64,employee,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0686,female,37,35-49,manager_intellectual_profession,Île-de-France,urban_unit_under_20k
+fr_0687,male,49,35-49,worker,Grand Est,urban_unit_under_20k
+fr_0688,male,82,65+,employee,Pays de la Loire,urban_unit_under_20k
+fr_0689,male,55,50-64,worker,Île-de-France,urban_unit_under_20k
+fr_0690,female,81,65+,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0691,male,25,25-34,other_inactive,Grand Est,urban_unit_under_20k
+fr_0692,male,83,65+,retired,Pays de la Loire,urban_unit_under_20k
+fr_0693,female,32,25-34,other_inactive,Hauts-de-France,paris_urban_unit
+fr_0694,female,39,35-49,retired,Bretagne,paris_urban_unit
+fr_0695,male,45,35-49,retired,Nouvelle-Aquitaine,paris_urban_unit
+fr_0696,male,89,65+,other_inactive,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0697,male,48,35-49,retired,Hauts-de-France,rural_outside_urban_unit
+fr_0698,male,24,18-24,intermediate_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0699,male,93,65+,retired,Île-de-France,rural_outside_urban_unit
+fr_0700,female,37,35-49,other_inactive,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0701,male,69,65+,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0702,male,32,25-34,retired,Grand Est,paris_urban_unit
+fr_0703,male,18,18-24,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0704,female,24,18-24,employee,Grand Est,urban_unit_100k_to_1_999_999
+fr_0705,female,25,25-34,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0706,male,19,18-24,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0707,male,50,50-64,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0708,female,30,25-34,other_inactive,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0709,female,48,35-49,intermediate_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0710,female,84,65+,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0711,female,23,18-24,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0712,female,88,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0713,male,59,50-64,retired,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0714,female,35,35-49,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0715,male,44,35-49,craft_trader_business_owner,Grand Est,rural_outside_urban_unit
+fr_0716,male,59,50-64,other_inactive,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0717,female,29,25-34,employee,Île-de-France,urban_unit_20k_to_99k
+fr_0718,male,48,35-49,intermediate_profession,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0719,male,44,35-49,manager_intellectual_profession,Occitanie,urban_unit_20k_to_99k
+fr_0720,male,34,25-34,worker,Grand Est,rural_outside_urban_unit
+fr_0721,female,70,65+,manager_intellectual_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0722,male,27,25-34,other_inactive,Occitanie,urban_unit_under_20k
+fr_0723,female,59,50-64,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0724,female,67,65+,retired,Normandie,paris_urban_unit
+fr_0725,male,54,50-64,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0726,male,40,35-49,retired,Grand Est,urban_unit_20k_to_99k
+fr_0727,female,58,50-64,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0728,male,60,50-64,other_inactive,Occitanie,urban_unit_20k_to_99k
+fr_0729,male,82,65+,employee,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0730,female,36,35-49,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0731,female,32,25-34,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0732,female,60,50-64,employee,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0733,male,64,50-64,retired,Normandie,urban_unit_under_20k
+fr_0734,male,29,25-34,retired,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0735,female,26,25-34,employee,Nouvelle-Aquitaine,urban_unit_20k_to_99k
+fr_0736,female,43,35-49,intermediate_profession,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0737,male,72,65+,retired,Corse,rural_outside_urban_unit
+fr_0738,male,88,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0739,male,34,25-34,retired,Grand Est,urban_unit_under_20k
+fr_0740,female,65,65+,manager_intellectual_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0741,female,35,35-49,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0742,female,70,65+,retired,La Réunion,urban_unit_100k_to_1_999_999
+fr_0743,male,37,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0744,female,80,65+,retired,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0745,male,60,50-64,craft_trader_business_owner,Grand Est,urban_unit_100k_to_1_999_999
+fr_0746,male,60,50-64,manager_intellectual_profession,Grand Est,paris_urban_unit
+fr_0747,female,46,35-49,worker,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0748,female,49,35-49,employee,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0749,male,19,18-24,employee,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0750,male,62,50-64,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0751,female,92,65+,other_inactive,Grand Est,paris_urban_unit
+fr_0752,female,47,35-49,manager_intellectual_profession,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0753,male,36,35-49,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0754,male,39,35-49,worker,Île-de-France,rural_outside_urban_unit
+fr_0755,male,33,25-34,manager_intellectual_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0756,female,19,18-24,other_inactive,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0757,female,74,65+,other_inactive,Île-de-France,urban_unit_20k_to_99k
+fr_0758,male,68,65+,retired,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0759,male,56,50-64,worker,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0760,female,20,18-24,intermediate_profession,Nouvelle-Aquitaine,paris_urban_unit
+fr_0761,female,41,35-49,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0762,female,68,65+,craft_trader_business_owner,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0763,female,85,65+,other_inactive,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0764,female,45,35-49,retired,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0765,male,20,18-24,manager_intellectual_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0766,female,63,50-64,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0767,female,57,50-64,manager_intellectual_profession,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0768,female,60,50-64,retired,Occitanie,urban_unit_under_20k
+fr_0769,female,94,65+,worker,Occitanie,urban_unit_100k_to_1_999_999
+fr_0770,male,46,35-49,other_inactive,Bretagne,urban_unit_100k_to_1_999_999
+fr_0771,male,57,50-64,employee,Normandie,urban_unit_100k_to_1_999_999
+fr_0772,female,38,35-49,other_inactive,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0773,male,46,35-49,retired,Guyane,paris_urban_unit
+fr_0774,male,56,50-64,intermediate_profession,Normandie,paris_urban_unit
+fr_0775,female,22,18-24,manager_intellectual_profession,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0776,female,56,50-64,other_inactive,Île-de-France,rural_outside_urban_unit
+fr_0777,female,91,65+,intermediate_profession,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0778,male,35,35-49,retired,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0779,male,47,35-49,worker,Pays de la Loire,urban_unit_20k_to_99k
+fr_0780,female,23,18-24,manager_intellectual_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0781,male,39,35-49,other_inactive,Bretagne,rural_outside_urban_unit
+fr_0782,female,68,65+,intermediate_profession,Occitanie,urban_unit_under_20k
+fr_0783,male,39,35-49,employee,Île-de-France,urban_unit_under_20k
+fr_0784,female,68,65+,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0785,female,77,65+,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0786,female,57,50-64,manager_intellectual_profession,Grand Est,paris_urban_unit
+fr_0787,male,53,50-64,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0788,female,31,25-34,retired,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0789,female,26,25-34,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0790,female,71,65+,employee,Île-de-France,rural_outside_urban_unit
+fr_0791,female,22,18-24,worker,Pays de la Loire,urban_unit_under_20k
+fr_0792,female,55,50-64,craft_trader_business_owner,Grand Est,urban_unit_under_20k
+fr_0793,male,61,50-64,craft_trader_business_owner,Corse,urban_unit_under_20k
+fr_0794,male,29,25-34,retired,Île-de-France,rural_outside_urban_unit
+fr_0795,male,51,50-64,manager_intellectual_profession,Bourgogne-Franche-Comté,rural_outside_urban_unit
+fr_0796,male,90,65+,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0797,female,86,65+,retired,Centre-Val de Loire,paris_urban_unit
+fr_0798,male,90,65+,worker,Centre-Val de Loire,urban_unit_100k_to_1_999_999
+fr_0799,female,87,65+,employee,Île-de-France,urban_unit_under_20k
+fr_0800,male,92,65+,farmer,Pays de la Loire,urban_unit_20k_to_99k
+fr_0801,female,41,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0802,female,35,35-49,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0803,male,54,50-64,employee,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0804,female,42,35-49,retired,Île-de-France,urban_unit_under_20k
+fr_0805,male,53,50-64,manager_intellectual_profession,Grand Est,urban_unit_under_20k
+fr_0806,male,67,65+,employee,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0807,female,47,35-49,retired,Normandie,urban_unit_under_20k
+fr_0808,male,48,35-49,retired,Île-de-France,rural_outside_urban_unit
+fr_0809,female,76,65+,other_inactive,Grand Est,paris_urban_unit
+fr_0810,female,61,50-64,worker,Grand Est,rural_outside_urban_unit
+fr_0811,female,80,65+,other_inactive,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0812,male,35,35-49,manager_intellectual_profession,Normandie,rural_outside_urban_unit
+fr_0813,female,28,25-34,other_inactive,Occitanie,urban_unit_100k_to_1_999_999
+fr_0814,male,24,18-24,craft_trader_business_owner,La Réunion,urban_unit_100k_to_1_999_999
+fr_0815,female,29,25-34,intermediate_profession,Île-de-France,rural_outside_urban_unit
+fr_0816,male,45,35-49,worker,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0817,female,62,50-64,retired,Île-de-France,rural_outside_urban_unit
+fr_0818,female,56,50-64,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0819,female,39,35-49,intermediate_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0820,male,86,65+,employee,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0821,female,48,35-49,manager_intellectual_profession,Île-de-France,rural_outside_urban_unit
+fr_0822,male,39,35-49,worker,Centre-Val de Loire,rural_outside_urban_unit
+fr_0823,male,67,65+,intermediate_profession,Île-de-France,urban_unit_under_20k
+fr_0824,female,56,50-64,retired,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0825,female,60,50-64,employee,Grand Est,rural_outside_urban_unit
+fr_0826,female,31,25-34,worker,Centre-Val de Loire,paris_urban_unit
+fr_0827,male,20,18-24,employee,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0828,male,55,50-64,manager_intellectual_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0829,female,45,35-49,retired,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0830,female,60,50-64,retired,Corse,urban_unit_100k_to_1_999_999
+fr_0831,male,48,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0832,female,69,65+,retired,Centre-Val de Loire,rural_outside_urban_unit
+fr_0833,female,84,65+,worker,Pays de la Loire,urban_unit_under_20k
+fr_0834,male,38,35-49,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0835,female,70,65+,other_inactive,Pays de la Loire,urban_unit_under_20k
+fr_0836,female,69,65+,manager_intellectual_profession,Corse,urban_unit_under_20k
+fr_0837,female,50,50-64,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0838,female,91,65+,retired,Bretagne,urban_unit_under_20k
+fr_0839,female,58,50-64,intermediate_profession,Bretagne,urban_unit_20k_to_99k
+fr_0840,female,40,35-49,retired,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0841,male,53,50-64,intermediate_profession,Occitanie,urban_unit_100k_to_1_999_999
+fr_0842,female,27,25-34,retired,Occitanie,paris_urban_unit
+fr_0843,female,41,35-49,worker,Centre-Val de Loire,urban_unit_under_20k
+fr_0844,female,57,50-64,intermediate_profession,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0845,male,56,50-64,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0846,female,92,65+,intermediate_profession,Île-de-France,rural_outside_urban_unit
+fr_0847,male,89,65+,worker,Bretagne,paris_urban_unit
+fr_0848,male,19,18-24,intermediate_profession,Grand Est,rural_outside_urban_unit
+fr_0849,female,58,50-64,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0850,female,35,35-49,employee,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0851,female,62,50-64,employee,Hauts-de-France,rural_outside_urban_unit
+fr_0852,male,32,25-34,employee,Normandie,urban_unit_under_20k
+fr_0853,male,63,50-64,intermediate_profession,Nouvelle-Aquitaine,urban_unit_under_20k
+fr_0854,male,40,35-49,manager_intellectual_profession,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0855,female,21,18-24,craft_trader_business_owner,Occitanie,paris_urban_unit
+fr_0856,female,76,65+,craft_trader_business_owner,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0857,male,61,50-64,manager_intellectual_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0858,female,48,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0859,female,29,25-34,other_inactive,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0860,male,72,65+,employee,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0861,male,59,50-64,employee,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0862,male,88,65+,manager_intellectual_profession,Occitanie,urban_unit_under_20k
+fr_0863,male,59,50-64,other_inactive,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0864,male,92,65+,intermediate_profession,Île-de-France,rural_outside_urban_unit
+fr_0865,male,34,25-34,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0866,female,93,65+,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0867,female,47,35-49,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0868,female,41,35-49,worker,Île-de-France,urban_unit_20k_to_99k
+fr_0869,female,35,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0870,female,20,18-24,other_inactive,Bourgogne-Franche-Comté,urban_unit_20k_to_99k
+fr_0871,female,38,35-49,intermediate_profession,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0872,female,79,65+,employee,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0873,male,45,35-49,worker,Hauts-de-France,urban_unit_under_20k
+fr_0874,male,44,35-49,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0875,female,35,35-49,retired,Centre-Val de Loire,urban_unit_under_20k
+fr_0876,female,66,65+,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_20k_to_99k
+fr_0877,male,62,50-64,intermediate_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0878,male,84,65+,intermediate_profession,Bretagne,paris_urban_unit
+fr_0879,male,32,25-34,manager_intellectual_profession,Grand Est,rural_outside_urban_unit
+fr_0880,male,53,50-64,retired,La Réunion,paris_urban_unit
+fr_0881,female,61,50-64,employee,Nouvelle-Aquitaine,paris_urban_unit
+fr_0882,male,91,65+,other_inactive,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0883,female,38,35-49,employee,Pays de la Loire,urban_unit_under_20k
+fr_0884,male,67,65+,employee,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0885,male,95,65+,retired,Occitanie,rural_outside_urban_unit
+fr_0886,female,62,50-64,other_inactive,Pays de la Loire,urban_unit_under_20k
+fr_0887,female,94,65+,retired,Hauts-de-France,urban_unit_under_20k
+fr_0888,male,52,50-64,other_inactive,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0889,male,38,35-49,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0890,female,89,65+,intermediate_profession,Île-de-France,urban_unit_under_20k
+fr_0891,male,57,50-64,intermediate_profession,Grand Est,urban_unit_100k_to_1_999_999
+fr_0892,male,23,18-24,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,urban_unit_under_20k
+fr_0893,female,68,65+,worker,Hauts-de-France,rural_outside_urban_unit
+fr_0894,male,18,18-24,other_inactive,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0895,male,86,65+,retired,Centre-Val de Loire,urban_unit_20k_to_99k
+fr_0896,male,86,65+,retired,Normandie,urban_unit_20k_to_99k
+fr_0897,male,46,35-49,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0898,male,34,25-34,retired,Hauts-de-France,paris_urban_unit
+fr_0899,female,49,35-49,employee,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0900,male,20,18-24,intermediate_profession,Île-de-France,urban_unit_20k_to_99k
+fr_0901,male,25,25-34,other_inactive,Grand Est,rural_outside_urban_unit
+fr_0902,male,73,65+,other_inactive,Nouvelle-Aquitaine,paris_urban_unit
+fr_0903,female,49,35-49,manager_intellectual_profession,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0904,female,18,18-24,intermediate_profession,Île-de-France,urban_unit_under_20k
+fr_0905,male,53,50-64,other_inactive,Normandie,urban_unit_100k_to_1_999_999
+fr_0906,male,76,65+,manager_intellectual_profession,Hauts-de-France,urban_unit_under_20k
+fr_0907,female,52,50-64,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0908,female,41,35-49,manager_intellectual_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0909,male,32,25-34,employee,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0910,female,59,50-64,worker,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0911,male,51,50-64,other_inactive,Occitanie,urban_unit_100k_to_1_999_999
+fr_0912,male,38,35-49,other_inactive,Bourgogne-Franche-Comté,urban_unit_100k_to_1_999_999
+fr_0913,female,51,50-64,other_inactive,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0914,male,60,50-64,worker,Normandie,urban_unit_100k_to_1_999_999
+fr_0915,male,83,65+,employee,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0916,female,51,50-64,intermediate_profession,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0917,male,68,65+,retired,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0918,female,52,50-64,craft_trader_business_owner,Île-de-France,urban_unit_under_20k
+fr_0919,male,81,65+,employee,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0920,female,76,65+,manager_intellectual_profession,Bretagne,urban_unit_100k_to_1_999_999
+fr_0921,male,47,35-49,retired,Pays de la Loire,urban_unit_under_20k
+fr_0922,male,47,35-49,manager_intellectual_profession,Occitanie,rural_outside_urban_unit
+fr_0923,male,37,35-49,employee,Bretagne,rural_outside_urban_unit
+fr_0924,female,22,18-24,employee,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0925,male,54,50-64,intermediate_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0926,male,39,35-49,other_inactive,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0927,female,46,35-49,intermediate_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0928,female,92,65+,retired,Île-de-France,urban_unit_under_20k
+fr_0929,male,63,50-64,intermediate_profession,Occitanie,paris_urban_unit
+fr_0930,female,72,65+,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0931,female,27,25-34,employee,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0932,female,95,65+,manager_intellectual_profession,Provence-Alpes-Côte d'Azur,paris_urban_unit
+fr_0933,male,48,35-49,other_inactive,Île-de-France,urban_unit_100k_to_1_999_999
+fr_0934,male,51,50-64,retired,Grand Est,urban_unit_20k_to_99k
+fr_0935,female,75,65+,retired,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0936,male,46,35-49,intermediate_profession,Bourgogne-Franche-Comté,paris_urban_unit
+fr_0937,male,63,50-64,worker,Bourgogne-Franche-Comté,urban_unit_under_20k
+fr_0938,male,51,50-64,intermediate_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0939,male,50,50-64,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0940,female,32,25-34,worker,Île-de-France,paris_urban_unit
+fr_0941,male,48,35-49,retired,Occitanie,rural_outside_urban_unit
+fr_0942,female,33,25-34,other_inactive,Île-de-France,urban_unit_under_20k
+fr_0943,female,82,65+,retired,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0944,male,32,25-34,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0945,male,34,25-34,intermediate_profession,Grand Est,urban_unit_20k_to_99k
+fr_0946,female,53,50-64,retired,Martinique,urban_unit_20k_to_99k
+fr_0947,male,81,65+,employee,Hauts-de-France,paris_urban_unit
+fr_0948,female,33,25-34,retired,Centre-Val de Loire,rural_outside_urban_unit
+fr_0949,male,27,25-34,retired,Pays de la Loire,paris_urban_unit
+fr_0950,male,93,65+,worker,Grand Est,urban_unit_100k_to_1_999_999
+fr_0951,male,35,35-49,employee,Auvergne-Rhône-Alpes,urban_unit_under_20k
+fr_0952,female,83,65+,intermediate_profession,Hauts-de-France,urban_unit_20k_to_99k
+fr_0953,male,41,35-49,retired,Centre-Val de Loire,paris_urban_unit
+fr_0954,female,59,50-64,employee,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0955,male,66,65+,employee,Hauts-de-France,urban_unit_20k_to_99k
+fr_0956,female,22,18-24,employee,Bretagne,urban_unit_100k_to_1_999_999
+fr_0957,male,87,65+,retired,Hauts-de-France,rural_outside_urban_unit
+fr_0958,male,65,65+,manager_intellectual_profession,Auvergne-Rhône-Alpes,rural_outside_urban_unit
+fr_0959,male,27,25-34,craft_trader_business_owner,Provence-Alpes-Côte d'Azur,urban_unit_100k_to_1_999_999
+fr_0960,female,87,65+,retired,Auvergne-Rhône-Alpes,paris_urban_unit
+fr_0961,female,69,65+,manager_intellectual_profession,Occitanie,urban_unit_20k_to_99k
+fr_0962,female,55,50-64,other_inactive,La Réunion,paris_urban_unit
+fr_0963,male,18,18-24,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0964,female,59,50-64,other_inactive,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0965,male,90,65+,intermediate_profession,Grand Est,urban_unit_20k_to_99k
+fr_0966,female,62,50-64,intermediate_profession,Hauts-de-France,rural_outside_urban_unit
+fr_0967,male,28,25-34,retired,Occitanie,rural_outside_urban_unit
+fr_0968,female,28,25-34,retired,Île-de-France,urban_unit_20k_to_99k
+fr_0969,male,45,35-49,other_inactive,Grand Est,urban_unit_100k_to_1_999_999
+fr_0970,male,81,65+,retired,Île-de-France,urban_unit_under_20k
+fr_0971,male,51,50-64,employee,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0972,female,38,35-49,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0973,female,52,50-64,employee,Île-de-France,urban_unit_20k_to_99k
+fr_0974,male,54,50-64,craft_trader_business_owner,Grand Est,rural_outside_urban_unit
+fr_0975,female,73,65+,retired,La Réunion,urban_unit_under_20k
+fr_0976,female,76,65+,worker,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0977,female,24,18-24,employee,Île-de-France,rural_outside_urban_unit
+fr_0978,male,61,50-64,employee,Pays de la Loire,rural_outside_urban_unit
+fr_0979,female,19,18-24,intermediate_profession,Pays de la Loire,urban_unit_under_20k
+fr_0980,male,23,18-24,retired,Bretagne,paris_urban_unit
+fr_0981,male,71,65+,intermediate_profession,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0982,male,37,35-49,retired,Auvergne-Rhône-Alpes,urban_unit_20k_to_99k
+fr_0983,male,57,50-64,worker,Auvergne-Rhône-Alpes,urban_unit_100k_to_1_999_999
+fr_0984,male,89,65+,intermediate_profession,Nouvelle-Aquitaine,urban_unit_100k_to_1_999_999
+fr_0985,male,27,25-34,intermediate_profession,Île-de-France,paris_urban_unit
+fr_0986,male,37,35-49,retired,Bretagne,urban_unit_100k_to_1_999_999
+fr_0987,female,19,18-24,employee,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0988,female,55,50-64,retired,Pays de la Loire,paris_urban_unit
+fr_0989,female,40,35-49,retired,Normandie,paris_urban_unit
+fr_0990,female,66,65+,intermediate_profession,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0991,male,58,50-64,other_inactive,Pays de la Loire,urban_unit_100k_to_1_999_999
+fr_0992,female,87,65+,worker,Hauts-de-France,rural_outside_urban_unit
+fr_0993,female,49,35-49,retired,Nouvelle-Aquitaine,rural_outside_urban_unit
+fr_0994,male,49,35-49,retired,Occitanie,urban_unit_100k_to_1_999_999
+fr_0995,male,23,18-24,worker,Île-de-France,urban_unit_under_20k
+fr_0996,male,80,65+,worker,Provence-Alpes-Côte d'Azur,rural_outside_urban_unit
+fr_0997,female,32,25-34,retired,Hauts-de-France,urban_unit_100k_to_1_999_999
+fr_0998,male,46,35-49,retired,Bretagne,urban_unit_20k_to_99k
+fr_0999,female,20,18-24,other_inactive,Normandie,rural_outside_urban_unit
+fr_1000,female,56,50-64,employee,Hauts-de-France,rural_outside_urban_unit
