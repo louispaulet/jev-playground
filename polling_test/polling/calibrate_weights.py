@@ -64,7 +64,10 @@ def build_constraints(
     for question_filename in question_filenames:
         question_id = Path(question_filename).stem
         target_info: dict[str, Any] = TARGETS[question_id]
-        question = read_question(question_dir / question_filename)
+        question_path = Path(question_filename)
+        if not question_path.is_absolute():
+            question_path = question_dir / question_path
+        question = read_question(question_path)
         options = unique_options(parse_numbered_options(question))
         targets = target_info["targets_percent"]
         if set(options) != set(targets):
