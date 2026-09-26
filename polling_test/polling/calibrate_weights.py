@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from scipy.optimize import Bounds, LinearConstraint, minimize
+from scipy.optimize import Bounds, LinearConstraint, OptimizeResult, minimize
 
 from benchmark_targets import QUESTION_FILES, TARGETS
 from compare_benchmarks import find_result
@@ -99,6 +99,19 @@ def solve_weights(
 ) -> Any:
     """Minimize squared weight movement under exact aggregate constraints."""
     count = probabilities.shape[0]
+    constraint_matrix = np.vstack([np.ones(count), probabilities.T])
+    constraint_targets = np.concatenate(([count], count * targets))
+    correction = constraint_targets - constraint_matrix @ np.ones(count)
+    unconstrained = np.ones(count) + constraint_matrix.T @ np.linalg.pinv(
+        constraint_matrix @ constraint_matrix.T
+    ) @ correction
+    if np.all(unconstrained >= lower - 1e-9) and np.all(unconstrained <= upper + 1e-9):
+        return OptimizeResult(
+            x=unconstrained,
+            success=True,
+            message="Solved by the equality-constrained minimum-norm projection",
+        )
+
     objective = lambda weights: 0.5 * np.sum((weights - 1.0) ** 2)
     gradient = lambda weights: weights - 1.0
     constraints = [
@@ -107,7 +120,7 @@ def solve_weights(
     ]
     return minimize(
         objective,
-        np.ones(count),
+        np.clip(unconstrained, lower, upper),
         jac=gradient,
         method="SLSQP",
         bounds=Bounds(lower, upper),
