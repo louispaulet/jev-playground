@@ -1,3 +1,4 @@
 typesafe-sdk
+openai>=1.0
 gender-guesser
 pandas>=2.2
