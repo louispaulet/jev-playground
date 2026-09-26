@@ -1,16 +1,16 @@
-# Joint-distribution audit of `population_sample.csv`
+# Joint-distribution audit and repair of `population_sample.csv`
 
 Date: 2026-09-26  
 File checked: `polling_test/population/population_sample.csv`  
 Sample size: 1,000 adults
 
-## Verdict
+## Baseline before repair
 
-The sample matches its controlled `sex × age_group` quota, but it does not yet
-look like a French population at the joint level. The generator assigns `csp`,
+The original sample matched its controlled `sex × age_group` quota, but did not
+look like a French population at the joint level. The generator assigned `csp`,
 `region`, and `urban_area_size` independently after creating the `sex × age`
-cells. That creates both implausible combinations and regional distributions
-that contradict INSEE.
+cells. That created both implausible combinations and regional distributions
+that contradicted INSEE.
 
 The strongest defects are:
 
@@ -21,7 +21,7 @@ The strongest defects are:
   outside Île-de-France. INSEE defines the Paris urban unit as the
   agglomeration containing Paris, so those are impossible cells.
 
-## Comparisons
+## Baseline comparisons
 
 The distance metric below is weighted total variation: for each row group, take
 half the sum of absolute differences between the sample and INSEE conditional
@@ -55,6 +55,28 @@ The INSEE urban-unit aggregation also shows that the overall urban margin can
 look close while the regional allocation is wrong: the national categories are
 similar, but the sample spreads every category across every region.
 
+## Repair applied
+
+The population generator now allocates the sample with an integer constrained
+solver. It preserves the existing one-way quotas while enforcing the checked-in
+INSEE-derived targets for `age_group × csp`, `region × csp`, `age_group ×
+region`, and `region × urban_area_size`. Urban-area assignment is conditional on
+region, so `paris_urban_unit` can only occur in Île-de-France. The repaired
+sample passes the population validator with all 1,000 rows accounted for.
+
+The repaired matrices are exact at the sample level:
+
+- `age_group × csp`: no retired personas below 50, 43 retired personas aged
+  50–64, and 235 aged 65+;
+- `region × csp`: the Île-de-France row includes 36 managers/intellectual
+  professionals and 35 retired personas, matching the target allocation;
+- `region × urban_area_size`: all 162 `paris_urban_unit` personas are in
+  Île-de-France, and none are elsewhere.
+
+The `bio` column was then regenerated for all 1,000 repaired personas through
+OpenAI Batch API batch `batch_6ab83783fa0881909f88e036e583423e` using
+`gpt-4o-mini`; the batch completed with 1,000 successes and 0 failures.
+
 ## Requested comparisons that are not identifiable from this CSV
 
 The current file has no `employment_status`, `education_level`, `income_band`,
@@ -70,18 +92,13 @@ and the 2022 income results include income by household type and age. Those
 comparisons require adding the fields to the synthetic schema and choosing a
 common scope first.
 
-## Recommended next population version
+## Remaining limitations
 
-1. Keep the exact `sex × age_group` quota.
-2. Add hard structural constraints: `paris_urban_unit ⇒ Île-de-France`, and
-   use INSEE `region × urban_area_size` targets instead of independent margins.
-3. Add an age-conditioned CSP assignment from RP2022 POP6 V2; at minimum,
-   forbid or sharply limit `retired` below age 55 and make retirement dominant
-   at 65+.
-4. Add employment, education, income, and household variables only when their
-   joint INSEE tables and scope are documented. Use IPF/raking or constrained
-   allocation for the multi-way targets; do not assign each new variable
-   independently.
+Employment, education, income, and household variables are still absent from
+the CSV, so their joint distributions cannot yet be checked. Add those fields
+only when their joint INSEE tables and scope are documented, then use IPF/raking
+or constrained allocation for the multi-way targets rather than assigning each
+new variable independently.
 
 ## Sources and scope
 
