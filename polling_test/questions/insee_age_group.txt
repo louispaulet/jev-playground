@@ -1,0 +1,6 @@
+Dans quelle classe d’âge se trouve cette personne selon son profil ?
+1. 18-24
+2. 25-34
+3. 35-49
+4. 50-64
+5. 65+

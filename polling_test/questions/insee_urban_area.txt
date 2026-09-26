@@ -1,0 +1,6 @@
+Dans quelle classe de taille d’unité urbaine cette personne réside-t-elle selon son profil ?
+1. rural_outside_urban_unit
+2. urban_unit_under_20k
+3. urban_unit_20k_to_99k
+4. urban_unit_100k_to_1_999_999
+5. paris_urban_unit

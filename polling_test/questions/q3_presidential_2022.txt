@@ -12,4 +12,5 @@ Q3. Si le premier tour de l’élection présidentielle avait lieu dimanche proc
 11. Marine LE PEN
 12. Éric ZEMMOUR
 13. Vous voteriez blanc
-14. Vous n'iriez pas voter
+14. Vous voteriez nul
+15. Vous n'iriez pas voter

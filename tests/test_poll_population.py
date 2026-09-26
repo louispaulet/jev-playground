@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from polling_test.polling.poll_population import (
+    find_cached_result,
     parse_numbered_options,
     result_path,
     slugify_question,
@@ -59,6 +60,30 @@ class PollPopulationTests(unittest.TestCase):
             self.assertEqual(rows[0]["selected_answer"], "Option A")
             self.assertEqual(rows[0]["probability_option-a"], "0.8")
             self.assertEqual(rows[0]["probability_option-b"], "0.2")
+
+    def test_matching_csv_is_reused_as_a_cache(self):
+        personas = [{"persona_id": "fr_0001"}]
+        responses = [
+            {
+                "selected_answer": "Option A",
+                "confidence": 0.8,
+                "probabilities": {"Option A": 0.8, "Option B": 0.2},
+            }
+        ]
+        with TemporaryDirectory() as directory:
+            output_path = Path(directory) / "20260926T193004123456Z_question.csv"
+            write_results(
+                output_path,
+                personas,
+                responses,
+                ("Option A", "Option B"),
+                question="Question?",
+                question_id="question",
+            )
+            cached = find_cached_result(
+                "Question?", ("Option A", "Option B"), personas, Path(directory)
+            )
+            self.assertEqual(cached, output_path)
 
 
 if __name__ == "__main__":

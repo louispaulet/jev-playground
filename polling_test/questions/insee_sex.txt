@@ -1,0 +1,3 @@
+Quelle est la modalité de sexe indiquée pour cette personne dans son profil ?
+1. male
+2. female

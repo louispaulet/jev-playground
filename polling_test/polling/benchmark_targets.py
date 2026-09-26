@@ -1,0 +1,161 @@
+"""Known aggregate targets for the polling calibration benchmarks."""
+
+from __future__ import annotations
+
+from typing import Any
+
+
+QUESTION_FILES = (
+    "presidential_2012_first_round.txt",
+    "presidential_2017_first_round.txt",
+    "q3_presidential_2022.txt",
+    "insee_sex.txt",
+    "insee_age_group.txt",
+    "insee_csp.txt",
+    "insee_region.txt",
+    "insee_urban_area.txt",
+)
+
+
+def _percent(count: int, total: int) -> float:
+    return 100.0 * count / total
+
+
+TARGETS: dict[str, dict[str, Any]] = {
+    "presidential_2012_first_round": {
+        "label": "French presidential election 2012, first round",
+        "source": "https://www.archives-resultats-elections.interieur.gouv.fr/resultats/PR2012/FE.php",
+        "denominator": "% of registered voters",
+        "targets_percent": {
+            "Eva JOLY": _percent(828345, 46028542),
+            "Marine LE PEN": _percent(6421426, 46028542),
+            "Nicolas SARKOZY": _percent(9753629, 46028542),
+            "Jean-Luc MELENCHON": _percent(3984822, 46028542),
+            "Philippe POUTOU": _percent(411160, 46028542),
+            "Nathalie ARTHAUD": _percent(202548, 46028542),
+            "Jacques CHEMINADE": _percent(89545, 46028542),
+            "François BAYROU": _percent(3275122, 46028542),
+            "Nicolas DUPONT-AIGNAN": _percent(643907, 46028542),
+            "François HOLLANDE": _percent(10272705, 46028542),
+            "Vous voteriez blanc ou nul": _percent(701190, 46028542),
+            "Vous n'iriez pas voter": _percent(9444143, 46028542),
+        },
+    },
+    "presidential_2017_first_round": {
+        "label": "French presidential election 2017, first round",
+        "source": "https://www.archives-resultats-elections.interieur.gouv.fr/resultats/presidentielle-2017/FE.php",
+        "denominator": "% of registered voters",
+        "targets_percent": {
+            "Emmanuel MACRON": 18.19,
+            "Marine LE PEN": 16.14,
+            "François FILLON": 15.16,
+            "Jean-Luc MELENCHON": 14.84,
+            "Benoît HAMON": 4.82,
+            "Nicolas DUPONT-AIGNAN": 3.56,
+            "Jean LASSALLE": 0.91,
+            "Philippe POUTOU": 0.83,
+            "François ASSELINEAU": 0.70,
+            "Nathalie ARTHAUD": 0.49,
+            "Jacques CHEMINADE": 0.14,
+            "Vous voteriez blanc": 1.39,
+            "Vous voteriez nul": 0.61,
+            "Vous n'iriez pas voter": 22.23,
+        },
+    },
+    "q3_presidential_2022": {
+        "label": "French presidential election 2022, first round",
+        "source": "https://www.archives-resultats-elections.interieur.gouv.fr/resultats/presidentielle-2022/FE.php",
+        "denominator": "% of registered voters",
+        "targets_percent": {
+            "Philippe POUTOU": 0.55,
+            "Nathalie ARTHAUD": 0.40,
+            "Fabien ROUSSEL": 1.65,
+            "Jean-Luc MELENCHON": 15.82,
+            "Anne HIDALGO": 1.26,
+            "Yannick JADOT": 3.34,
+            "Emmanuel MACRON": 20.07,
+            "Valérie PECRESSE": 3.44,
+            "Jean LASSALLE": 2.26,
+            "Nicolas DUPONT-AIGNAN": 1.49,
+            "Marine LE PEN": 16.69,
+            "Éric ZEMMOUR": 5.10,
+            "Vous voteriez blanc": 1.12,
+            "Vous voteriez nul": 0.51,
+            "Vous n'iriez pas voter": 26.31,
+        },
+    },
+    "insee_sex": {
+        "label": "INSEE-controlled sex margin in the synthetic sample",
+        "source": "../population/population_sampling.md",
+        "denominator": "% of personas / INSEE quota",
+        "truth_field": "sex",
+        "targets_percent": {"male": 47.8, "female": 52.2},
+    },
+    "insee_age_group": {
+        "label": "INSEE-controlled age-group margin in the synthetic sample",
+        "source": "../population/population_sampling.md",
+        "denominator": "% of personas / INSEE quota",
+        "truth_field": "age_group",
+        "targets_percent": {
+            "18-24": 10.4,
+            "25-34": 14.5,
+            "35-49": 23.5,
+            "50-64": 24.3,
+            "65+": 27.3,
+        },
+    },
+    "insee_csp": {
+        "label": "INSEE-controlled socioprofessional margin in the synthetic sample",
+        "source": "../population/population_sampling.md",
+        "denominator": "% of personas / INSEE quota",
+        "truth_field": "csp",
+        "targets_percent": {
+            "farmer": 0.7,
+            "craft_trader_business_owner": 3.6,
+            "manager_intellectual_profession": 10.7,
+            "intermediate_profession": 14.4,
+            "employee": 15.3,
+            "worker": 11.6,
+            "retired": 27.8,
+            "other_inactive": 15.9,
+        },
+    },
+    "insee_region": {
+        "label": "INSEE-controlled regional margin in the synthetic sample",
+        "source": "../population/population_sampling.md",
+        "denominator": "% of personas / INSEE quota",
+        "truth_field": "region",
+        "targets_percent": {
+            "Auvergne-Rhône-Alpes": 12.0,
+            "Bourgogne-Franche-Comté": 4.1,
+            "Bretagne": 5.2,
+            "Centre-Val de Loire": 3.8,
+            "Corse": 0.6,
+            "Grand Est": 8.2,
+            "Hauts-de-France": 8.6,
+            "Île-de-France": 17.9,
+            "Normandie": 4.9,
+            "Nouvelle-Aquitaine": 9.3,
+            "Occitanie": 9.2,
+            "Pays de la Loire": 5.7,
+            "Provence-Alpes-Côte d'Azur": 7.8,
+            "Guadeloupe": 0.6,
+            "Martinique": 0.5,
+            "Guyane": 0.4,
+            "La Réunion": 1.2,
+        },
+    },
+    "insee_urban_area": {
+        "label": "INSEE-controlled urban-area margin in the synthetic sample",
+        "source": "../population/population_sampling.md",
+        "denominator": "% of personas / INSEE quota",
+        "truth_field": "urban_area_size",
+        "targets_percent": {
+            "rural_outside_urban_unit": 20.8,
+            "urban_unit_under_20k": 18.0,
+            "urban_unit_20k_to_99k": 14.1,
+            "urban_unit_100k_to_1_999_999": 30.9,
+            "paris_urban_unit": 16.2,
+        },
+    },
+}

@@ -1,0 +1,9 @@
+Quel est le groupe socioprofessionnel actuel ou antérieur de cette personne selon son profil ?
+1. farmer
+2. craft_trader_business_owner
+3. manager_intellectual_profession
+4. intermediate_profession
+5. employee
+6. worker
+7. retired
+8. other_inactive

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import os
 import re
@@ -32,6 +33,7 @@ DEFAULT_OPTIONS = (
     "Pas du tout inquiet",
 )
 PERSONA_ID_FIELD = "persona_id"
+QUESTION_HASH_FIELD = "question_sha256"
 NUMBERED_OPTION_RE = re.compile(r"^\s*\d+\s*[.)]\s*(?P<label>\S.*)\s*$")
 
 
@@ -88,6 +90,16 @@ def unique_options(options: Iterable[str]) -> tuple[str, ...]:
     return tuple(unique)
 
 
+def make_question_hash(question: str, options: tuple[str, ...]) -> str:
+    """Return a stable cache key for a question and its answer choices."""
+    payload = json.dumps(
+        {"question": question, "options": options},
+        ensure_ascii=False,
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def slugify_question(question: str, max_length: int = 200) -> str:
     """Create a filesystem-safe slug from the first ``max_length`` characters."""
     if max_length < 1:
@@ -118,23 +130,8 @@ def persona_state(persona: dict[str, str]) -> dict[str, dict[str, str]]:
     }
 
 
-def ask_jev(
-    client: TypeSafeClient,
-    persona: dict[str, str],
-    question: str,
-    options: tuple[str, ...],
-) -> dict[str, Any]:
-    """Return the Choice answer and probability mapping for one persona."""
-    result = client.system_one(
-        state=persona_state(persona),
-        questions={
-            "answer": Choice(
-                instructions=question,
-                criteria={option: None for option in options},
-            )
-        },
-    )
-    answer = result.choices["answer"]
+def answer_record(answer: Any) -> dict[str, Any]:
+    """Convert a TypeSafe Choice answer to the CSV-friendly representation."""
     probabilities: Any = answer.probabilities
     return {
         "selected_answer": str(answer.choice),
@@ -144,6 +141,43 @@ def ask_jev(
             for option, probability in probabilities.items()
         },
     }
+
+
+def ask_jev_batch(
+    client: TypeSafeClient,
+    persona: dict[str, str],
+    question_specs: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Ask all independent benchmark questions in one paid API call."""
+    questions = {
+        spec["id"]: Choice(
+            instructions=spec["question"],
+            criteria={option: None for option in spec["options"]},
+        )
+        for spec in question_specs
+    }
+    result = client.system_one(
+        state=persona_state(persona),
+        questions=questions,
+    )
+    return {
+        spec["id"]: answer_record(result.choices[spec["id"]])
+        for spec in question_specs
+    }
+
+
+def ask_jev(
+    client: TypeSafeClient,
+    persona: dict[str, str],
+    question: str,
+    options: tuple[str, ...],
+) -> dict[str, Any]:
+    """Return one Choice answer, retaining the original helper API."""
+    return ask_jev_batch(
+        client,
+        persona,
+        [{"id": "answer", "question": question, "options": options}],
+    )["answer"]
 
 
 def probability_columns(options: Iterable[str]) -> dict[str, str]:
@@ -167,10 +201,13 @@ def write_results(
     personas: list[dict[str, str]],
     responses: list[dict[str, Any]],
     options: tuple[str, ...],
+    question: str | None = None,
+    question_id: str | None = None,
 ) -> None:
     """Write one joinable CSV row per persona."""
     columns = probability_columns(options)
-    fieldnames = [PERSONA_ID_FIELD, "selected_answer", "confidence", *columns.values()]
+    metadata_fields = ["question_id", QUESTION_HASH_FIELD] if question else []
+    fieldnames = [PERSONA_ID_FIELD, *metadata_fields, "selected_answer", "confidence", *columns.values()]
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, lineterminator="\n")
@@ -182,8 +219,46 @@ def write_results(
                 "selected_answer": response["selected_answer"],
                 "confidence": response["confidence"],
             }
+            if question:
+                row["question_id"] = question_id or "question"
+                row[QUESTION_HASH_FIELD] = make_question_hash(question, options)
             row.update({columns[option]: probabilities.get(option, 0.0) for option in options})
             writer.writerow(row)
+
+
+def find_cached_result(
+    question: str,
+    options: tuple[str, ...],
+    personas: list[dict[str, str]],
+    output_dir: Path,
+    exact_path: Path | None = None,
+) -> Path | None:
+    """Find a complete prior CSV so rerunning a paid poll costs nothing."""
+    candidates = [exact_path] if exact_path else sorted(output_dir.glob("*.csv"), reverse=True)
+    expected_hash = make_question_hash(question, options)
+    expected_columns = set(probability_columns(options).values())
+    expected_ids = [persona[PERSONA_ID_FIELD] for persona in personas]
+    for candidate in candidates:
+        if candidate is None or not candidate.exists():
+            continue
+        if not exact_path and slugify_question(question) not in candidate.name:
+            continue
+        try:
+            with candidate.open(newline="", encoding="utf-8") as csv_file:
+                reader = csv.DictReader(csv_file)
+                if not reader.fieldnames or not expected_columns.issubset(reader.fieldnames):
+                    continue
+                rows = list(reader)
+        except (OSError, csv.Error, UnicodeError):
+            continue
+        if len(rows) != len(expected_ids):
+            continue
+        if [row.get(PERSONA_ID_FIELD) for row in rows] != expected_ids:
+            continue
+        if any(row.get(QUESTION_HASH_FIELD) != expected_hash for row in rows):
+            continue
+        return candidate
+    return None
 
 
 def print_results(
@@ -223,8 +298,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--question-file",
+        dest="question_files",
         type=Path,
-        help="UTF-8 text file containing the question and optional numbered choices.",
+        action="append",
+        help="UTF-8 question file; repeat to batch independent questions in one API call.",
     )
     parser.add_argument(
         "--question",
@@ -253,34 +330,88 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Suppress the human-readable persona table.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Ignore matching cached CSVs and pay to run the questions again.",
+    )
     return parser.parse_args()
+
+
+def question_specs(args: argparse.Namespace) -> list[dict[str, Any]]:
+    """Build validated question specifications from CLI arguments."""
+    if args.question_files:
+        if args.options and len(args.question_files) != 1:
+            raise ValueError("--option can only be used with one --question-file")
+        specs = []
+        seen_ids: set[str] = set()
+        for question_file in args.question_files:
+            question = read_question(question_file)
+            options = unique_options(
+                args.options if args.options else parse_numbered_options(question)
+            )
+            if len(options) < 2:
+                raise ValueError(f"Question has fewer than two choices: {question_file}")
+            question_id = question_file.stem
+            if question_id in seen_ids:
+                raise ValueError(f"Duplicate question file stem: {question_id}")
+            seen_ids.add(question_id)
+            specs.append({"id": question_id, "question": question, "options": options})
+        return specs
+
+    options = unique_options(args.options or DEFAULT_OPTIONS)
+    if len(options) < 2:
+        raise ValueError("Provide at least two answer choices")
+    return [{"id": "question", "question": args.question, "options": options}]
 
 
 def main() -> None:
     args = parse_args()
     if args.limit < 0:
         raise ValueError("--limit must be zero or greater")
-    if not os.getenv("TYPESAFE_API_KEY"):
-        raise RuntimeError("Set TYPESAFE_API_KEY before running this script")
-
-    question = read_question(args.question_file) if args.question_file else args.question
-    options = unique_options(args.options or parse_numbered_options(question) or DEFAULT_OPTIONS)
-    if len(options) < 2:
-        raise ValueError("Provide at least two answer choices")
-
+    specs = question_specs(args)
     personas = load_personas(args.csv, args.limit)
-    responses: list[dict[str, Any]] = []
-    with TypeSafeClient(model="jev-latest") as client:
-        for index, persona in enumerate(personas, start=1):
-            responses.append(ask_jev(client, persona, question, options))
-            if index == 1 or index % 25 == 0 or index == len(personas):
-                print(f"Polled {index}/{len(personas)} personas", file=sys.stderr)
+    cached_paths: dict[str, Path] = {}
+    pending_specs: list[dict[str, Any]] = []
+    for spec in specs:
+        exact_path = args.output if len(specs) == 1 else None
+        cached = None if args.force else find_cached_result(
+            spec["question"], spec["options"], personas, args.output_dir, exact_path
+        )
+        if cached:
+            cached_paths[spec["id"]] = cached
+            print(f"Reusing cached poll results from {cached}", file=sys.stderr)
+        else:
+            pending_specs.append(spec)
 
-    output_path = args.output or result_path(question, args.output_dir)
-    write_results(output_path, personas, responses, options)
-    if not args.quiet:
-        print_results(personas, responses, question)
-    print(f"Wrote poll results to {output_path}", file=sys.stderr)
+    if pending_specs:
+        if not os.getenv("TYPESAFE_API_KEY"):
+            raise RuntimeError("Set TYPESAFE_API_KEY before running this script")
+        responses_by_id = {spec["id"]: [] for spec in pending_specs}
+        with TypeSafeClient(model="jev-latest") as client:
+            for index, persona in enumerate(personas, start=1):
+                batch = ask_jev_batch(client, persona, pending_specs)
+                for spec in pending_specs:
+                    responses_by_id[spec["id"]].append(batch[spec["id"]])
+                if index == 1 or index % 25 == 0 or index == len(personas):
+                    print(f"Polled {index}/{len(personas)} personas ({len(pending_specs)} questions in one call)", file=sys.stderr)
+
+        if args.output and len(specs) != 1:
+            raise ValueError("--output can only be used with one question")
+        for spec in pending_specs:
+            output_path = args.output or result_path(spec["question"], args.output_dir)
+            write_results(
+                output_path,
+                personas,
+                responses_by_id[spec["id"]],
+                spec["options"],
+                question=spec["question"],
+                question_id=spec["id"],
+            )
+            print(f"Wrote poll results to {output_path}", file=sys.stderr)
+
+    if not args.quiet and len(specs) == 1 and specs[0]["id"] not in cached_paths:
+        print(f"Question: {specs[0]['question']}")
 
 
 if __name__ == "__main__":
