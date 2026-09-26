@@ -20,9 +20,9 @@ The sample is a quota-controlled synthetic population, not a probability sample 
 | `sex` | `male` or `female` | Exact margin and part of the primary sex×age quota |
 | `age` | Synthetic integer age | Generated within the checked age group; not separately quota-controlled |
 | `age_group` | `18-24`, `25-34`, `35-49`, `50-64`, `65+` | Exact margin jointly crossed with `sex` |
-| `csp` | Eight INSEE-style current/previous socioprofessional groups | Exact national margin |
-| `region` | 13 metropolitan regions plus four overseas departments/regions | Exact adult regional margin |
-| `urban_area_size` | Five grouped urban-unit size classes | Exact margin based on the INSEE 2017 distribution |
+| `csp` | Eight INSEE-style current/previous socioprofessional groups | Exact national margin, age-conditioned and region-conditioned |
+| `region` | 13 metropolitan regions plus four overseas departments/regions | Exact adult regional margin, crossed with CSP and urban area |
+| `urban_area_size` | Five grouped urban-unit size classes | Exact national margin and region-conditioned allocation |
 
 Education, income, employment status, nationality, religion, previous vote and turnout intention are intentionally not included in this first file. They require an explicit scope and source choice, and adding them independently would create misleading combinations. They can be added in a later version with a documented joint or post-stratification method.
 
@@ -158,7 +158,13 @@ These tables record the check performed on `population_sample.csv`. Sample perce
 
 ## Allocation and validation
 
-`create_population_sample.py` uses a fixed seed and assigns each marginal distribution to shuffled row positions, so repeated generation is reproducible while avoiding visible blocks of identical categories. The primary sex×age cells are created first; region, CSP and urban-area class are then balanced independently. This preserves every documented margin but does not manufacture unsupported correlations between them.
+`create_population_sample.py` uses a fixed seed and an integer allocation solver. It
+first preserves the exact sex×age cells, then solves age×region×CSP cells whose
+age×CSP and region×CSP margins are both exact. Urban-area classes are allocated
+within each region from the INSEE region×urban targets; in particular, the Paris
+urban unit can only occur in Île-de-France. Shuffling is applied only after these
+constraints are satisfied, so repeated generation remains reproducible without
+creating visible blocks of identical categories.
 
 Run:
 
@@ -167,8 +173,16 @@ python population/create_population_sample.py
 python population/validate_population_sample.py
 ```
 
-The validator loads the CSV into a pandas `DataFrame` and checks the schema, row count, missing values, unique IDs, age-band consistency, exact sex×age cells, and exact one-way margins for CSP, region and urban area.
+The validator loads the CSV into a pandas `DataFrame` and checks the schema, row
+count, missing values, unique IDs, age-band consistency, exact sex×age cells,
+exact age×CSP and region×CSP cells, exact age×region cells, and exact
+region×urban-area cells and one-way margins.
 
 ## Why these five controls first
 
-The attached discussion correctly highlights sex×age, socioprofessional group, region and urbanity as useful first-order controls for an opinion simulation. At 1,000 rows, crossing every attribute would create many tiny or empty cells. The sample therefore uses one key joint control (sex×age) and four manageable one-way controls. Future versions should use published microdata or a synthetic-population/IPF method before treating additional joint relationships as realistic.
+The attached discussion correctly highlights sex×age, socioprofessional group,
+region and urbanity as useful controls for an opinion simulation. At 1,000 rows,
+crossing every attribute would create many tiny or empty cells. This version
+therefore enforces the largest useful published pairwise controls for the fields
+already present. Employment status, education, income and household type remain
+out of scope until their fields and matching INSEE joint tables are added.

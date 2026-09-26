@@ -14,7 +14,7 @@ from typing import Any
 from openai import OpenAI
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = Path(__file__).with_name("population_sample.csv")
 DEFAULT_OUTPUT = Path(__file__).with_name("bio_results.csv")
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -211,6 +211,28 @@ def collect_results(
     return results
 
 
+def write_enriched_population(results: list[dict[str, str]], output_path: Path) -> None:
+    """Write the original population fields plus the returned bio column."""
+
+    fieldnames = [
+        "persona_id",
+        "sex",
+        "age",
+        "age_group",
+        "csp",
+        "region",
+        "urban_area_size",
+        "bio",
+    ]
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            writer.writerow({field: result.get(field, "") for field in fieldnames})
+    print(f"Wrote enriched population to {output_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -235,6 +257,11 @@ def main() -> None:
         type=Path,
         default=DEFAULT_OUTPUT,
         help="CSV path for results; use --output /dev/null to skip useful persistence",
+    )
+    parser.add_argument(
+        "--enriched-output",
+        type=Path,
+        help="optional population CSV path containing the original fields and bio",
     )
     parser.add_argument(
         "--poll-seconds",
@@ -272,6 +299,8 @@ def main() -> None:
             client, input_path, args.model, args.poll_seconds
         )
         results = collect_results(client, batch_id, batch_data, personas, args.output)
+        if args.enriched_output:
+            write_enriched_population(results, args.enriched_output)
     finally:
         input_path.unlink(missing_ok=True)
 

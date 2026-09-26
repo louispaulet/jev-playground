@@ -11,9 +11,13 @@ try:
     from .create_population_sample import (
         AGE_RANGES,
         AGE_GROUPS,
+        AGE_CSP_TARGETS,
+        AGE_REGION_TARGETS,
         CSP_TARGETS,
         FIELDNAMES,
+        REGION_CSP_TARGETS,
         REGION_TARGETS,
+        REGION_URBAN_TARGETS,
         SEX_AGE_TARGETS,
         URBAN_AREA_TARGETS,
     )
@@ -21,9 +25,13 @@ except ImportError:  # Allows direct execution: python population/validate_popul
     from create_population_sample import (
         AGE_RANGES,
         AGE_GROUPS,
+        AGE_CSP_TARGETS,
+        AGE_REGION_TARGETS,
         CSP_TARGETS,
         FIELDNAMES,
+        REGION_CSP_TARGETS,
         REGION_TARGETS,
+        REGION_URBAN_TARGETS,
         SEX_AGE_TARGETS,
         URBAN_AREA_TARGETS,
     )
@@ -65,6 +73,52 @@ def validate(csv_path: Path) -> pd.DataFrame:
         raise AssertionError(
             f"sex x age_group mismatch: expected {SEX_AGE_TARGETS}, observed {cross_tab}"
         )
+    age_csp = (
+        frame.groupby(["age_group", "csp"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(index=AGE_GROUPS, columns=CSP_TARGETS, fill_value=0)
+    )
+    expected_age_csp = pd.DataFrame.from_dict(AGE_CSP_TARGETS, orient="index", columns=CSP_TARGETS)
+    if not age_csp.equals(expected_age_csp):
+        raise AssertionError("age x csp mismatch")
+
+    region_csp = (
+        frame.groupby(["region", "csp"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(index=REGION_TARGETS, columns=CSP_TARGETS, fill_value=0)
+    )
+    expected_region_csp = pd.DataFrame.from_dict(
+        REGION_CSP_TARGETS, orient="index", columns=CSP_TARGETS
+    )
+    if not region_csp.equals(expected_region_csp):
+        raise AssertionError("region x csp mismatch")
+
+    age_region = (
+        frame.groupby(["age_group", "region"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(index=AGE_GROUPS, columns=REGION_TARGETS, fill_value=0)
+    )
+    expected_age_region = pd.DataFrame.from_dict(
+        AGE_REGION_TARGETS, orient="index", columns=REGION_TARGETS
+    )
+    if not age_region.equals(expected_age_region):
+        raise AssertionError("age x region mismatch")
+
+    region_urban = (
+        frame.groupby(["region", "urban_area_size"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(index=REGION_TARGETS, columns=URBAN_AREA_TARGETS, fill_value=0)
+    )
+    expected_region_urban = pd.DataFrame.from_dict(
+        REGION_URBAN_TARGETS, orient="index", columns=URBAN_AREA_TARGETS
+    )
+    if not region_urban.equals(expected_region_urban):
+        raise AssertionError("region x urban_area_size mismatch")
+
     assert_counts(frame["csp"].value_counts().reindex(CSP_TARGETS, fill_value=0), CSP_TARGETS, "csp")
     assert_counts(
         frame["region"].value_counts().reindex(REGION_TARGETS, fill_value=0),
