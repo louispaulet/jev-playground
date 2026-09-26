@@ -70,6 +70,33 @@ fr_0001    | {"sex": "male", "age": "50", ...} | {"Plutôt inquiet": 0.81, "Trè
 
 The probabilities are numbers from `0` to `1` and should sum to `1` for each persona.
 
+## Run a question from a text file and write CSV results
+
+Put the question and its numbered answer choices in a UTF-8 text file. The poller
+uses the numbered lines as the `Choice` criteria, removes exact duplicate choices,
+and writes one row per persona. The `persona_id` column remains available for a
+later join, while each answer gets a `probability_*` column.
+
+From the project root:
+
+```bash
+make poll \
+  QUESTION_FILE=polling_test/questions/q3_presidential_2022.txt \
+  LIMIT=1000
+```
+
+`LIMIT=0` evaluates every persona in the input CSV. Results are written under
+`polling_test/results/` with a UTC timestamp followed by a slug made from the
+first 200 characters of the question, for example:
+
+```text
+20260926T193004123456Z_q3-si-le-premier-tour-de-lelection-presidentielle....csv
+```
+
+Because the timestamp is the filename prefix, ordinary filename sorting orders
+the result files chronologically. Override the input persona CSV with `CSV=...`
+by invoking the Python script directly, or pass `OUTPUT_DIR=...` to `make poll`.
+
 ## What is sent to JEV?
 
 For each CSV row, the script builds this state:

@@ -3,7 +3,7 @@ PYTHON := $(VENV)/bin/python
 CALL_BUDGET ?= 40
 MAX_HOPS ?= 6
 
-.PHONY: install test-choice test-noul test-score benchmark-gender wikipedia-race generate-population validate-population
+.PHONY: install test-choice test-noul test-score benchmark-gender wikipedia-race poll generate-population validate-population
 
 install:
 	uv venv $(VENV) --allow-existing
@@ -29,6 +29,12 @@ ifndef END
 	$(error END is required; use: make wikipedia-race START=Beaver END="Apollo 11")
 endif
 	uv run --env-file .env --python $(PYTHON) -m scripts.wikipedia_race_jev "$(START)" "$(END)" --call-budget $(CALL_BUDGET) --max-hops $(MAX_HOPS)
+
+poll:
+ifndef QUESTION_FILE
+	$(error QUESTION_FILE is required; use: make poll QUESTION_FILE=path/to/question.txt [LIMIT=1000])
+endif
+	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --question-file "$(QUESTION_FILE)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet
 
 generate-population:
 	uv run --python $(PYTHON) population/create_population_sample.py
