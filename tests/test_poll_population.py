@@ -85,6 +85,34 @@ class PollPopulationTests(unittest.TestCase):
             )
             self.assertEqual(cached, output_path)
 
+    def test_changed_persona_state_does_not_reuse_a_cached_result(self):
+        personas = [{"persona_id": "fr_0001", "bio": "Original bio"}]
+        responses = [
+            {
+                "selected_answer": "Option A",
+                "confidence": 0.8,
+                "probabilities": {"Option A": 0.8, "Option B": 0.2},
+            }
+        ]
+        with TemporaryDirectory() as directory:
+            output_path = Path(directory) / "20260926T193004123456Z_question.csv"
+            write_results(
+                output_path,
+                personas,
+                responses,
+                ("Option A", "Option B"),
+                question="Question?",
+                question_id="question",
+            )
+            changed_personas = [{"persona_id": "fr_0001", "bio": "Updated bio"}]
+            cached = find_cached_result(
+                "Question?",
+                ("Option A", "Option B"),
+                changed_personas,
+                Path(directory),
+            )
+            self.assertIsNone(cached)
+
 
 if __name__ == "__main__":
     unittest.main()

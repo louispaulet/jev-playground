@@ -34,6 +34,7 @@ DEFAULT_OPTIONS = (
 )
 PERSONA_ID_FIELD = "persona_id"
 QUESTION_HASH_FIELD = "question_sha256"
+POPULATION_HASH_FIELD = "population_sha256"
 NUMBERED_OPTION_RE = re.compile(r"^\s*\d+\s*[.)]\s*(?P<label>\S.*)\s*$")
 
 
@@ -96,6 +97,17 @@ def make_question_hash(question: str, options: tuple[str, ...]) -> str:
         {"question": question, "options": options},
         ensure_ascii=False,
         sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def make_population_hash(personas: list[dict[str, str]]) -> str:
+    """Return a stable fingerprint for the ordered persona state sent to JEV."""
+    payload = json.dumps(
+        personas,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
@@ -206,7 +218,12 @@ def write_results(
 ) -> None:
     """Write one joinable CSV row per persona."""
     columns = probability_columns(options)
-    metadata_fields = ["question_id", QUESTION_HASH_FIELD] if question else []
+    population_hash = make_population_hash(personas)
+    metadata_fields = (
+        ["question_id", QUESTION_HASH_FIELD, POPULATION_HASH_FIELD]
+        if question
+        else []
+    )
     fieldnames = [PERSONA_ID_FIELD, *metadata_fields, "selected_answer", "confidence", *columns.values()]
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as csv_file:
@@ -222,6 +239,7 @@ def write_results(
             if question:
                 row["question_id"] = question_id or "question"
                 row[QUESTION_HASH_FIELD] = make_question_hash(question, options)
+                row[POPULATION_HASH_FIELD] = population_hash
             row.update({columns[option]: probabilities.get(option, 0.0) for option in options})
             writer.writerow(row)
 
@@ -236,6 +254,7 @@ def find_cached_result(
     """Find a complete prior CSV so rerunning a paid poll costs nothing."""
     candidates = [exact_path] if exact_path else sorted(output_dir.glob("*.csv"), reverse=True)
     expected_hash = make_question_hash(question, options)
+    expected_population_hash = make_population_hash(personas)
     expected_columns = set(probability_columns(options).values())
     expected_ids = [persona[PERSONA_ID_FIELD] for persona in personas]
     for candidate in candidates:
@@ -246,7 +265,11 @@ def find_cached_result(
         try:
             with candidate.open(newline="", encoding="utf-8") as csv_file:
                 reader = csv.DictReader(csv_file)
-                if not reader.fieldnames or not expected_columns.issubset(reader.fieldnames):
+                if (
+                    not reader.fieldnames
+                    or not expected_columns.issubset(reader.fieldnames)
+                    or POPULATION_HASH_FIELD not in reader.fieldnames
+                ):
                     continue
                 rows = list(reader)
         except (OSError, csv.Error, UnicodeError):
@@ -256,6 +279,11 @@ def find_cached_result(
         if [row.get(PERSONA_ID_FIELD) for row in rows] != expected_ids:
             continue
         if any(row.get(QUESTION_HASH_FIELD) != expected_hash for row in rows):
+            continue
+        if any(
+            row.get(POPULATION_HASH_FIELD) != expected_population_hash
+            for row in rows
+        ):
             continue
         return candidate
     return None

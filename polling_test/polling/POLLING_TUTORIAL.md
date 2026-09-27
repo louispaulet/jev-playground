@@ -37,6 +37,9 @@ Set the API key in the environment. Do not put the key in this file or commit it
 export TYPESAFE_API_KEY="your-key-here"
 ```
 
+The `make` targets also load a local `.env` file automatically. Keep that file
+untracked and never commit an API key.
+
 ## Run the default example
 
 From the project root:
@@ -112,8 +115,34 @@ population, and three independent INSEE Camme opinion questions. The Camme
 questions compare JEV-derived opinion balances with the published July 2026
 INSEE balances. All uncached questions for one persona are sent in one
 TypeSafe request. Each question still gets its own CSV, and the embedded
-question hash lets later runs reuse matching CSVs without making another paid
-request.
+question and population hashes let later runs reuse matching CSVs without making
+another paid request. The population hash covers the full ordered persona state,
+so changing a characteristic or bio invalidates the old result automatically.
+
+To deliberately rerun the complete benchmark after changing the population,
+bios, or question files, use:
+
+```bash
+make validate-population
+make benchmark-poll LIMIT=1000 FORCE=1
+make compare-benchmarks
+```
+
+`FORCE=1` preserves older timestamped CSVs and writes a new result set. Without
+it, matching cached results are reused. Existing result files created before
+population fingerprints were added are treated as stale and will be rerun once.
+
+`make compare-benchmarks` is unweighted by default, which is the appropriate
+baseline for comparing population changes. To inspect an explicit calibration,
+first regenerate it for the current result set and opt in:
+
+```bash
+make calibrate-weights
+make compare-benchmarks WEIGHTS=polling_test/polling/calibrated_weights_all.csv
+```
+
+Do not carry calibrated weights across a population or question change without
+regenerating them; they are a diagnostic layer, not part of JEV inference.
 
 The SciPy calibration diagnostic uses bounded soft constraints by default:
 
@@ -213,6 +242,10 @@ The path can be overridden with `--csv`:
 
 The replacement CSV must contain a `persona_id` column. All other columns are passed through as persona context.
 
+When testing a changed replacement CSV at the same persona IDs, add `--force`
+to guarantee a fresh paid run. The normal cache check now fingerprints all
+persona fields, including `bio`.
+
 ## Resuming tests later
 
 When continuing this work, start from the project root and run:
@@ -222,6 +255,9 @@ export TYPESAFE_API_KEY="your-key-here"
 ./.venv/bin/python polling_test/polling/poll_population.py --limit 5
 ```
 
-Then change only the question and options as needed. Keep `persona_id` out of the model state, and treat the returned probabilities as model judgments to inspect and validate, not as measured survey results.
+For a small fresh smoke test, add `--force`; for the full benchmark use the
+`make benchmark-poll LIMIT=1000 FORCE=1` command above. Keep `persona_id` out of
+the model state, and treat the returned probabilities as model judgments to
+inspect and validate, not as measured survey results.
 
 For the current SDK request shape, see the [TypeSafe Python SDK documentation](https://docs.typesafe.ai/sdk/python.md) and the [Choice primitive documentation](https://docs.typesafe.ai/primitives/choice.md).
