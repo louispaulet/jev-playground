@@ -1,139 +1,135 @@
-"""Validate the synthetic population CSV against its documented quotas."""
+"""Validate demographic controls and conditional fictional persona consistency."""
 
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 try:
-    from .create_population_sample import (
-        AGE_RANGES,
-        AGE_GROUPS,
-        AGE_CSP_TARGETS,
-        AGE_REGION_TARGETS,
-        CSP_TARGETS,
-        FIELDNAMES,
-        REGION_CSP_TARGETS,
-        REGION_TARGETS,
-        REGION_URBAN_TARGETS,
-        SEX_AGE_TARGETS,
-        URBAN_AREA_TARGETS,
+    from .create_population_sample import SAMPLE_SIZE, apportion, solve_joint_csp_counts
+    from .personas import validate_persona
+    from .population_profile import FIELDNAMES, load_profile, validate_profile
+except ImportError:
+    from create_population_sample import SAMPLE_SIZE, apportion, solve_joint_csp_counts
+    from personas import validate_persona
+    from population_profile import FIELDNAMES, load_profile, validate_profile
+
+
+def validate(
+    csv_path: Path, profile_path: Path | None = None, size: int | None = None
+) -> pd.DataFrame:
+    manifest_path = csv_path.with_suffix(".manifest.json")
+    manifest = (
+        json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest_path.exists()
+        else {}
     )
-except ImportError:  # Allows direct execution: python population/validate_population_sample.py
-    from create_population_sample import (
-        AGE_RANGES,
-        AGE_GROUPS,
-        AGE_CSP_TARGETS,
-        AGE_REGION_TARGETS,
-        CSP_TARGETS,
-        FIELDNAMES,
-        REGION_CSP_TARGETS,
-        REGION_TARGETS,
-        REGION_URBAN_TARGETS,
-        SEX_AGE_TARGETS,
-        URBAN_AREA_TARGETS,
+    profile = (
+        load_profile(profile_path)
+        if profile_path
+        else manifest.get("profile") or load_profile()
     )
-
-
-def assert_counts(actual: pd.Series, expected: dict[str, int], label: str) -> None:
-    observed = actual.to_dict()
-    if observed != expected:
-        raise AssertionError(f"{label} mismatch: expected {expected}, observed {observed}")
-
-
-def validate(csv_path: Path) -> pd.DataFrame:
-    frame = pd.read_csv(csv_path)
-    if list(frame.columns[: len(FIELDNAMES)]) != FIELDNAMES:
-        raise AssertionError(
-            f"columns mismatch: expected {FIELDNAMES} first, observed {list(frame.columns)}"
-        )
-    unexpected_columns = set(frame.columns) - set(FIELDNAMES) - {"bio"}
-    if unexpected_columns:
-        raise AssertionError(f"unexpected columns: {sorted(unexpected_columns)}")
-    if len(frame) != 1_000:
-        raise AssertionError(f"expected 1,000 rows, observed {len(frame)}")
-    if frame.isna().any().any():
-        raise AssertionError("CSV contains missing values")
-    if "bio" in frame.columns and frame["bio"].str.strip().eq("").any():
-        raise AssertionError("CSV contains empty bios")
+    validate_profile(profile)
+    expected_size = size if size is not None else manifest.get("size", SAMPLE_SIZE)
+    frame = pd.read_csv(csv_path, keep_default_na=False)
+    if list(frame.columns) != FIELDNAMES:
+        raise ValueError(f"expected CSV columns {FIELDNAMES}")
+    if len(frame) != expected_size or expected_size < 1:
+        raise ValueError(f"expected {expected_size} rows, observed {len(frame)}")
+    if frame.astype(str).apply(lambda col: col.str.strip().eq("")).any().any():
+        raise ValueError("CSV contains empty fields")
     if frame["persona_id"].nunique() != len(frame):
-        raise AssertionError("persona_id values are not unique")
+        raise ValueError("persona_id values are not unique")
+    for row in frame.to_dict("records"):
+        try:
+            validate_persona(row, profile)
+        except (ValueError, KeyError) as error:
+            raise ValueError(f"{row['persona_id']}: {error}") from error
 
-    if not frame["age"].between(18, 95).all():
-        raise AssertionError("ages must be between 18 and 95")
-    for age_group, (low, high) in AGE_RANGES.items():
-        ages = frame.loc[frame["age_group"] == age_group, "age"]
-        if not ages.between(low, high).all():
-            raise AssertionError(f"age values outside the {age_group} band")
+    ages, regions, csps = (
+        list(profile[key]) for key in ("age_ranges", "region_targets", "csp_targets")
+    )
+    joint = solve_joint_csp_counts(profile)
+    age_sizes = apportion(joint.sum(axis=(1, 2)).tolist(), expected_size)
+    scaled = np.asarray(
+        [
+            np.asarray(apportion(joint[i].ravel().tolist(), count)).reshape(
+                joint.shape[1:]
+            )
+            for i, count in enumerate(age_sizes)
+        ]
+    )
 
-    cross_tab = frame.groupby(["sex", "age_group"]).size().to_dict()
-    if cross_tab != SEX_AGE_TARGETS:
-        raise AssertionError(
-            f"sex x age_group mismatch: expected {SEX_AGE_TARGETS}, observed {cross_tab}"
+    def check(columns: list[str], expected: dict[tuple[str, ...], int]) -> None:
+        actual = frame.groupby(columns).size().to_dict()
+        expected = {key: value for key, value in expected.items() if value}
+        if actual != expected:
+            raise ValueError(f"{' x '.join(columns)} allocation mismatch")
+
+    sexes = list(profile["sex_age_targets"])
+    check(
+        ["sex", "age_group"],
+        {
+            (sex, group): count
+            for group, total in zip(ages, age_sizes)
+            for sex, count in zip(
+                sexes,
+                apportion([profile["sex_age_targets"][s][group] for s in sexes], total),
+            )
+        },
+    )
+    for columns, names, counts in (
+        (["age_group", "csp"], (ages, csps), scaled.sum(axis=1)),
+        (["region", "csp"], (regions, csps), scaled.sum(axis=0)),
+        (["age_group", "region"], (ages, regions), scaled.sum(axis=2)),
+    ):
+        check(
+            columns,
+            {
+                (a, b): int(counts[i, j])
+                for i, a in enumerate(names[0])
+                for j, b in enumerate(names[1])
+            },
         )
-    age_csp = (
-        frame.groupby(["age_group", "csp"])
-        .size()
-        .unstack(fill_value=0)
-        .reindex(index=AGE_GROUPS, columns=CSP_TARGETS, fill_value=0)
+    region_totals = scaled.sum(axis=(0, 2))
+    check(
+        ["region", "urban_area_size"],
+        {
+            (region, urban): count
+            for region, total in zip(regions, region_totals)
+            for urban, count in zip(
+                profile["urban_area_targets"],
+                apportion(profile["region_urban_targets"][region], int(total)),
+            )
+        },
     )
-    expected_age_csp = pd.DataFrame.from_dict(AGE_CSP_TARGETS, orient="index", columns=CSP_TARGETS)
-    if not age_csp.equals(expected_age_csp):
-        raise AssertionError("age x csp mismatch")
-
-    region_csp = (
-        frame.groupby(["region", "csp"])
-        .size()
-        .unstack(fill_value=0)
-        .reindex(index=REGION_TARGETS, columns=CSP_TARGETS, fill_value=0)
-    )
-    expected_region_csp = pd.DataFrame.from_dict(
-        REGION_CSP_TARGETS, orient="index", columns=CSP_TARGETS
-    )
-    if not region_csp.equals(expected_region_csp):
-        raise AssertionError("region x csp mismatch")
-
-    age_region = (
-        frame.groupby(["age_group", "region"])
-        .size()
-        .unstack(fill_value=0)
-        .reindex(index=AGE_GROUPS, columns=REGION_TARGETS, fill_value=0)
-    )
-    expected_age_region = pd.DataFrame.from_dict(
-        AGE_REGION_TARGETS, orient="index", columns=REGION_TARGETS
-    )
-    if not age_region.equals(expected_age_region):
-        raise AssertionError("age x region mismatch")
-
-    region_urban = (
-        frame.groupby(["region", "urban_area_size"])
-        .size()
-        .unstack(fill_value=0)
-        .reindex(index=REGION_TARGETS, columns=URBAN_AREA_TARGETS, fill_value=0)
-    )
-    expected_region_urban = pd.DataFrame.from_dict(
-        REGION_URBAN_TARGETS, orient="index", columns=URBAN_AREA_TARGETS
-    )
-    if not region_urban.equals(expected_region_urban):
-        raise AssertionError("region x urban_area_size mismatch")
-
-    assert_counts(frame["csp"].value_counts().reindex(CSP_TARGETS, fill_value=0), CSP_TARGETS, "csp")
-    assert_counts(
-        frame["region"].value_counts().reindex(REGION_TARGETS, fill_value=0),
-        REGION_TARGETS,
-        "region",
-    )
-    assert_counts(
-        frame["urban_area_size"].value_counts().reindex(URBAN_AREA_TARGETS, fill_value=0),
-        URBAN_AREA_TARGETS,
-        "urban_area_size",
-    )
-
-    unexpected_age_groups = set(frame["age_group"]) - set(AGE_GROUPS)
-    if unexpected_age_groups:
-        raise AssertionError(f"unexpected age groups: {unexpected_age_groups}")
+    # Quantify rounding against the source profile, rather than calling scaled
+    # or fictional distributions statistically representative.
+    deviations = []
+    for field, targets in (
+        ("csp", profile["csp_targets"]),
+        ("region", profile["region_targets"]),
+        ("urban_area_size", profile["urban_area_targets"]),
+    ):
+        for label, reference in targets.items():
+            observed = int(frame[field].eq(label).sum())
+            deviations.append(
+                {
+                    "field": field,
+                    "value": label,
+                    "observed": observed,
+                    "target": reference * expected_size / profile["reference_size"],
+                    "delta_pp": 100
+                    * (
+                        observed / expected_size - reference / profile["reference_size"]
+                    ),
+                }
+            )
+    frame.attrs["margin_deviations"] = deviations
     return frame
 
 
@@ -144,11 +140,23 @@ def main() -> None:
         nargs="?",
         type=Path,
         default=Path(__file__).with_name("population_sample.csv"),
-        help="CSV path to validate",
+    )
+    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--size", type=int)
+    parser.add_argument(
+        "--report",
+        type=Path,
+        help="write rounding deviations against the reference margins",
     )
     args = parser.parse_args()
-    frame = validate(args.csv_path)
-    print(f"PASS: {len(frame)} rows match all documented population quotas")
+    frame = validate(args.csv_path, args.profile, args.size)
+    report = pd.DataFrame(frame.attrs["margin_deviations"])
+    if args.report:
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        report.to_csv(args.report, index=False)
+    print(
+        f"PASS: {len(frame)} coherent personas; max one-way reference deviation {report.delta_pp.abs().max():.3f} pp"
+    )
 
 
 if __name__ == "__main__":

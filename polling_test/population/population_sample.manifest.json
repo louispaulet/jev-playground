@@ -1,0 +1,1484 @@
+{
+  "profile": {
+    "profile_id": "fr_adults_v2",
+    "country": "France",
+    "id_prefix": "fr",
+    "language": "French",
+    "reference_size": 1000,
+    "scope": "Residents aged 18+ in metropolitan France, Guadeloupe, Martinique, Guyane and La Réunion; excludes Mayotte; not an electorate frame.",
+    "sources": {
+      "sex_age_region": "https://www.insee.fr/fr/statistiques/8331297",
+      "csp": "https://www.insee.fr/fr/statistiques/2012701",
+      "urban": "https://www.insee.fr/fr/statistiques/5039853"
+    },
+    "age_ranges": {
+      "18-24": [
+        18,
+        24
+      ],
+      "25-34": [
+        25,
+        34
+      ],
+      "35-49": [
+        35,
+        49
+      ],
+      "50-64": [
+        50,
+        64
+      ],
+      "65+": [
+        65,
+        95
+      ]
+    },
+    "sex_age_targets": {
+      "male": {
+        "18-24": 53,
+        "25-34": 72,
+        "35-49": 115,
+        "50-64": 119,
+        "65+": 119
+      },
+      "female": {
+        "18-24": 51,
+        "25-34": 73,
+        "35-49": 120,
+        "50-64": 124,
+        "65+": 154
+      }
+    },
+    "csp_targets": {
+      "farmer": 7,
+      "craft_trader_business_owner": 36,
+      "manager_intellectual_profession": 107,
+      "intermediate_profession": 144,
+      "employee": 153,
+      "worker": 116,
+      "retired": 278,
+      "other_inactive": 159
+    },
+    "region_targets": {
+      "Auvergne-Rhône-Alpes": 120,
+      "Bourgogne-Franche-Comté": 41,
+      "Bretagne": 52,
+      "Centre-Val de Loire": 38,
+      "Corse": 6,
+      "Grand Est": 82,
+      "Hauts-de-France": 86,
+      "Île-de-France": 179,
+      "Normandie": 49,
+      "Nouvelle-Aquitaine": 93,
+      "Occitanie": 92,
+      "Pays de la Loire": 57,
+      "Provence-Alpes-Côte d'Azur": 78,
+      "Guadeloupe": 6,
+      "Martinique": 5,
+      "Guyane": 4,
+      "La Réunion": 12
+    },
+    "urban_area_targets": {
+      "rural_outside_urban_unit": 208,
+      "urban_unit_under_20k": 180,
+      "urban_unit_20k_to_99k": 141,
+      "urban_unit_100k_to_1_999_999": 309,
+      "paris_urban_unit": 162
+    },
+    "age_csp_targets": {
+      "18-24": [
+        0,
+        1,
+        4,
+        12,
+        19,
+        14,
+        0,
+        54
+      ],
+      "25-34": [
+        1,
+        5,
+        25,
+        35,
+        34,
+        26,
+        0,
+        19
+      ],
+      "35-49": [
+        2,
+        15,
+        43,
+        57,
+        53,
+        41,
+        0,
+        24
+      ],
+      "50-64": [
+        3,
+        14,
+        33,
+        40,
+        46,
+        34,
+        43,
+        30
+      ],
+      "65+": [
+        1,
+        1,
+        2,
+        0,
+        1,
+        1,
+        235,
+        32
+      ]
+    },
+    "region_csp_targets": {
+      "Auvergne-Rhône-Alpes": [
+        1,
+        5,
+        13,
+        18,
+        18,
+        14,
+        33,
+        18
+      ],
+      "Bourgogne-Franche-Comté": [
+        1,
+        1,
+        3,
+        5,
+        6,
+        6,
+        13,
+        6
+      ],
+      "Bretagne": [
+        1,
+        2,
+        5,
+        7,
+        7,
+        6,
+        17,
+        7
+      ],
+      "Centre-Val de Loire": [
+        0,
+        1,
+        3,
+        6,
+        6,
+        5,
+        12,
+        5
+      ],
+      "Corse": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        1
+      ],
+      "Grand Est": [
+        1,
+        2,
+        6,
+        12,
+        13,
+        12,
+        23,
+        13
+      ],
+      "Hauts-de-France": [
+        0,
+        2,
+        7,
+        12,
+        14,
+        12,
+        23,
+        16
+      ],
+      "Île-de-France": [
+        0,
+        6,
+        36,
+        28,
+        28,
+        14,
+        35,
+        32
+      ],
+      "Normandie": [
+        0,
+        2,
+        4,
+        7,
+        7,
+        7,
+        15,
+        7
+      ],
+      "Nouvelle-Aquitaine": [
+        1,
+        4,
+        8,
+        12,
+        14,
+        11,
+        31,
+        12
+      ],
+      "Occitanie": [
+        1,
+        4,
+        8,
+        13,
+        14,
+        9,
+        28,
+        15
+      ],
+      "Pays de la Loire": [
+        1,
+        2,
+        5,
+        8,
+        8,
+        8,
+        18,
+        7
+      ],
+      "Provence-Alpes-Côte d'Azur": [
+        0,
+        4,
+        8,
+        11,
+        12,
+        7,
+        23,
+        13
+      ],
+      "Guadeloupe": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        1
+      ],
+      "Martinique": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "Guyane": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        2
+      ],
+      "La Réunion": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        1,
+        2,
+        3
+      ]
+    },
+    "region_urban_targets": {
+      "Auvergne-Rhône-Alpes": [
+        26,
+        20,
+        22,
+        52,
+        0
+      ],
+      "Bourgogne-Franche-Comté": [
+        18,
+        8,
+        8,
+        7,
+        0
+      ],
+      "Bretagne": [
+        15,
+        17,
+        10,
+        10,
+        0
+      ],
+      "Centre-Val de Loire": [
+        13,
+        9,
+        7,
+        9,
+        0
+      ],
+      "Corse": [
+        2,
+        1,
+        3,
+        0,
+        0
+      ],
+      "Grand Est": [
+        23,
+        18,
+        15,
+        26,
+        0
+      ],
+      "Hauts-de-France": [
+        18,
+        14,
+        14,
+        40,
+        0
+      ],
+      "Île-de-France": [
+        6,
+        8,
+        3,
+        0,
+        162
+      ],
+      "Normandie": [
+        17,
+        11,
+        7,
+        14,
+        0
+      ],
+      "Nouvelle-Aquitaine": [
+        30,
+        19,
+        13,
+        31,
+        0
+      ],
+      "Occitanie": [
+        22,
+        23,
+        17,
+        30,
+        0
+      ],
+      "Pays de la Loire": [
+        13,
+        17,
+        7,
+        20,
+        0
+      ],
+      "Provence-Alpes-Côte d'Azur": [
+        4,
+        11,
+        8,
+        55,
+        0
+      ],
+      "Guadeloupe": [
+        0,
+        1,
+        1,
+        4,
+        0
+      ],
+      "Martinique": [
+        0,
+        1,
+        1,
+        3,
+        0
+      ],
+      "Guyane": [
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "La Réunion": [
+        0,
+        1,
+        4,
+        7,
+        0
+      ]
+    },
+    "age_region_targets": {
+      "18-24": [
+        13,
+        4,
+        5,
+        4,
+        1,
+        8,
+        9,
+        18,
+        5,
+        10,
+        10,
+        6,
+        8,
+        1,
+        1,
+        0,
+        1
+      ],
+      "25-34": [
+        17,
+        6,
+        8,
+        6,
+        1,
+        12,
+        12,
+        26,
+        7,
+        13,
+        13,
+        8,
+        11,
+        1,
+        1,
+        1,
+        2
+      ],
+      "35-49": [
+        28,
+        10,
+        12,
+        9,
+        1,
+        19,
+        20,
+        42,
+        12,
+        22,
+        22,
+        13,
+        19,
+        1,
+        1,
+        1,
+        3
+      ],
+      "50-64": [
+        29,
+        10,
+        13,
+        9,
+        1,
+        20,
+        21,
+        44,
+        12,
+        23,
+        22,
+        14,
+        19,
+        1,
+        1,
+        1,
+        3
+      ],
+      "65+": [
+        33,
+        11,
+        14,
+        10,
+        2,
+        23,
+        24,
+        49,
+        13,
+        25,
+        25,
+        16,
+        21,
+        2,
+        1,
+        1,
+        3
+      ]
+    },
+    "age_band_counts": {
+      "Auvergne-Rhône-Alpes": {
+        "male": [
+          268691,
+          243068,
+          235447,
+          249204,
+          259958,
+          262980,
+          247438,
+          272223,
+          261726,
+          245355,
+          215176,
+          195567,
+          168253,
+          98207,
+          61116,
+          26358,
+          5831
+        ],
+        "female": [
+          250807,
+          229471,
+          231531,
+          250779,
+          269068,
+          274129,
+          251756,
+          272818,
+          266580,
+          257335,
+          240414,
+          229347,
+          205808,
+          132005,
+          99516,
+          61490,
+          22604
+        ]
+      },
+      "Bourgogne-Franche-Comté": {
+        "male": [
+          88682,
+          78498,
+          73734,
+          74506,
+          79640,
+          84049,
+          79969,
+          91657,
+          93347,
+          90869,
+          85396,
+          79407,
+          68150,
+          36897,
+          24018,
+          10098,
+          2247
+        ],
+        "female": [
+          79753,
+          69717,
+          69372,
+          73041,
+          82046,
+          84835,
+          80679,
+          93315,
+          94606,
+          95909,
+          94251,
+          92096,
+          81556,
+          48892,
+          39922,
+          24063,
+          8840
+        ]
+      },
+      "Bretagne": {
+        "male": [
+          110532,
+          97837,
+          91559,
+          93638,
+          100783,
+          105656,
+          102495,
+          117257,
+          111552,
+          112524,
+          107297,
+          96681,
+          81107,
+          41105,
+          28456,
+          11934,
+          2092
+        ],
+        "female": [
+          103205,
+          89553,
+          86667,
+          92821,
+          102090,
+          107887,
+          102788,
+          116664,
+          115175,
+          118724,
+          117971,
+          113297,
+          100911,
+          58655,
+          49999,
+          28952,
+          9058
+        ]
+      },
+      "Centre-Val de Loire": {
+        "male": [
+          83406,
+          69952,
+          66381,
+          68087,
+          73969,
+          76229,
+          73979,
+          85331,
+          84268,
+          80846,
+          75937,
+          70627,
+          60733,
+          32738,
+          22072,
+          9875,
+          2322
+        ],
+        "female": [
+          75852,
+          63918,
+          65000,
+          69792,
+          77328,
+          79739,
+          75728,
+          87594,
+          87508,
+          86426,
+          84604,
+          83007,
+          73453,
+          44520,
+          35753,
+          22004,
+          7692
+        ]
+      },
+      "Corse": {
+        "male": [
+          9490,
+          8377,
+          8383,
+          10101,
+          10998,
+          11769,
+          11149,
+          12118,
+          12077,
+          11774,
+          11334,
+          10676,
+          8753,
+          5749,
+          3402,
+          1246,
+          252
+        ],
+        "female": [
+          8529,
+          8457,
+          8846,
+          10633,
+          11694,
+          12598,
+          11706,
+          12442,
+          12280,
+          12495,
+          11985,
+          11921,
+          10217,
+          7444,
+          4740,
+          2569,
+          898
+        ]
+      },
+      "Grand Est": {
+        "male": [
+          175994,
+          165443,
+          158544,
+          161770,
+          171373,
+          174132,
+          164164,
+          181982,
+          182488,
+          179498,
+          161429,
+          145288,
+          114602,
+          61270,
+          41050,
+          16289,
+          3482
+        ],
+        "female": [
+          163672,
+          152953,
+          151291,
+          161238,
+          176033,
+          178994,
+          164660,
+          185202,
+          187497,
+          188806,
+          180714,
+          169296,
+          137756,
+          84281,
+          70665,
+          40333,
+          13347
+        ]
+      },
+      "Hauts-de-France": {
+        "male": [
+          207371,
+          186607,
+          168759,
+          171899,
+          187990,
+          190945,
+          177828,
+          195138,
+          183544,
+          176343,
+          156217,
+          140471,
+          113210,
+          52087,
+          33776,
+          14275,
+          3050
+        ],
+        "female": [
+          194528,
+          180304,
+          170004,
+          175804,
+          193135,
+          195192,
+          181398,
+          196962,
+          189025,
+          187591,
+          180191,
+          171608,
+          146160,
+          76909,
+          66317,
+          38729,
+          13746
+        ]
+      },
+      "Île-de-France": {
+        "male": [
+          410677,
+          415907,
+          432042,
+          432616,
+          428984,
+          412044,
+          397746,
+          400926,
+          364275,
+          325549,
+          257303,
+          217274,
+          187039,
+          109164,
+          67527,
+          30194,
+          8509
+        ],
+        "female": [
+          391248,
+          426753,
+          451160,
+          454546,
+          456217,
+          440577,
+          406519,
+          407009,
+          383539,
+          352861,
+          299469,
+          270854,
+          235277,
+          145230,
+          110974,
+          68613,
+          29638
+        ]
+      },
+      "Normandie": {
+        "male": [
+          108265,
+          95762,
+          88363,
+          92033,
+          99446,
+          100495,
+          94461,
+          107029,
+          105580,
+          105696,
+          98833,
+          90958,
+          74964,
+          37959,
+          25340,
+          10827,
+          2269
+        ],
+        "female": [
+          99566,
+          88416,
+          86690,
+          91958,
+          101139,
+          104630,
+          96361,
+          109319,
+          110493,
+          113757,
+          111403,
+          108270,
+          93297,
+          53576,
+          45612,
+          27799,
+          9662
+        ]
+      },
+      "Nouvelle-Aquitaine": {
+        "male": [
+          185316,
+          167548,
+          156062,
+          164152,
+          178959,
+          186005,
+          180710,
+          205818,
+          201904,
+          200467,
+          191963,
+          181125,
+          153374,
+          84363,
+          54790,
+          25029,
+          4848
+        ],
+        "female": [
+          172959,
+          154879,
+          153330,
+          167873,
+          184929,
+          194897,
+          187375,
+          213480,
+          212230,
+          216920,
+          216172,
+          211532,
+          187034,
+          113548,
+          90047,
+          55500,
+          20997
+        ]
+      },
+      "Occitanie": {
+        "male": [
+          193071,
+          179965,
+          167524,
+          171837,
+          180495,
+          185901,
+          180443,
+          199338,
+          197637,
+          196459,
+          180986,
+          169792,
+          144795,
+          84185,
+          52513,
+          23782,
+          4997
+        ],
+        "female": [
+          180978,
+          169997,
+          164543,
+          176222,
+          188441,
+          196937,
+          187634,
+          207751,
+          208733,
+          210954,
+          203242,
+          195047,
+          177213,
+          110516,
+          83653,
+          50842,
+          18380
+        ]
+      },
+      "Pays de la Loire": {
+        "male": [
+          132837,
+          117003,
+          108301,
+          111252,
+          118768,
+          123539,
+          120204,
+          130757,
+          121539,
+          116451,
+          109681,
+          101028,
+          84200,
+          44362,
+          30650,
+          13688,
+          2993
+        ],
+        "female": [
+          123678,
+          107660,
+          104230,
+          110380,
+          120736,
+          126789,
+          119576,
+          129924,
+          123710,
+          124602,
+          121085,
+          118365,
+          103680,
+          60707,
+          51131,
+          31005,
+          11565
+        ]
+      },
+      "Provence-Alpes-Côte d'Azur": {
+        "male": [
+          153853,
+          138637,
+          136368,
+          141704,
+          153608,
+          157493,
+          152654,
+          167592,
+          167189,
+          163380,
+          148375,
+          137727,
+          122963,
+          77666,
+          46721,
+          21846,
+          5511
+        ],
+        "female": [
+          143409,
+          132017,
+          137745,
+          150811,
+          165497,
+          168724,
+          159828,
+          175563,
+          181916,
+          181955,
+          171523,
+          165902,
+          154641,
+          105621,
+          75437,
+          46530,
+          18726
+        ]
+      },
+      "Guadeloupe": {
+        "male": [
+          12202,
+          9048,
+          7153,
+          7531,
+          7776,
+          8164,
+          9119,
+          12552,
+          13886,
+          15043,
+          13334,
+          10460,
+          7820,
+          4774,
+          2845,
+          1106,
+          302
+        ],
+        "female": [
+          11345,
+          9012,
+          8641,
+          10478,
+          11282,
+          12096,
+          12799,
+          16257,
+          17245,
+          17045,
+          14476,
+          12848,
+          10313,
+          6305,
+          4149,
+          2278,
+          877
+        ]
+      },
+      "Martinique": {
+        "male": [
+          10403,
+          7412,
+          6643,
+          7270,
+          7707,
+          7819,
+          8364,
+          11598,
+          13689,
+          14690,
+          12580,
+          10421,
+          7528,
+          4650,
+          3030,
+          1158,
+          335
+        ],
+        "female": [
+          9799,
+          7655,
+          7718,
+          10217,
+          11208,
+          10821,
+          10931,
+          14838,
+          16313,
+          17215,
+          14794,
+          12813,
+          9559,
+          6377,
+          4825,
+          2198,
+          922
+        ]
+      },
+      "Guyane": {
+        "male": [
+          13975,
+          9346,
+          8355,
+          8797,
+          9064,
+          9213,
+          7872,
+          7394,
+          6595,
+          5429,
+          4009,
+          3096,
+          1783,
+          1044,
+          421,
+          149,
+          60
+        ],
+        "female": [
+          14011,
+          10628,
+          10259,
+          10748,
+          10628,
+          10634,
+          8678,
+          8244,
+          6727,
+          5475,
+          4201,
+          3091,
+          2135,
+          1165,
+          700,
+          276,
+          125
+        ]
+      },
+      "La Réunion": {
+        "male": [
+          33492,
+          24143,
+          20563,
+          23490,
+          25252,
+          25407,
+          26037,
+          28890,
+          32067,
+          29592,
+          23273,
+          17042,
+          10927,
+          7118,
+          3642,
+          1251,
+          292
+        ],
+        "female": [
+          32671,
+          24899,
+          24789,
+          29414,
+          30988,
+          31773,
+          30510,
+          31248,
+          33384,
+          31424,
+          24704,
+          20312,
+          13907,
+          9163,
+          5832,
+          2521,
+          1034
+        ]
+      }
+    },
+    "context": {
+      "version": "fr_daily_life_v2",
+      "retired_csp": "retired",
+      "inactive_csp": "other_inactive",
+      "retirement_min_age": 60,
+      "student_max_age": 29,
+      "occupations": {
+        "farmer": [
+          "l’exploitation maraîchère",
+          "l’élevage laitier",
+          "la viticulture",
+          "la culture céréalière",
+          "l’arboriculture"
+        ],
+        "craft_trader_business_owner": [
+          "la boulangerie artisanale",
+          "la coiffure",
+          "la plomberie",
+          "le commerce alimentaire de proximité",
+          "la réparation automobile",
+          "le bâtiment"
+        ],
+        "manager_intellectual_profession": [
+          "l’ingénierie informatique",
+          "l’architecture",
+          "l’enseignement supérieur",
+          "la médecine générale",
+          "la gestion financière",
+          "la recherche scientifique",
+          "la direction commerciale"
+        ],
+        "intermediate_profession": [
+          "les soins infirmiers",
+          "l’enseignement primaire",
+          "la maintenance technique",
+          "le travail social",
+          "la comptabilité",
+          "l’encadrement logistique",
+          "la formation professionnelle"
+        ],
+        "employee": [
+          "l’accueil administratif",
+          "la vente en magasin",
+          "l’assistance à domicile",
+          "le secrétariat médical",
+          "la restauration collective",
+          "le service clientèle",
+          "l’entretien de locaux"
+        ],
+        "worker": [
+          "la conduite de machines industrielles",
+          "la préparation de commandes",
+          "la maçonnerie",
+          "la conduite de poids lourds",
+          "l’assemblage industriel",
+          "la menuiserie",
+          "la maintenance automobile"
+        ]
+      },
+      "activity_descriptions": {
+        "working": "Cette personne travaille dans {occupation}.",
+        "job_seeking": "Après avoir travaillé dans {occupation}, cette personne recherche un emploi.",
+        "retired": "À la retraite, cette personne a auparavant travaillé dans {occupation}.",
+        "student": "Cette personne poursuit des études et ne possède pas encore de parcours professionnel établi.",
+        "inactive": "Cette personne est sans activité professionnelle et sans ancienne profession déclarée."
+      },
+      "activity_routines": {
+        "working": [
+          "les horaires de travail demandent une organisation précise",
+          "les journées de travail laissent peu de temps aux démarches personnelles",
+          "les jours de repos sont réservés aux courses et aux proches",
+          "une partie de la semaine est occupée par les déplacements liés au travail"
+        ],
+        "job_seeking": [
+          "la semaine alterne candidatures, démarches et rendez-vous",
+          "les déplacements pour les entretiens demandent de la préparation",
+          "les recherches de formation occupent une partie des journées"
+        ],
+        "retired": [
+          "les courses et les visites aux proches rythment la semaine",
+          "les rendez-vous et les activités locales sont répartis sur plusieurs jours",
+          "cette personne garde du temps pour ses projets personnels"
+        ],
+        "student": [
+          "la semaine se partage entre cours et travail personnel",
+          "les révisions et les trajets structurent les journées",
+          "les projets de groupe demandent de coordonner plusieurs emplois du temps"
+        ],
+        "inactive": [
+          "les tâches du foyer et les démarches rythment la semaine",
+          "les courses et les rendez-vous demandent une organisation régulière",
+          "cette personne prend le temps de chercher des activités locales"
+        ]
+      },
+      "activity_weights": {
+        "working": 92,
+        "job_seeking": 8
+      },
+      "inactive_young_weights": {
+        "student": 75,
+        "inactive": 25
+      },
+      "households": {
+        "alone": {
+          "description": "vit seule",
+          "min_age": 18,
+          "max_age": 95,
+          "housing": [
+            "un appartement en location",
+            "un logement dont elle est propriétaire"
+          ]
+        },
+        "couple": {
+          "description": "vit en couple sans enfant au domicile",
+          "min_age": 18,
+          "max_age": 95,
+          "housing": [
+            "un appartement en location",
+            "un logement dont elle est propriétaire"
+          ]
+        },
+        "family": {
+          "description": "vit en couple avec un ou plusieurs enfants au domicile",
+          "min_age": 25,
+          "max_age": 60,
+          "housing": [
+            "un logement en location",
+            "un logement dont elle est propriétaire"
+          ]
+        },
+        "single_parent": {
+          "description": "élève seule un ou plusieurs enfants au domicile",
+          "min_age": 25,
+          "max_age": 60,
+          "housing": [
+            "un logement en location",
+            "un logement dont elle est propriétaire"
+          ]
+        },
+        "parents": {
+          "description": "vit chez ses parents",
+          "min_age": 18,
+          "max_age": 34,
+          "housing": [
+            "le logement familial"
+          ]
+        },
+        "shared": {
+          "description": "partage son logement avec des colocataires",
+          "min_age": 18,
+          "max_age": 39,
+          "housing": [
+            "un appartement en colocation"
+          ]
+        }
+      },
+      "settlements": {
+        "rural_outside_urban_unit": {
+          "description": "une commune hors unité urbaine",
+          "transport": [
+            "la voiture",
+            "le covoiturage",
+            "le vélo pour les trajets de proximité"
+          ]
+        },
+        "urban_unit_under_20k": {
+          "description": "une petite unité urbaine de moins de 20 000 habitants",
+          "transport": [
+            "la voiture",
+            "le covoiturage",
+            "la marche pour les trajets de proximité",
+            "le vélo pour les trajets de proximité"
+          ]
+        },
+        "urban_unit_20k_to_99k": {
+          "description": "une unité urbaine de 20 000 à 99 999 habitants",
+          "transport": [
+            "la voiture",
+            "le bus et la marche",
+            "le vélo",
+            "le covoiturage"
+          ]
+        },
+        "urban_unit_100k_to_1_999_999": {
+          "description": "une grande unité urbaine hors agglomération parisienne",
+          "transport": [
+            "la voiture",
+            "les transports en commun",
+            "le vélo",
+            "la marche et les transports en commun"
+          ]
+        },
+        "paris_urban_unit": {
+          "description": "l’agglomération parisienne",
+          "transport": [
+            "les transports en commun",
+            "la voiture",
+            "le vélo",
+            "la marche et les transports en commun"
+          ]
+        }
+      },
+      "interests": [
+        "cuisiner des recettes nouvelles",
+        "réparer de petits objets",
+        "suivre les matchs de football",
+        "lire des romans policiers",
+        "faire des promenades",
+        "prendre des photographies",
+        "écouter de la musique et aller à des concerts",
+        "jouer à des jeux de société",
+        "participer à une association locale",
+        "dessiner",
+        "aller au cinéma",
+        "s’occuper de plantes",
+        "pratiquer la natation",
+        "suivre des documentaires",
+        "jouer à des jeux vidéo",
+        "faire de la couture",
+        "retrouver des amis autour d’un repas",
+        "préparer de petites randonnées"
+      ],
+      "tradeoffs": [
+        "répartir le temps disponible entre les proches et les projets personnels",
+        "prévoir les dépenses irrégulières sans renoncer à tous les loisirs",
+        "regrouper les déplacements pour garder du temps libre",
+        "trouver un équilibre entre les obligations quotidiennes et le repos",
+        "faire durer les équipements du foyer tout en organisant leur remplacement",
+        "organiser les rendez-vous sans déséquilibrer le reste de la semaine"
+      ],
+      "bio_templates": [
+        "Cette personne de {age} ans réside {location}, dans {settlement}. Elle {household_description}, dans {housing}, et utilise surtout {transport}. {activity_description} Au quotidien, {routine}. Elle aime {interest}; son arbitrage habituel consiste à {tradeoff}.",
+        "{location}, cette personne de {age} ans habite {settlement}. Elle {household_description} et occupe {housing}. {activity_description} Ses déplacements se font principalement avec {transport}; {routine}. Parmi ses loisirs : {interest}. Elle cherche au quotidien à {tradeoff}."
+      ],
+      "occupation_min_ages": {
+        "la médecine générale": 28,
+        "l’architecture": 24,
+        "l’enseignement supérieur": 25,
+        "la recherche scientifique": 24,
+        "la direction commerciale": 25,
+        "la gestion financière": 22,
+        "l’ingénierie informatique": 21,
+        "les soins infirmiers": 21,
+        "l’enseignement primaire": 23
+      },
+      "occupational_age_max": 79,
+      "locations": {
+        "Auvergne-Rhône-Alpes": "en Auvergne-Rhône-Alpes",
+        "Bourgogne-Franche-Comté": "en Bourgogne-Franche-Comté",
+        "Bretagne": "en Bretagne",
+        "Centre-Val de Loire": "en Centre-Val de Loire",
+        "Corse": "en Corse",
+        "Grand Est": "en Grand Est",
+        "Hauts-de-France": "en Hauts-de-France",
+        "Île-de-France": "en Île-de-France",
+        "Normandie": "en Normandie",
+        "Nouvelle-Aquitaine": "en Nouvelle-Aquitaine",
+        "Occitanie": "en Occitanie",
+        "Pays de la Loire": "en Pays de la Loire",
+        "Provence-Alpes-Côte d'Azur": "en Provence-Alpes-Côte d'Azur",
+        "Guadeloupe": "en Guadeloupe",
+        "Martinique": "en Martinique",
+        "Guyane": "en Guyane",
+        "La Réunion": "à La Réunion"
+      }
+    }
+  },
+  "size": 1000,
+  "seed": 20250926,
+  "schema_version": 2,
+  "context_provenance": "Fictional conditional scenarios; not calibrated to census or opinion data.",
+  "allocation": "Exact pairwise quotas at reference_size; largest-remainder scaling of fitted cells otherwise."
+}

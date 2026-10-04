@@ -3,13 +3,19 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 from polling_test.polling.poll_population import (
+    ask_jev_batch,
     find_cached_result,
+    load_personas,
     parse_numbered_options,
+    persona_state,
     result_path,
     slugify_question,
     unique_options,
+    validate_answer,
     write_results,
 )
 
@@ -112,6 +118,95 @@ class PollPopulationTests(unittest.TestCase):
                 Path(directory),
             )
             self.assertIsNone(cached)
+
+    def test_jev_receives_separate_demographics_and_fiction(self):
+        persona = {
+            "persona_id": "fr_0001",
+            "country": "France",
+            "age": "40",
+            "bio": "Fiction",
+            "interest": "Cinema",
+            "context_version": "v2",
+            "batch_id": "private job id",
+        }
+        state = persona_state(persona)
+        self.assertEqual(
+            state["persona"]["demographics"], {"country": "France", "age": "40"}
+        )
+        self.assertEqual(
+            state["persona"]["fictional_context"],
+            {"bio": "Fiction", "interest": "Cinema"},
+        )
+        self.assertNotIn("private job id", str(state))
+        self.assertNotIn("fr_0001", str(state))
+        client = Mock()
+        answer = SimpleNamespace(
+            choice="Yes", confidence=0.6, probabilities={"Yes": 0.6, "No": 0.4}
+        )
+        client.system_one.return_value = SimpleNamespace(
+            choices={"one": answer, "two": answer}
+        )
+        result = ask_jev_batch(
+            client,
+            persona,
+            [
+                {"id": name, "question": "Question?", "options": ("Yes", "No")}
+                for name in ("one", "two")
+            ],
+        )
+        client.system_one.assert_called_once()
+        self.assertEqual(result["two"]["probabilities"], {"Yes": 0.6, "No": 0.4})
+
+    def test_demographic_baseline_has_a_separate_cache(self):
+        full = [{"persona_id": "fr_0001", "age": "40", "bio": "Fiction"}]
+        responses = [
+            {
+                "selected_answer": "Yes",
+                "confidence": 0.6,
+                "probabilities": {"Yes": 0.6, "No": 0.4},
+            }
+        ]
+        with TemporaryDirectory() as directory:
+            output = Path(directory) / "question.csv"
+            write_results(output, full, responses, ("Yes", "No"), question="Question?")
+            baseline = [{"persona_id": "fr_0001", "age": "40"}]
+            self.assertIsNone(
+                find_cached_result(
+                    "Question?", ("Yes", "No"), baseline, Path(directory)
+                )
+            )
+
+    def test_duplicate_or_malformed_personas_are_rejected(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "input.csv"
+            for content in (
+                "persona_id,age\nfr_1,40\nfr_1,41\n",
+                "persona_id,age\n,40\n",
+                "persona_id,age\nfr_1,40,unexpected\n",
+            ):
+                path.write_text(content)
+                with self.assertRaises(ValueError):
+                    load_personas(path, 0)
+
+    def test_missing_responses_cannot_be_silently_dropped(self):
+        with TemporaryDirectory() as directory, self.assertRaises(ValueError):
+            write_results(
+                Path(directory) / "poll.csv",
+                [{"persona_id": "fr_1"}],
+                [],
+                ("Yes", "No"),
+            )
+
+    def test_invalid_distributions_are_rejected(self):
+        base = {"selected_answer": "Yes", "confidence": 0.6}
+        for probabilities in (
+            {"Yes": 0.9},
+            {"Yes": 1.1, "No": -0.1},
+            {"Yes": 0.2, "No": 0.3},
+            {"Yes": float("nan"), "No": 0.4},
+        ):
+            with self.assertRaises(ValueError):
+                validate_answer({**base, "probabilities": probabilities}, ("Yes", "No"))
 
 
 if __name__ == "__main__":

@@ -1,188 +1,145 @@
-# Synthetic French adult population sample
+# Synthetic population, version 2
 
-This directory contains a reproducible first sample of 1,000 synthetic personas for JEV experiments.
+The checked-in CSV contains 1,000 fictional **adult residents of France excluding
+Mayotte**. Its demographic quotas are controlled. Its life stories are conditional
+scenarios, not measured characteristics of the French population. Richer stories
+make the experiment inspectable; they do not establish better opinion predictions.
 
-The sample is a quota-controlled synthetic population, not a probability sample of real people and not a guarantee that every joint relationship in the French population is reproduced. It is intended to provide a stable, inspectable baseline for simulation. The next step can add richer joint distributions or survey-specific variables when their source tables are selected.
+## Generate and inspect
 
-## Scope and reference dates
-
-- **Population:** adults aged 18 and over residing in metropolitan France and the four overseas departments/regions covered by the INSEE table: Guadeloupe, Martinique, Guyane and La Réunion.
-- **Excluded territory:** Mayotte. The 2025 INSEE age/sex workbook includes Mayotte, but the 2022 INSEE socioprofessional reference is published for *France hors Mayotte*. Excluding Mayotte keeps the core margins on a common scope.
-- **Age/sex and region reference:** INSEE population estimates at 1 January 2025, based on ages reached at 1 January.
-- **Socioprofessional reference:** INSEE 2022 census, population aged 15 or over, current or previous socioprofessional group, France hors Mayotte. This is used as a proxy for adults because the published summary table is for 15+ rather than 18+.
-- **Urban-area reference:** INSEE 2017 census population distribution by size of 2020 urban unit. It is older than the other margins and should be replaced when a comparable current table is selected.
-
-## Selected attributes
-
-| CSV column | Meaning | How it is used |
-| --- | --- | --- |
-| `persona_id` | Stable synthetic identifier | Unique row key; not a population characteristic |
-| `sex` | `male` or `female` | Exact margin and part of the primary sex×age quota |
-| `age` | Synthetic integer age | Generated within the checked age group; not separately quota-controlled |
-| `age_group` | `18-24`, `25-34`, `35-49`, `50-64`, `65+` | Exact margin jointly crossed with `sex` |
-| `csp` | Eight INSEE-style current/previous socioprofessional groups | Exact national margin, age-conditioned and region-conditioned |
-| `region` | 13 metropolitan regions plus four overseas departments/regions | Exact adult regional margin, crossed with CSP and urban area |
-| `urban_area_size` | Five grouped urban-unit size classes | Exact national margin and region-conditioned allocation |
-
-Education, income, employment status, nationality, religion, previous vote and turnout intention are intentionally not included in this first file. They require an explicit scope and source choice, and adding them independently would create misleading combinations. They can be added in a later version with a documented joint or post-stratification method.
-
-## Sources and transformations
-
-### Age, sex and region
-
-Source: [INSEE, population estimates at 1 January 2025](https://www.insee.fr/fr/statistiques/8331297), especially the regional workbook [estim-pop-nreg-sexe-aq-1975-2025.xlsx](https://www.insee.fr/fr/statistiques/fichier/8331297/estim-pop-nreg-sexe-aq-1975-2025.xlsx).
-
-The workbook contains five-year age bands by region and sex. For the adult sample, the `18-24` band is calculated as `2/5` of the `15-19` band plus all of `20-24`; the other bands are sums of complete five-year bands:
-
-- `25-34` = 25-29 + 30-34
-- `35-49` = 35-39 + 40-44 + 45-49
-- `50-64` = 50-54 + 55-59 + 60-64
-- `65+` = 65-69 through 95+
-
-The `2/5` step is an explicit uniform-within-15-to-19 approximation because this source workbook is quinquennial. Applying those rules to the `France métropolitaine et DOM` row gives approximately 54.59 million adults, with the following 1,000-person integer allocation:
-
-| Sex × age group | Personas |
-| --- | ---: |
-| male, 18-24 | 53 |
-| male, 25-34 | 72 |
-| male, 35-49 | 115 |
-| male, 50-64 | 119 |
-| male, 65+ | 119 |
-| female, 18-24 | 51 |
-| female, 25-34 | 73 |
-| female, 35-49 | 120 |
-| female, 50-64 | 124 |
-| female, 65+ | 154 |
-
-The region margin is calculated from the same adult transformation and allocated with the largest-remainder method:
-
-| Region | Personas | Region | Personas |
-| --- | ---: | --- | ---: |
-| Auvergne-Rhône-Alpes | 120 | Bourgogne-Franche-Comté | 41 |
-| Bretagne | 52 | Centre-Val de Loire | 38 |
-| Corse | 6 | Grand Est | 82 |
-| Hauts-de-France | 86 | Île-de-France | 179 |
-| Normandie | 49 | Nouvelle-Aquitaine | 93 |
-| Occitanie | 92 | Pays de la Loire | 57 |
-| Provence-Alpes-Côte d'Azur | 78 | Guadeloupe | 6 |
-| Martinique | 5 | Guyane | 4 |
-| La Réunion | 12 | | |
-
-### Socioprofessional group
-
-Source: [INSEE, structure by current or previous socioprofessional group in 2022](https://www.insee.fr/fr/statistiques/2012701), using the published `France hors Mayotte` row and the linked regional workbook [TCRD_005.xlsx](https://www.insee.fr/fr/statistiques/fichier/2012701/TCRD_005.xlsx).
-
-The eight source categories are retained, with short stable CSV labels. Percentages are 0.7%, 3.6%, 10.7%, 14.4%, 15.3%, 11.6%, 27.8% and 15.9%; the sample uses the corresponding exact integer quota `7, 36, 107, 144, 153, 116, 278, 159`.
-
-This is a current-or-previous group, not an employment-status variable. For example, `retired` is a population category and not a prediction of whether a person currently works.
-
-### Urban area size
-
-Source: [INSEE, urban units](https://www.insee.fr/fr/statistiques/5039853), Figure 1, which reports the 2017 population distribution using the 2020 urban-unit composition.
-
-The source’s detailed classes are grouped so that cells are not too small for a 1,000-person sample:
-
-| CSV class | Source classes combined | Reference population | Personas |
-| --- | --- | ---: | ---: |
-| `rural_outside_urban_unit` | Outside an urban unit | 13,919,171 | 208 |
-| `urban_unit_under_20k` | 2,000-4,999; 5,000-9,999; 10,000-19,999 | 12,022,735 | 180 |
-| `urban_unit_20k_to_99k` | 20,000-49,999; 50,000-99,999 | 9,410,688 | 141 |
-| `urban_unit_100k_to_1_999_999` | 100,000-199,999; 200,000-1,999,999 | 20,643,171 | 309 |
-| `paris_urban_unit` | Paris urban unit | 10,785,092 | 162 |
-
-The urban source table’s total is 66,780,857, and its scope is France. Since it is not the same 2025 adult frame as the other sources, urban-area size is treated as a controlled contextual margin rather than a claim of a fully current adult cross-tab.
-
-## Comparison: sample versus INSEE reference
-
-These tables record the check performed on `population_sample.csv`. Sample percentages use the 1,000 rows. `Δ pp` is sample percentage minus the INSEE percentage. Differences of up to 0.1 percentage point are caused by converting population distributions into whole-person quotas.
-
-### Sex × age group
-
-| Cell | Sample n | Sample % | INSEE adult reference | INSEE % | Δ pp |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Male, 18-24 | 53 | 5.3% | 2,909,157 | 5.3% | 0.0 |
-| Male, 25-34 | 72 | 7.2% | 3,942,209 | 7.2% | 0.0 |
-| Male, 35-49 | 115 | 11.5% | 6,277,370 | 11.5% | 0.0 |
-| Male, 50-64 | 119 | 11.9% | 6,462,731 | 11.8% | +0.1 |
-| Male, 65+ | 119 | 11.9% | 6,498,576 | 11.9% | 0.0 |
-| Female, 18-24 | 51 | 5.1% | 2,767,792 | 5.1% | 0.0 |
-| Female, 25-34 | 73 | 7.3% | 4,004,903 | 7.3% | 0.0 |
-| Female, 35-49 | 120 | 12.0% | 6,541,515 | 12.0% | 0.0 |
-| Female, 50-64 | 124 | 12.4% | 6,756,072 | 12.4% | 0.0 |
-| Female, 65+ | 154 | 15.4% | 8,426,089 | 15.4% | 0.0 |
-
-### Region
-
-| Region | Sample n | Sample % | INSEE adult reference | INSEE % | Δ pp |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Auvergne-Rhône-Alpes | 120 | 12.0% | 6,550,357 | 12.0% | 0.0 |
-| Bourgogne-Franche-Comté | 41 | 4.1% | 2,252,996 | 4.1% | 0.0 |
-| Bretagne | 52 | 5.2% | 2,798,680 | 5.1% | +0.1 |
-| Centre-Val de Loire | 38 | 3.8% | 2,061,115 | 3.8% | 0.0 |
-| Corse | 6 | 0.6% | 296,291 | 0.5% | +0.1 |
-| Grand Est | 82 | 8.2% | 4,461,736 | 8.2% | 0.0 |
-| Hauts-de-France | 86 | 8.6% | 4,675,974 | 8.6% | 0.0 |
-| Île-de-France | 179 | 17.9% | 9,747,105 | 17.9% | 0.0 |
-| Normandie | 49 | 4.9% | 2,665,529 | 4.9% | 0.0 |
-| Nouvelle-Aquitaine | 93 | 9.3% | 5,061,170 | 9.3% | 0.0 |
-| Occitanie | 92 | 9.2% | 5,020,374 | 9.2% | 0.0 |
-| Pays de la Loire | 57 | 5.7% | 3,122,167 | 5.7% | 0.0 |
-| Provence-Alpes-Côte d'Azur | 78 | 7.8% | 4,250,775 | 7.8% | 0.0 |
-| Guadeloupe | 6 | 0.6% | 306,433 | 0.6% | 0.0 |
-| Martinique | 5 | 0.5% | 291,379 | 0.5% | 0.0 |
-| Guyane | 4 | 0.4% | 187,535 | 0.3% | +0.1 |
-| La Réunion | 12 | 1.2% | 671,353 | 1.2% | 0.0 |
-
-### Socioprofessional group
-
-| CSP | Sample n | Sample % | INSEE % | INSEE equivalent n/1,000 | Δ pp |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Farmer | 7 | 0.7% | 0.7% | 7 | 0.0 |
-| Craft/trader/business owner | 36 | 3.6% | 3.6% | 36 | 0.0 |
-| Manager/intellectual profession | 107 | 10.7% | 10.7% | 107 | 0.0 |
-| Intermediate profession | 144 | 14.4% | 14.4% | 144 | 0.0 |
-| Employee | 153 | 15.3% | 15.3% | 153 | 0.0 |
-| Worker | 116 | 11.6% | 11.6% | 116 | 0.0 |
-| Retired | 278 | 27.8% | 27.8% | 278 | 0.0 |
-| Other inactive | 159 | 15.9% | 15.9% | 159 | 0.0 |
-
-### Urban-area size
-
-| Class | Sample n | Sample % | INSEE reference population | INSEE % | Δ pp |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Rural/outside urban unit | 208 | 20.8% | 13,919,171 | 20.8% | 0.0 |
-| Urban unit under 20k | 180 | 18.0% | 12,022,735 | 18.0% | 0.0 |
-| Urban unit 20k-99k | 141 | 14.1% | 9,410,688 | 14.1% | 0.0 |
-| Urban unit 100k-1,999,999 | 309 | 30.9% | 20,643,171 | 30.9% | 0.0 |
-| Paris urban unit | 162 | 16.2% | 10,785,092 | 16.1% | +0.1 |
-
-## Allocation and validation
-
-`create_population_sample.py` uses a fixed seed and an integer allocation solver. It
-first preserves the exact sex×age cells, then solves age×region×CSP cells whose
-age×CSP and region×CSP margins are both exact. Urban-area classes are allocated
-within each region from the INSEE region×urban targets; in particular, the Paris
-urban unit can only occur in Île-de-France. Shuffling is applied only after these
-constraints are satisfied, so repeated generation remains reproducible without
-creating visible blocks of identical categories.
-
-Run:
+From the repository root, without an API key or an API request:
 
 ```bash
-python population/create_population_sample.py
-python population/validate_population_sample.py
+make generate-population
+make validate-population
+
+# A separate population at another size and seed
+make generate-population SIZE=5000 SEED=42 CSV=/tmp/france_5000.csv
+make validate-population CSV=/tmp/france_5000.csv
+.venv/bin/python -m polling_test.population.validate_population_sample \
+  /tmp/france_5000.csv --report /tmp/france_margin_deviations.csv
+
+# Offline regressions (some other tests/ files are interactive API demos)
+.venv/bin/python -m unittest tests.test_population tests.test_poll_population tests.test_poll_benchmarks
 ```
 
-The validator loads the CSV into a pandas `DataFrame` and checks the schema, row
-count, missing values, unique IDs, age-band consistency, exact sex×age cells,
-exact age×CSP and region×CSP cells, exact age×region cells, and exact
-region×urban-area cells and one-way margins.
+The legacy `generate_bios_batch.py` still targets the earlier demographic-only
+schema. Use the local generator for v2 populations; the optional OpenAI rewriter
+has not yet been migrated to preserve the new context fields.
 
-## Why these five controls first
+Generation also writes a `.manifest.json` beside the CSV, containing the full
+profile, source links, seed, size, schema version and modeling assumptions. Keep
+it with exported CSVs. Validation uses that profile and size, or explicit
+`--profile` / `--size` arguments when no manifest is available.
 
-The attached discussion correctly highlights sex×age, socioprofessional group,
-region and urbanity as useful controls for an opinion simulation. At 1,000 rows,
-crossing every attribute would create many tiny or empty cells. This version
-therefore enforces the largest useful published pairwise controls for the fields
-already present. Employment status, education, income and household type remain
-out of scope until their fields and matching INSEE joint tables are added.
+## Demographic controls and evidence
+
+The profile is [profiles/france.json](profiles/france.json). Category order matters
+for matrix columns and is validated before allocation.
+
+| Control | Reference | Qualification |
+| --- | --- | --- |
+| Sex × adult age group; adult region totals | [INSEE estimates, 1 January 2025](https://www.insee.fr/fr/statistiques/8331297) | 18–19 approximated as 2/5 of 15–19; Mayotte excluded |
+| National CSP and regional CSP | [INSEE RP2022 current or previous social group](https://www.insee.fr/fr/statistiques/2012701) | Published 15+ population is a proxy for 18+ |
+| National urban-unit size | [INSEE urban units](https://www.insee.fr/fr/statistiques/5039853) | 2017 all-age counts, 2020 geography; contextual proxy |
+| Age × CSP, age × region, region × CSP, region × urbanity | Existing experiment's balanced integer controls, retained in the profile | Derived/adjusted controls, not a complete observed joint population; see [the earlier audit](joint_distribution_comparison.md) |
+| Individual age within an adult band | INSEE 2025 workbook, sheet `2025`, regional male/female five-year counts | Drawn conditionally on region and sex, uniform within a five-year band; 95+ represented by 95 |
+
+The source workbook for age detail is
+[estim-pop-nreg-sexe-aq-1975-2025.xlsx](https://www.insee.fr/fr/statistiques/fichier/8331297/estim-pop-nreg-sexe-aq-1975-2025.xlsx).
+`age_band_counts` stores 17 counts per region and sex, from 15–19 to 95+.
+For men these are source columns Z–AP; for women AU–BK. The source label
+`Centre-Val-de-Loire` is normalized to the existing CSV label `Centre-Val de Loire`.
+Keeping this snapshot makes generation offline and independent of future source edits.
+
+The integer solver fits age × region × CSP to the retained pairwise tables. Its
+starting point is conditional independence of age and region within CSP. It does
+not recover unobserved higher-order relationships. Sex is allocated within age
+bands; sex × CSP and sex × region are not controlled.
+
+At the reference size (1,000), all five pairwise controls are exact. At other
+sizes, largest-remainder allocation scales the fitted cells within age groups,
+then scales sex within age and urbanity within region. Sample size and structural
+zeros are preserved, but every source margin cannot be promised exact after
+rounding. The validator checks the effective allocations and reports one-way
+percentage-point deviations from the reference profile. Small samples may omit
+rare groups entirely. No sampling-error confidence intervals are implied.
+
+## Persona schema and fictional life details
+
+The first seven columns preserve the original join and demographic fields:
+`persona_id`, `sex`, `age`, `age_group`, `csp`, `region`, `urban_area_size`.
+`country`, `population_profile` and `context_version` identify the scenario.
+
+| Added field | Role | Coherence rule |
+| --- | --- | --- |
+| `activity_status` | Working, looking for work, retired, student, inactive | Distinct from current/previous CSP; retirement and studies have explicit scenario age rules |
+| `occupation` | Current or previous professional domain | Drawn within CSP; retirees get a fictional former occupation; students/inactive use `not_applicable` |
+| `household`, `housing` | Household arrangement and tenure situation | Parental household/colocation/children at home have configured age ranges; housing comes from household-compatible options |
+| `transport` | Usual transport | Drawn from settlement-specific options; no assumption of urban transit in rural scenarios |
+| `routine` | Concrete weekly constraint | Drawn from activity-specific situations |
+| `interest` | Personal leisure interest | Shared pool across sexes and social groups to avoid prescribing demographic tastes |
+| `tradeoff` | Everyday tension in organizing time or spending | Shared pool; no invented party, vote, religion or political stance |
+| `bio` | French paragraph describing those exact fields | Rendered locally from profile templates; structured fields remain authoritative |
+
+**All context probabilities are illustrative.** Working/job-search scenarios use
+92/8 weights in occupational CSPs. Young other-inactive scenarios use 75/25
+student/inactive weights up to age 29. Compatible households, housing, transport,
+routines, interests and tradeoffs are selected uniformly. Former occupational
+domains of retirees use the active CSP quotas as illustrative weights, not an
+estimate of actual former occupations. These settings are editable in the profile.
+
+Additional scenario restrictions: retirement begins at 60; occupational CSPs are
+restricted to ages up to 79; professions with long training have minimum ages
+(e.g. general medicine 28). These deliberately simplify reality and are **not
+legal retirement rules or demographic estimates**. They also condition the
+within-band age draws, which are not independently quota-controlled. Real people
+can fall outside these restrictions; future data-backed profiles should replace
+them with appropriate joint distributions.
+
+Random streams for demographics and context are separate. Changing a biography
+template cannot alter the demographic draws. Reproducibility assumes the same
+profile, seed and solver version; integer optima may have ties across solver versions.
+Persona IDs are stable only within one generated population. A population hash,
+rather than the ID alone, identifies an experiment.
+
+## Adapting to another population
+
+Copy the JSON profile and supply it via `PROFILE=path/to/profile.json` or
+`--profile`. Replace the country, scope, source links, category labels, balanced
+reference counts, age ranges, conditional occupation/activity/household rules,
+settlement descriptions, location phrases and biography templates. Optional
+`age_band_counts` follows the five-year format above; omit it to use uniform
+within-band ages. Category keys and array ordering must agree across all tables.
+The sampler and renderer contain no French prose or hard-coded region names.
+The initial schema still describes adults with social groups, regions and
+urbanity; extending the dimensions themselves requires a deliberate schema change.
+
+## Polling and evaluating assumptions
+
+The poller sends demographics and fictional context in separately named JSON
+fields, using [TypeSafe's structured state](https://docs.typesafe.ai/concepts/state)
+and [Choice](https://docs.typesafe.ai/primitives/choice). Identifiers and batch
+metadata stay outside persona state. Survey instructions ask for the persona's
+perspective without inventing prior votes or party identity.
+
+Compare full-context predictions with the demographic-only baseline:
+
+```bash
+make benchmark-poll CSV=polling_test/population/population_sample.csv
+make compare-benchmarks
+make benchmark-poll DEMOGRAPHICS_ONLY=1 OUTPUT_DIR=/tmp/demographic_polls
+make compare-benchmarks DEMOGRAPHICS_ONLY=1 OUTPUT_DIR=/tmp/demographic_polls
+```
+
+These commands make paid JEV requests when matching caches are absent. No new
+live opinion benchmark was run as part of regenerating the local CSV. Historical
+results and calibration weights remain historical artifacts: the tools reject
+results or weights that do not match the current population/context mode.
+Changing the polling instruction version also invalidates cached results.
+
+This frame contains residents, not registered voters. Nationality, eligibility,
+turnout, income and education are absent; historical election comparisons remain
+exploratory diagnostics with a denominator mismatch. Neither the bios nor JEV
+probabilities are observations of human opinion. Assess added context on held-out
+surveys and across seeds, without fitting persona stories to benchmark answers.

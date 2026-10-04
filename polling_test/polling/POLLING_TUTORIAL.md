@@ -18,8 +18,14 @@ polling_test/
 The CSV currently has these columns:
 
 ```text
-persona_id, sex, age, age_group, csp, region, urban_area_size, bio
+persona_id, sex, age, age_group, csp, region, urban_area_size,
+country, population_profile, context_version, activity_status, occupation,
+household, housing, transport, routine, interest, tradeoff, bio
 ```
+
+See [population model and assumptions](../population/population_sampling.md) for
+local generation, validation, custom sizes and country profiles. The bios describe
+explicit fictional scenarios, whose frequencies are not census-calibrated.
 
 `persona_id` is used only to label the output. It is deliberately excluded from the context sent to JEV.
 
@@ -116,7 +122,7 @@ questions compare JEV-derived opinion balances with the published July 2026
 INSEE balances. All uncached questions for one persona are sent in one
 TypeSafe request. Each question still gets its own CSV, and the embedded
 question and population hashes let later runs reuse matching CSVs without making
-another paid request. The population hash covers the full ordered persona state,
+another paid request. The population hash covers the ordered input records for the chosen context mode,
 so changing a characteristic or bio invalidates the old result automatically.
 
 To deliberately rerun the complete benchmark after changing the population,
@@ -129,8 +135,9 @@ make compare-benchmarks
 ```
 
 `FORCE=1` preserves older timestamped CSVs and writes a new result set. Without
-it, matching cached results are reused. Existing result files created before
-population fingerprints were added are treated as stale and will be rerun once.
+it, matching cached results are reused. Older inference versions and older populations are treated as stale. Comparison
+and calibration require matching fingerprints, so retained historical result files
+cannot be joined to regenerated personas simply because their IDs match.
 
 `make compare-benchmarks` is unweighted by default, which is the appropriate
 baseline for comparing population changes. To inspect an explicit calibration,
@@ -157,34 +164,17 @@ known to be feasible.
 
 ## What is sent to JEV?
 
-For each CSV row, the script builds this state:
+For each CSV row, the script separates `persona.demographics` from
+`persona.fictional_context` in structured state. A simulation-frame description
+explains the status of those fields. `persona_id`, `population_profile`,
+`context_version`, `batch_id` and `error` are excluded from the persona state.
+Structured persona fields take precedence over prose.
 
-```python
-{
-    "persona": {
-        "sex": "male",
-        "age": "50",
-        "age_group": "50-64",
-        "csp": "worker",
-        "region": "Auvergne-Rhône-Alpes",
-        "urban_area_size": "urban_unit_100k_to_1_999_999",
-        "bio": "...",
-    }
-}
-```
-
-The `persona_id` field is not included. The question is sent as a typed Choice:
-
-```python
-Choice(
-    instructions="Votre question ici",
-    criteria={
-        "Answer A": None,
-        "Answer B": None,
-        "Answer C": None,
-    },
-)
-```
+Questions use a typed `Choice` with the original survey question and explicit
+persona-perspective instructions. All independent questions share one state and
+one request. Use `--demographics-only` (or `DEMOGRAPHICS_ONLY=1` with make) to
+exclude fictional detail. This baseline has a separate cache fingerprint. Pass
+the same flag to comparison and calibration scripts.
 
 The code reads the returned distribution with:
 
@@ -240,7 +230,8 @@ The path can be overridden with `--csv`:
   --limit 5
 ```
 
-The replacement CSV must contain a `persona_id` column. All other columns are passed through as persona context.
+The replacement CSV must contain a `persona_id` column. Demographic fields and fictional context are separated; operational metadata
+is excluded. Extra user-defined columns become fictional context.
 
 When testing a changed replacement CSV at the same persona IDs, add `--force`
 to guarantee a fresh paid run. The normal cache check now fingerprints all

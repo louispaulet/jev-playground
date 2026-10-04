@@ -1,5 +1,8 @@
 # Joint-distribution audit and repair of `population_sample.csv`
 
+Historical audit: 2026-09-27. This describes the earlier population, not the
+regenerated v2 personas. See [the current population model](population_sampling.md).
+
 Date: 2026-09-27
 File checked: `polling_test/population/population_sample.csv`  
 Sample size: 1,000 adults

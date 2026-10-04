@@ -49,3 +49,18 @@ make wikipedia-race START=Beaver END="Apollo 11"
 The default configuration keeps 3 paths, uses 200 candidates per JEV Choice, keeps 5 winners per batch, stops after 6 hops, and limits uncached JEV calls to 40. Decisions are cached in `.wikipedia_jev_cache.json`, which is ignored by Git. The script reports response token usage and an estimated cost using TypeSafe's published `$0.042 / 1M input tokens` rate; cached decisions add no new cost. Tune the search with `--beam-width`, `--batch-size`, `--per-batch`, `--max-hops`, `--call-budget`, and `--cache`. The Make target accepts `MAX_HOPS` and `CALL_BUDGET` overrides, for example `make wikipedia-race START=Jacques_Chirac END="Bonnie Blue" MAX_HOPS=20 CALL_BUDGET=400`.
 
 The race writes standard `INFO`, `WARNING`, and `ERROR` records to `.wikipedia_jev.log`, which is ignored by Git. Use `--log PATH` to choose another file and `--log-level DEBUG` for more detail when diagnosing a run.
+
+## Synthetic polling experiment
+
+Generate richer French adult personas locally, with explicit demographic controls
+and fictional life details:
+
+```bash
+make generate-population
+make validate-population
+make generate-population SIZE=5000 SEED=42 CSV=/tmp/france_5000.csv
+```
+
+Read the [population model and assumptions](polling_test/population/population_sampling.md)
+and [polling tutorial](polling_test/polling/POLLING_TUTORIAL.md). Country profiles
+keep quotas, scenario rules and prose separate from the sampler.

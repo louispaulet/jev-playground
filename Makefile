@@ -48,19 +48,19 @@ poll:
 ifndef QUESTION_FILE
 	$(error QUESTION_FILE is required; use: make poll QUESTION_FILE=path/to/question.txt [LIMIT=1000])
 endif
-	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --question-file "$(QUESTION_FILE)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet $(if $(filter 1 true yes,$(FORCE)),--force,)
+	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --question-file "$(QUESTION_FILE)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet $(if $(filter 1 true yes,$(FORCE)),--force,) $(if $(filter 1 true yes,$(DEMOGRAPHICS_ONLY)),--demographics-only,)
 
 benchmark-poll:
-	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet $(if $(filter 1 true yes,$(FORCE)),--force,) $(foreach file,$(BENCHMARK_QUESTION_FILES),--question-file "$(file)")
+	uv run --env-file .env --python $(PYTHON) polling_test/polling/poll_population.py --csv "$(or $(CSV),polling_test/population/population_sample.csv)" --limit "$(or $(LIMIT),0)" --output-dir "$(or $(OUTPUT_DIR),polling_test/results)" --quiet $(if $(filter 1 true yes,$(FORCE)),--force,) $(if $(filter 1 true yes,$(DEMOGRAPHICS_ONLY)),--demographics-only,) $(foreach file,$(BENCHMARK_QUESTION_FILES),--question-file "$(file)")
 
 compare-benchmarks:
-	uv run --python $(PYTHON) polling_test/polling/compare_benchmarks.py $(if $(WEIGHTS),--weights "$(WEIGHTS)",)
+	uv run --python $(PYTHON) polling_test/polling/compare_benchmarks.py --persona-csv "$(or $(CSV),polling_test/population/population_sample.csv)" --result-dir "$(or $(OUTPUT_DIR),polling_test/results)" $(if $(filter 1 true yes,$(DEMOGRAPHICS_ONLY)),--demographics-only,) $(if $(WEIGHTS),--weights "$(WEIGHTS)",)
 
 calibrate-weights:
-	uv run --python $(PYTHON) polling_test/polling/calibrate_weights.py
+	uv run --python $(PYTHON) polling_test/polling/calibrate_weights.py --persona-csv "$(or $(CSV),polling_test/population/population_sample.csv)" --result-dir "$(or $(OUTPUT_DIR),polling_test/results)" $(if $(filter 1 true yes,$(DEMOGRAPHICS_ONLY)),--demographics-only,)
 
 generate-population:
-	uv run --python $(PYTHON) population/create_population_sample.py
+	uv run --python $(PYTHON) polling_test/population/create_population_sample.py --size "$(or $(SIZE),1000)" --seed "$(or $(SEED),20250926)" $(if $(PROFILE),--profile "$(PROFILE)",) --output "$(or $(CSV),polling_test/population/population_sample.csv)"
 
 validate-population:
-	uv run --python $(PYTHON) population/validate_population_sample.py
+	uv run --python $(PYTHON) polling_test/population/validate_population_sample.py "$(or $(CSV),polling_test/population/population_sample.csv)" $(if $(PROFILE),--profile "$(PROFILE)",)

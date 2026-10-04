@@ -7,16 +7,17 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import os
 import re
 import sys
 import unicodedata
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from typesafe_sdk import Choice, TypeSafeClient
-
 
 DEFAULT_CSV_PATH = (
     Path(__file__).resolve().parents[1] / "population" / "population_sample.csv"
@@ -35,6 +36,17 @@ DEFAULT_OPTIONS = (
 PERSONA_ID_FIELD = "persona_id"
 QUESTION_HASH_FIELD = "question_sha256"
 POPULATION_HASH_FIELD = "population_sha256"
+SIMULATION_VERSION = "persona-poll-v2"
+DEMOGRAPHIC_FIELDS = {
+    "sex",
+    "age",
+    "age_group",
+    "csp",
+    "region",
+    "urban_area_size",
+    "country",
+}
+PROVENANCE_FIELDS = {"population_profile", "context_version", "batch_id", "error"}
 NUMBERED_OPTION_RE = re.compile(r"^\s*\d+\s*[.)]\s*(?P<label>\S.*)\s*$")
 
 
@@ -53,11 +65,17 @@ def load_personas(csv_path: Path, limit: int) -> list[dict[str, str]]:
         for row in reader:
             if limit and len(personas) >= limit:
                 break
+            if None in row or any(value is None for value in row.values()):
+                raise ValueError("Malformed CSV row")
+            if not row[PERSONA_ID_FIELD].strip():
+                raise ValueError("CSV contains an empty persona_id")
             personas.append({key: value or "" for key, value in row.items()})
     if limit and len(personas) < limit:
         raise ValueError(f"CSV contains only {len(personas)} persona rows")
     if not personas:
         raise ValueError(f"CSV contains no persona rows: {csv_path}")
+    if len({persona[PERSONA_ID_FIELD] for persona in personas}) != len(personas):
+        raise ValueError("CSV contains duplicate persona_id values")
     return personas
 
 
@@ -94,7 +112,11 @@ def unique_options(options: Iterable[str]) -> tuple[str, ...]:
 def make_question_hash(question: str, options: tuple[str, ...]) -> str:
     """Return a stable cache key for a question and its answer choices."""
     payload = json.dumps(
-        {"question": question, "options": options},
+        {
+            "question": question,
+            "options": options,
+            "simulation_version": SIMULATION_VERSION,
+        },
         ensure_ascii=False,
         sort_keys=True,
     ).encode("utf-8")
@@ -117,9 +139,9 @@ def slugify_question(question: str, max_length: int = 200) -> str:
     if max_length < 1:
         raise ValueError("max_length must be at least 1")
     excerpt = question[:max_length]
-    ascii_excerpt = unicodedata.normalize("NFKD", excerpt).encode(
-        "ascii", "ignore"
-    ).decode("ascii")
+    ascii_excerpt = (
+        unicodedata.normalize("NFKD", excerpt).encode("ascii", "ignore").decode("ascii")
+    )
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_excerpt.lower()).strip("-")
     return (slug or "question")[:max_length].rstrip("-")
 
@@ -133,12 +155,44 @@ def result_path(
     return output_dir / f"{timestamp_text}_{slugify_question(question)}.csv"
 
 
-def persona_state(persona: dict[str, str]) -> dict[str, dict[str, str]]:
-    """Build JEV state while excluding the identifier used only for display."""
+def select_persona_context(
+    personas: list[dict[str, str]], demographics_only: bool
+) -> list[dict[str, str]]:
+    if not demographics_only:
+        return personas
+    return [
+        {
+            key: value
+            for key, value in persona.items()
+            if key in DEMOGRAPHIC_FIELDS | {PERSONA_ID_FIELD}
+        }
+        for persona in personas
+    ]
+
+
+def persona_state(persona: dict[str, str]) -> dict[str, Any]:
+    """Keep demographic controls distinct from uncalibrated fictional detail."""
     return {
         "persona": {
-            key: value for key, value in persona.items() if key != PERSONA_ID_FIELD
-        }
+            "demographics": {
+                key: value
+                for key, value in persona.items()
+                if key in DEMOGRAPHIC_FIELDS
+            },
+            "fictional_context": {
+                key: value
+                for key, value in persona.items()
+                if key
+                not in DEMOGRAPHIC_FIELDS | PROVENANCE_FIELDS | {PERSONA_ID_FIELD}
+            },
+        },
+        "simulation_frame": (
+            "A synthetic resident, not an observed survey respondent. Demographic fields "
+            "are population controls; fictional context is an assumed scenario, not "
+            "representative evidence. CSP describes current or previous social group, "
+            "not necessarily current employment. Residence does not establish nationality "
+            "or voting eligibility. Structured fields take precedence over biography prose."
+        ),
     }
 
 
@@ -163,7 +217,15 @@ def ask_jev_batch(
     """Ask all independent benchmark questions in one paid API call."""
     questions = {
         spec["id"]: Choice(
-            instructions=spec["question"],
+            instructions={
+                "question": spec["question"],
+                "perspective": (
+                    "Estimate the answer this synthetic persona would give. Use explicit "
+                    "profile facts for demographic questions. For opinions, account for "
+                    "the persona context without assuming everyone in a demographic "
+                    "group shares an opinion; do not invent a prior vote or party identity."
+                ),
+            },
             criteria={option: None for option in spec["options"]},
         )
         for spec in question_specs
@@ -173,8 +235,7 @@ def ask_jev_batch(
         questions=questions,
     )
     return {
-        spec["id"]: answer_record(result.choices[spec["id"]])
-        for spec in question_specs
+        spec["id"]: answer_record(result.choices[spec["id"]]) for spec in question_specs
     }
 
 
@@ -208,6 +269,21 @@ def probability_columns(options: Iterable[str]) -> dict[str, str]:
     return columns
 
 
+def validate_answer(response: dict[str, Any], options: tuple[str, ...]) -> None:
+    probabilities = response["probabilities"]
+    if set(probabilities) != set(options) or response["selected_answer"] not in options:
+        raise ValueError("Response choices do not match the survey options")
+    values = [float(probabilities[option]) for option in options]
+    confidence = float(response["confidence"])
+    if any(
+        not math.isfinite(value) or not 0 <= value <= 1
+        for value in [*values, confidence]
+    ):
+        raise ValueError("Invalid probability or confidence")
+    if not math.isclose(sum(values), 1, abs_tol=1e-6):
+        raise ValueError("Answer probabilities must sum to one")
+
+
 def write_results(
     output_path: Path,
     personas: list[dict[str, str]],
@@ -217,14 +293,22 @@ def write_results(
     question_id: str | None = None,
 ) -> None:
     """Write one joinable CSV row per persona."""
+    if len(personas) != len(responses):
+        raise ValueError("Every persona must have exactly one response")
+    for response in responses:
+        validate_answer(response, options)
     columns = probability_columns(options)
     population_hash = make_population_hash(personas)
     metadata_fields = (
-        ["question_id", QUESTION_HASH_FIELD, POPULATION_HASH_FIELD]
-        if question
-        else []
+        ["question_id", QUESTION_HASH_FIELD, POPULATION_HASH_FIELD] if question else []
     )
-    fieldnames = [PERSONA_ID_FIELD, *metadata_fields, "selected_answer", "confidence", *columns.values()]
+    fieldnames = [
+        PERSONA_ID_FIELD,
+        *metadata_fields,
+        "selected_answer",
+        "confidence",
+        *columns.values(),
+    ]
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames, lineterminator="\n")
@@ -240,7 +324,9 @@ def write_results(
                 row["question_id"] = question_id or "question"
                 row[QUESTION_HASH_FIELD] = make_question_hash(question, options)
                 row[POPULATION_HASH_FIELD] = population_hash
-            row.update({columns[option]: probabilities.get(option, 0.0) for option in options})
+            row.update(
+                {columns[option]: probabilities.get(option, 0.0) for option in options}
+            )
             writer.writerow(row)
 
 
@@ -252,7 +338,9 @@ def find_cached_result(
     exact_path: Path | None = None,
 ) -> Path | None:
     """Find a complete prior CSV so rerunning a paid poll costs nothing."""
-    candidates = [exact_path] if exact_path else sorted(output_dir.glob("*.csv"), reverse=True)
+    candidates = (
+        [exact_path] if exact_path else sorted(output_dir.glob("*.csv"), reverse=True)
+    )
     expected_hash = make_question_hash(question, options)
     expected_population_hash = make_population_hash(personas)
     expected_columns = set(probability_columns(options).values())
@@ -281,9 +369,24 @@ def find_cached_result(
         if any(row.get(QUESTION_HASH_FIELD) != expected_hash for row in rows):
             continue
         if any(
-            row.get(POPULATION_HASH_FIELD) != expected_population_hash
-            for row in rows
+            row.get(POPULATION_HASH_FIELD) != expected_population_hash for row in rows
         ):
+            continue
+        try:
+            columns = probability_columns(options)
+            for row in rows:
+                validate_answer(
+                    {
+                        "probabilities": {
+                            option: float(row[column])
+                            for option, column in columns.items()
+                        },
+                        "confidence": float(row["confidence"]),
+                        "selected_answer": row["selected_answer"],
+                    },
+                    options,
+                )
+        except (ValueError, KeyError, TypeError):
             continue
         return candidate
     return None
@@ -311,6 +414,11 @@ def print_results(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run a TypeSafe Choice question for CSV personas."
+    )
+    parser.add_argument(
+        "--demographics-only",
+        action="store_true",
+        help="exclude fictional life details and bios for a sensitivity baseline",
     )
     parser.add_argument(
         "--csv",
@@ -379,7 +487,9 @@ def question_specs(args: argparse.Namespace) -> list[dict[str, Any]]:
                 args.options if args.options else parse_numbered_options(question)
             )
             if len(options) < 2:
-                raise ValueError(f"Question has fewer than two choices: {question_file}")
+                raise ValueError(
+                    f"Question has fewer than two choices: {question_file}"
+                )
             question_id = question_file.stem
             if question_id in seen_ids:
                 raise ValueError(f"Duplicate question file stem: {question_id}")
@@ -395,16 +505,23 @@ def question_specs(args: argparse.Namespace) -> list[dict[str, Any]]:
 
 def main() -> None:
     args = parse_args()
+    if args.output and (len(args.question_files or []) > 1):
+        raise ValueError("--output can only be used with one question")
     if args.limit < 0:
         raise ValueError("--limit must be zero or greater")
     specs = question_specs(args)
     personas = load_personas(args.csv, args.limit)
+    personas = select_persona_context(personas, args.demographics_only)
     cached_paths: dict[str, Path] = {}
     pending_specs: list[dict[str, Any]] = []
     for spec in specs:
         exact_path = args.output if len(specs) == 1 else None
-        cached = None if args.force else find_cached_result(
-            spec["question"], spec["options"], personas, args.output_dir, exact_path
+        cached = (
+            None
+            if args.force
+            else find_cached_result(
+                spec["question"], spec["options"], personas, args.output_dir, exact_path
+            )
         )
         if cached:
             cached_paths[spec["id"]] = cached
@@ -422,7 +539,10 @@ def main() -> None:
                 for spec in pending_specs:
                     responses_by_id[spec["id"]].append(batch[spec["id"]])
                 if index == 1 or index % 25 == 0 or index == len(personas):
-                    print(f"Polled {index}/{len(personas)} personas ({len(pending_specs)} questions in one call)", file=sys.stderr)
+                    print(
+                        f"Polled {index}/{len(personas)} personas ({len(pending_specs)} questions in one call)",
+                        file=sys.stderr,
+                    )
 
         if args.output and len(specs) != 1:
             raise ValueError("--output can only be used with one question")

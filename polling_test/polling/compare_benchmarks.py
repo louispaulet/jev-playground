@@ -7,25 +7,57 @@ import argparse
 import csv
 from pathlib import Path
 
-from benchmark_targets import QUESTION_FILES, TARGETS
-from poll_population import parse_numbered_options, probability_columns, read_question, slugify_question, unique_options
+try:
+    from .benchmark_targets import QUESTION_FILES, TARGETS
+    from .poll_population import (
+        find_cached_result,
+        make_population_hash,
+        parse_numbered_options,
+        probability_columns,
+        read_question,
+        select_persona_context,
+        unique_options,
+    )
+    from .poll_population import (
+        load_personas as read_personas,
+    )
+except ImportError:
+    from benchmark_targets import QUESTION_FILES, TARGETS
+    from poll_population import (
+        find_cached_result,
+        make_population_hash,
+        parse_numbered_options,
+        probability_columns,
+        read_question,
+        select_persona_context,
+        unique_options,
+    )
+    from poll_population import (
+        load_personas as read_personas,
+    )
 
 
-DEFAULT_PERSONA_CSV = Path(__file__).resolve().parents[1] / "population" / "population_sample.csv"
+DEFAULT_PERSONA_CSV = (
+    Path(__file__).resolve().parents[1] / "population" / "population_sample.csv"
+)
 DEFAULT_QUESTION_DIR = Path(__file__).resolve().parents[1] / "questions"
 DEFAULT_RESULT_DIR = Path(__file__).resolve().parents[1] / "results"
 DEFAULT_REPORT = Path(__file__).with_name("BENCHMARK_RESULTS.md")
 
 
-def find_result(result_dir: Path, question: str) -> Path:
-    """Find the newest CSV for a question slug."""
-    matches = sorted(
-        (path for path in result_dir.glob("*.csv") if slugify_question(question) in path.name),
-        reverse=True,
-    )
-    if not matches:
-        raise FileNotFoundError(f"No cached result CSV found for: {question}")
-    return matches[0]
+def find_result(
+    result_dir: Path,
+    question: str,
+    options: tuple[str, ...],
+    personas: list[dict[str, str]],
+) -> Path:
+    """Find a complete result for the actual population and inference version."""
+    match = find_cached_result(question, options, personas, result_dir)
+    if match is None:
+        raise FileNotFoundError(
+            "No matching poll for this population/question. Run benchmark-poll with the same CSV and context mode first."
+        )
+    return match
 
 
 def load_rows(result_path: Path) -> list[dict[str, str]]:
@@ -34,13 +66,20 @@ def load_rows(result_path: Path) -> list[dict[str, str]]:
 
 
 def load_personas(persona_csv: Path) -> dict[str, dict[str, str]]:
-    with persona_csv.open(newline="", encoding="utf-8") as csv_file:
-        return {row["persona_id"]: row for row in csv.DictReader(csv_file)}
+    return {row["persona_id"]: row for row in read_personas(persona_csv, 0)}
 
 
-def load_weights(weights_path: Path) -> dict[str, float]:
+def load_weights(
+    weights_path: Path, personas: list[dict[str, str]]
+) -> dict[str, float]:
     with weights_path.open(newline="", encoding="utf-8") as csv_file:
-        return {row["persona_id"]: float(row["weight"]) for row in csv.DictReader(csv_file)}
+        rows = list(csv.DictReader(csv_file))
+    population_hash = make_population_hash(personas)
+    if [row["persona_id"] for row in rows] != [
+        row["persona_id"] for row in personas
+    ] or any(row.get("population_sha256") != population_hash for row in rows):
+        raise ValueError("Weights do not match this population; regenerate calibration")
+    return {row["persona_id"]: float(row["weight"]) for row in rows}
 
 
 def percent(value: float) -> str:
@@ -52,10 +91,19 @@ def build_report(
     result_dir: Path,
     persona_csv: Path,
     weights_path: Path | None = None,
+    demographics_only: bool = False,
 ) -> str:
     personas = load_personas(persona_csv)
-    weights = load_weights(weights_path) if weights_path else None
-    ordered_weights = [weights[persona_id] for persona_id in personas] if weights else None
+    personas = {
+        row["persona_id"]: row
+        for row in select_persona_context(list(personas.values()), demographics_only)
+    }
+    weights = (
+        load_weights(weights_path, list(personas.values())) if weights_path else None
+    )
+    ordered_weights = (
+        [weights[persona_id] for persona_id in personas] if weights else None
+    )
     lines = [
         "# JEV benchmark results versus IRL targets",
         "",
@@ -70,7 +118,9 @@ def build_report(
         "",
     ]
     if ordered_weights:
-        effective_sample_size = sum(ordered_weights) ** 2 / sum(weight**2 for weight in ordered_weights)
+        effective_sample_size = sum(ordered_weights) ** 2 / sum(
+            weight**2 for weight in ordered_weights
+        )
         lines.extend(
             [
                 f"A weighted diagnostic is also shown using [`{weights_path.name}`]({weights_path.name}).",
@@ -85,7 +135,9 @@ def build_report(
         question_path = question_dir / question_filename
         question = read_question(question_path)
         options = unique_options(parse_numbered_options(question))
-        result_path = find_result(result_dir, question)
+        result_path = find_result(
+            result_dir, question, options, list(personas.values())
+        )
         rows = load_rows(result_path)
         columns = probability_columns(options)
         averages = {
@@ -197,8 +249,10 @@ def build_report(
             lines.extend(
                 [
                     "",
-                    f"Persona-level selected-answer accuracy against the supplied `{truth_field}` field: "
-                    f"`{correct / len(rows):.2%}`.",
+                    (
+                        f"Persona-level selected-answer accuracy against the supplied `{truth_field}` field: "
+                        f"`{correct / len(rows):.2%}`."
+                    ),
                 ]
             )
         lines.append("")
@@ -235,9 +289,16 @@ def main() -> None:
     parser.add_argument("--result-dir", type=Path, default=DEFAULT_RESULT_DIR)
     parser.add_argument("--persona-csv", type=Path, default=DEFAULT_PERSONA_CSV)
     parser.add_argument("--weights", type=Path)
+    parser.add_argument("--demographics-only", action="store_true")
     parser.add_argument("--output", type=Path, default=DEFAULT_REPORT)
     args = parser.parse_args()
-    report = build_report(args.question_dir, args.result_dir, args.persona_csv, args.weights)
+    report = build_report(
+        args.question_dir,
+        args.result_dir,
+        args.persona_csv,
+        args.weights,
+        args.demographics_only,
+    )
     args.output.write_text(report.rstrip() + "\n", encoding="utf-8")
     print(f"Wrote benchmark report to {args.output}")
 
