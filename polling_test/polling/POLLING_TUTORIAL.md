@@ -252,3 +252,17 @@ the model state, and treat the returned probabilities as model judgments to
 inspect and validate, not as measured survey results.
 
 For the current SDK request shape, see the [TypeSafe Python SDK documentation](https://docs.typesafe.ai/sdk/python.md) and the [Choice primitive documentation](https://docs.typesafe.ai/primitives/choice.md).
+
+## Rounded probabilities and interrupted runs
+
+The service can return probabilities rounded to hundredths with totals such as
+0.99. The runner normalizes these within a per-option rounding budget, keeps
+`raw_probability_sum` in the result CSV, and still rejects negative, nonfinite,
+unknown or substantially inconsistent probabilities. Original model confidence
+is retained.
+
+Every persona response is flushed to a fingerprinted `checkpoint_*.jsonl` in the
+output directory before validation and the next request. Rerun the same command
+without `--force` to resume an interrupted run without repolling completed
+personas. `--force` archives an existing matching checkpoint and starts fresh.
+Raw checkpoint files contain the original probability values for auditing.

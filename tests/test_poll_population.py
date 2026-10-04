@@ -4,14 +4,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from polling_test.polling.poll_population import (
     ask_jev_batch,
     find_cached_result,
     load_personas,
+    normalize_answer,
     parse_numbered_options,
     persona_state,
+    poll_with_checkpoint,
     result_path,
     slugify_question,
     unique_options,
@@ -207,6 +209,52 @@ class PollPopulationTests(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 validate_answer({**base, "probabilities": probabilities}, ("Yes", "No"))
+
+    def test_rounded_service_probabilities_are_normalized_with_raw_sum(self):
+        response = {
+            "selected_answer": "A",
+            "confidence": 0.4,
+            "probabilities": {"A": 0.33, "B": 0.33, "C": 0.33},
+        }
+        normalized = normalize_answer(response, ("A", "B", "C"))
+        self.assertAlmostEqual(normalized["raw_probability_sum"], 0.99)
+        self.assertAlmostEqual(sum(normalized["probabilities"].values()), 1)
+        self.assertEqual(response["probabilities"]["A"], 0.33)
+        with self.assertRaises(ValueError):
+            normalize_answer(
+                {**response, "probabilities": {"A": 0.1, "B": 0.1, "C": 0.1}},
+                ("A", "B", "C"),
+            )
+
+    def test_failed_poll_resumes_without_repolling_completed_personas(self):
+        personas = [{"persona_id": "fr_1"}, {"persona_id": "fr_2"}]
+        specs = [{"id": "q", "question": "Question?", "options": ("A", "B", "C")}]
+        response = {
+            "q": {
+                "selected_answer": "A",
+                "confidence": 0.4,
+                "probabilities": {"A": 0.33, "B": 0.33, "C": 0.33},
+            }
+        }
+        with TemporaryDirectory() as directory:
+            with (
+                patch(
+                    "polling_test.polling.poll_population.ask_jev_batch",
+                    side_effect=[response, RuntimeError("network interruption")],
+                ),
+                self.assertRaises(RuntimeError),
+            ):
+                poll_with_checkpoint(None, personas, specs, Path(directory))
+            with patch(
+                "polling_test.polling.poll_population.ask_jev_batch",
+                return_value=response,
+            ) as ask:
+                results = poll_with_checkpoint(None, personas, specs, Path(directory))
+                self.assertEqual(ask.call_count, 1)
+                self.assertEqual(ask.call_args.args[1]["persona_id"], "fr_2")
+                self.assertEqual(len(results["q"]), 2)
+            checkpoint = next(Path(directory).glob("checkpoint_*.jsonl"))
+            self.assertEqual(len(checkpoint.read_text().splitlines()), 3)
 
 
 if __name__ == "__main__":

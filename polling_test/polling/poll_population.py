@@ -284,6 +284,107 @@ def validate_answer(response: dict[str, Any], options: tuple[str, ...]) -> None:
         raise ValueError("Answer probabilities must sum to one")
 
 
+def normalize_answer(
+    response: dict[str, Any], options: tuple[str, ...]
+) -> dict[str, Any]:
+    """Normalize the API's rounded percentages; retain their original sum."""
+    values = [float(value) for value in response["probabilities"].values()]
+    total = sum(values)
+    rounded_percentages = all(
+        math.isfinite(v) and math.isclose(v * 100, round(v * 100), abs_tol=1e-8)
+        for v in values
+    )
+    if not math.isclose(total, 1, abs_tol=1e-6) and (
+        not rounded_percentages
+        or total <= 0
+        or abs(total - 1) > len(options) * 0.005 + 1e-8
+    ):
+        raise ValueError(f"Probability total is outside the rounding budget: {total}")
+    normalized = {
+        **response,
+        "raw_probability_sum": total,
+        "probabilities": {
+            option: float(value) / total
+            for option, value in response["probabilities"].items()
+        },
+    }
+    validate_answer(normalized, options)
+    return normalized
+
+
+def poll_with_checkpoint(
+    client: TypeSafeClient,
+    personas: list[dict[str, str]],
+    specs: list[dict[str, Any]],
+    output_dir: Path,
+    force: bool = False,
+) -> dict[str, list[dict[str, Any]]]:
+    """Flush each raw persona response before validation or the next request."""
+    header = {
+        "population_sha256": make_population_hash(personas),
+        "question_sha256": {
+            spec["id"]: make_question_hash(spec["question"], spec["options"])
+            for spec in specs
+        },
+        "model_alias": "jev-latest",
+    }
+    key = hashlib.sha256(json.dumps(header, sort_keys=True).encode()).hexdigest()[:16]
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"checkpoint_{key}.jsonl"
+    if force and path.exists():
+        # Preserve old raw evidence while explicitly requesting fresh inference.
+        path.rename(
+            path.with_name(
+                f"{path.stem}_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')}.jsonl"
+            )
+        )
+    completed = {}
+    if path.exists():
+        with path.open(encoding="utf-8") as source:
+            if json.loads(source.readline()) != header:
+                raise ValueError("Checkpoint metadata mismatch")
+            for line in source:
+                record = json.loads(line)
+                if record["persona_id"] in completed or set(record["responses"]) != set(
+                    header["question_sha256"]
+                ):
+                    raise ValueError("Malformed checkpoint responses")
+                completed[record["persona_id"]] = record["responses"]
+        if not set(completed).issubset({p[PERSONA_ID_FIELD] for p in personas}):
+            raise ValueError("Checkpoint references an unknown persona")
+        print(
+            f"Resuming {len(completed)} checkpointed personas from {path}",
+            file=sys.stderr,
+        )
+    else:
+        path.write_text(json.dumps(header, ensure_ascii=False) + "\n", encoding="utf-8")
+    responses_by_id = {spec["id"]: [] for spec in specs}
+    with path.open("a", encoding="utf-8") as checkpoint:
+        for index, persona in enumerate(personas, start=1):
+            batch = completed.get(persona[PERSONA_ID_FIELD])
+            if batch is None:
+                batch = ask_jev_batch(client, persona, specs)
+                checkpoint.write(
+                    json.dumps(
+                        {"persona_id": persona[PERSONA_ID_FIELD], "responses": batch},
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+                checkpoint.flush()
+            for spec in specs:
+                # Fail promptly, but keep the original response for inspection.
+                responses_by_id[spec["id"]].append(
+                    normalize_answer(batch[spec["id"]], spec["options"])
+                )
+            if index == 1 or index % 25 == 0 or index == len(personas):
+                print(
+                    f"Polled {index}/{len(personas)} personas ({len(specs)} questions in one call)",
+                    file=sys.stderr,
+                )
+    return responses_by_id
+
+
 def write_results(
     output_path: Path,
     personas: list[dict[str, str]],
@@ -295,6 +396,12 @@ def write_results(
     """Write one joinable CSV row per persona."""
     if len(personas) != len(responses):
         raise ValueError("Every persona must have exactly one response")
+    responses = [
+        normalize_answer(response, options)
+        if "raw_probability_sum" not in response
+        else response
+        for response in responses
+    ]
     for response in responses:
         validate_answer(response, options)
     columns = probability_columns(options)
@@ -307,6 +414,7 @@ def write_results(
         *metadata_fields,
         "selected_answer",
         "confidence",
+        "raw_probability_sum",
         *columns.values(),
     ]
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -319,6 +427,7 @@ def write_results(
                 PERSONA_ID_FIELD: persona[PERSONA_ID_FIELD],
                 "selected_answer": response["selected_answer"],
                 "confidence": response["confidence"],
+                "raw_probability_sum": response["raw_probability_sum"],
             }
             if question:
                 row["question_id"] = question_id or "question"
@@ -532,17 +641,10 @@ def main() -> None:
     if pending_specs:
         if not os.getenv("TYPESAFE_API_KEY"):
             raise RuntimeError("Set TYPESAFE_API_KEY before running this script")
-        responses_by_id = {spec["id"]: [] for spec in pending_specs}
         with TypeSafeClient(model="jev-latest") as client:
-            for index, persona in enumerate(personas, start=1):
-                batch = ask_jev_batch(client, persona, pending_specs)
-                for spec in pending_specs:
-                    responses_by_id[spec["id"]].append(batch[spec["id"]])
-                if index == 1 or index % 25 == 0 or index == len(personas):
-                    print(
-                        f"Polled {index}/{len(personas)} personas ({len(pending_specs)} questions in one call)",
-                        file=sys.stderr,
-                    )
+            responses_by_id = poll_with_checkpoint(
+                client, personas, pending_specs, args.output_dir, args.force
+            )
 
         if args.output and len(specs) != 1:
             raise ValueError("--output can only be used with one question")
