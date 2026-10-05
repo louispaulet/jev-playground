@@ -1,0 +1,53 @@
+{
+  "national": {
+    "personas": 1000,
+    "sim_rn_expressed_pct": 2.6770288692019792,
+    "sim_rn_all_personas_pct": 1.2345959595959597,
+    "sim_abstention_pct": 45.902272727272724,
+    "sim_rn_zemmour_expressed_pct": 2.9394861155889487,
+    "official_rn_expressed_pct": 23.151567672361786,
+    "official_rn_zemmour_expressed_pct": 30.225343749273296,
+    "official_rn_registered_pct": 16.68550235911817,
+    "official_abstention_pct": 26.307133873894323,
+    "profile_scope_rn_expressed_pct": 23.409473496855973,
+    "sim_rn_with_official_valid_turnout_pct": 1.9293540785067858,
+    "sim_rn_with_official_urban_valid_mix_pct": 2.816984382615739,
+    "profile_scope_communes": 34932,
+    "excluded_communes": 313,
+    "source_communes": 35245,
+    "matched_communes": 34932
+  },
+  "population_file_sha256": "753e49276b8b1b5a7ba50b1c0146809149758af7580c69349ab302cd32b95899",
+  "result_file": "20261004T192353744391Z_q3-si-le-premier-tour-de-lelection-presidentielle-avait-lieu-dimanche-prochain-pour-lequel-des-candidats-suivants-voteriez-vous-1-philippe-poutou-2-nathalie-arthaud-3-fabien-roussel-4-jean-lu.csv",
+  "result_sha256": "d772c21c8de3b459506058cd3c7efb960bdaf2b25fdc05447f0632e6c16c4333",
+  "sources": {
+    "communes.txt": {
+      "url": "https://static.data.gouv.fr/resources/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/20220414-152459/resultats-par-niveau-subcom-t1-france-entiere.txt",
+      "sha256": "372243c67c1226c3b0414b2eaae5fa946eed57fa8c786efbc705c78c17888355"
+    },
+    "regions.txt": {
+      "url": "https://static.data.gouv.fr/resources/election-presidentielle-des-10-et-24-avril-2022-resultats-definitifs-du-1er-tour/20220414-152331/resultats-par-niveau-reg-t1-france-entiere.txt",
+      "sha256": "2a4e59466a6b3777a9f8b80d53adf8b39a9c636f2393722d6095a4938b2d326f"
+    },
+    "urban.zip": {
+      "url": "https://www.insee.fr/fr/statistiques/fichier/4802589/UU2020_au_01-01-2022.zip",
+      "sha256": "293782ba94d4caf82f210f51cee0fe2325e789c1daef1d54c32e0d68d9a003de"
+    }
+  },
+  "survey_source": "https://www.ipsos.com/fr-fr/presidentielle-2022/1er-tour-abstentionnistes-sociologie-electorat",
+  "survey_pages": {
+    "age_survey": 4,
+    "csp": 5,
+    "sex": 4
+  },
+  "caveats": [
+    "Simulation uses 2025 adult-resident demographics, not the registered electorate in 2022.",
+    "Ipsos survey: 4,000 registered adults, online fieldwork 6–9 April 2022; estimates, not official demographic vote counts.",
+    "CSP mapping is approximate: synthetic CSP can be current or previous group, not survey current profession.",
+    "Rural means outside an INSEE urban unit, not the separate density-grid rural definition.",
+    "INSEE download is 2022 geography, released 21 March 2025, with corrected historical classifications.",
+    "Municipal rates are electoral aggregates; they do not identify individual political preferences.",
+    "No persona has a commune: municipality-level simulation comparisons are unavailable.",
+    "Conditional simulation rates divide summed RN mass by summed candidate mass; no argmax votes or average individual ratios."
+  ]
+}
